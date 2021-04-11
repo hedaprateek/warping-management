@@ -24,6 +24,7 @@
     "sequelize-cli": "^6.2.0",
     "sqlite3": "^5.0.2",
     "umzug": "^2.3.0",
+    "react-table": "^7.6.3",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
