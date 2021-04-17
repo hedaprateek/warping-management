@@ -1,4 +1,5 @@
 import React from "react";
+import DraggableDialog from "./modal-dialog";
 import TableComponent from "./TableComponent";
 
 class Qualities extends React.Component {
@@ -6,16 +7,12 @@ class Qualities extends React.Component {
        filter: "",
     data : [
        {
-         col1: 'Hello',
-         col2: 'World',
+         col1: 'Quality name 1',
+         col2: 'Quality Desc 1',
        },
        {
-         col1: 'react-table',
-         col2: 'rocks',
-       },
-       {
-         col1: 'whatever',
-         col2: 'you want',
+         col1: 'Quality name 2',
+         col2: 'Quality Desc 2',
        },
      ]
    ,
@@ -26,22 +23,15 @@ class Qualities extends React.Component {
          accessor: 'col1', // accessor is the "key" in the data
        },
        {
-         Header: 'ADDRESS',
+         Header: 'DESCRIPTION',
          accessor: 'col2',
        },
-       {
-         Header: 'GSTIN',
-         accessor: 'col3', // accessor is the "key" in the data
-       },
-       {
-         Header: 'CONTACT',
-         accessor: 'col4',
-       },
-       {
-         Header: 'WEAVER',
-         accessor: 'col5', // accessor is the "key" in the data
-       },
      ]
+     , dialogBody: (
+       <div> <h3>Name :<input type='text'></input></h3>
+         <h3>Description :<input type='text'></input></h3></div>
+     )
+   
    
     }
 
@@ -49,6 +39,8 @@ class Qualities extends React.Component {
     return <div> 
       <h2>Qualities</h2>
         <TableComponent columns={this.state.columns} data={this.state.data} filterText={this.state.filter}/>
+                <DraggableDialog body={this.state.dialogBody} sectionTitle="Quality"/>
+
     </div>;
 }
 }

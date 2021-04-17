@@ -1,4 +1,5 @@
 import React from "react";
+import DraggableDialog from "./modal-dialog";
 import TableComponent from "./TableComponent";
 
 class Parties extends React.Component {
@@ -6,16 +7,25 @@ class Parties extends React.Component {
        filter: "",
     data : [
        {
-         col1: 'Hello',
-         col2: 'World',
+         col1: 'Name 1',
+         col2: 'Address 1',
+         col3: 'GST 1',
+         col4: 'Contact 1',
+         col5: 'Yes',
        },
        {
-         col1: 'react-table',
-         col2: 'rocks',
+         col1: 'Name 2',
+         col2: 'Address 2',
+         col3: 'GST 2',
+         col4: 'Contact 2',
+         col5: 'No',
        },
        {
-         col1: 'whatever',
-         col2: 'you want',
+         col1: 'Name 3',
+         col2: 'Address 3',
+         col3: 'GST 3',
+         col4: 'Contact 3',
+         col5: 'Yes',
        },
      ]
    ,
@@ -41,14 +51,31 @@ class Parties extends React.Component {
          Header: 'WEAVER',
          accessor: 'col5', // accessor is the "key" in the data
        },
-     ]
+     ],
+
+     dialogBody: (
+       <div>
+         <h3>Name :<input type='text'></input></h3>
+         <h3>Address :<input type='text'></input></h3>
+         <h3>GSTIn :<input type='text'></input></h3>
+         <h3>Contact :<input type='text'></input></h3>
+         <h3>IsWeaver :    <input type="radio" id="isWeaverYes"
+     name="weaver" value="weaverYes"/>Yes
+     <input type="radio" id="isWeaverNo"
+     name="weaver" value="weaverNo"/>No
+    </h3>
+         </div>
+     )
    
     }
 
   render() {  
     return <div> 
-      <h2>Parties</h2>
+      <h2>Parties
+
+      </h2>
         <TableComponent columns={this.state.columns} data={this.state.data} filterText={this.state.filter}/>
+        <DraggableDialog body={this.state.dialogBody} sectionTitle="Party"/>
     </div>;
 }
 }
