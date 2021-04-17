@@ -8,7 +8,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      data: {
+      date: {
         type: Sequelize.STRING
       },
       partyId: {
@@ -26,7 +26,7 @@ module.exports = {
       qtyCones: {
         type: Sequelize.INTEGER
       },
-      logNo: {
+      lotNo: {
         type: Sequelize.STRING
       },
       netWt: {

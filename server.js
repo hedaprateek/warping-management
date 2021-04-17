@@ -23,6 +23,10 @@ module.exports = () => {
   app.use(express.static(path.resolve(__dirname, 'views','dist')));
   app.use('/', indexRouter);
   app.use('/api/parties', require('./routers/parties'));
+  app.use('/api/qualities', require('./routers/qualities'));
+  app.use('/api/inward', require('./routers/inward'));
+  app.use('/api/warpquality', require('./routers/warpquality'));
+  app.use('/api/warpprogram', require('./routers/warpprogram'));
 
   var port = 7227;
   app.listen(port, console.log(`App listening at http://localhost:${port}`));

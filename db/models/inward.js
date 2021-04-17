@@ -1,13 +1,13 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Inward = sequelize.define('Inward', {
-    data: DataTypes.STRING,
+    date: DataTypes.STRING,
     partyId: DataTypes.INTEGER,
     gatepass: DataTypes.STRING,
     qualityId: DataTypes.INTEGER,
     qtyBags: DataTypes.INTEGER,
     qtyCones: DataTypes.INTEGER,
-    logNo: DataTypes.STRING,
+    lotNo: DataTypes.STRING,
     netWt: DataTypes.REAL
   }, {});
   Inward.associate = function(models) {

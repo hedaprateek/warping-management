@@ -10,5 +10,6 @@ module.exports = (sequelize, DataTypes) => {
   WarpingProgram.associate = function(models) {
     // associations can be defined here
   };
-  return WarpingProgram;
+  return WarpingProgram
+  ;
 };
