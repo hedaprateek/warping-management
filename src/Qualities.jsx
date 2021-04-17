@@ -27,10 +27,7 @@ class Qualities extends React.Component {
          accessor: 'col2',
        },
      ]
-     , dialogBody: (
-       <div> <h3>Name :<input type='text'></input></h3>
-         <h3>Description :<input type='text'></input></h3></div>
-     )
+     , 
    
    
     }
@@ -39,7 +36,8 @@ class Qualities extends React.Component {
     return <div> 
       <h2>Qualities</h2>
         <TableComponent columns={this.state.columns} data={this.state.data} filterText={this.state.filter}/>
-                <DraggableDialog body={this.state.dialogBody} sectionTitle="Quality"/>
+                <DraggableDialog sectionTitle="Quality"> <div> <h3>Name :<input type='text'></input></h3>
+         <h3>Description :<input type='text'></input></h3></div></DraggableDialog>
 
     </div>;
 }

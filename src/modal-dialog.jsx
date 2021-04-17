@@ -16,7 +16,9 @@ function PaperComponent(props) {
   );
 }
 
-export default function DraggableDialog(props) {
+export default function DraggableDialog({children, ...props}) {
+    
+
     const body = props.body;
     const sectionTitle = props.sectionTitle;
   const [open, setOpen] = React.useState(false);
@@ -45,15 +47,15 @@ export default function DraggableDialog(props) {
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
-           {body}
+           {children}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose} color="primary">
-            Cancel
+            Close
           </Button>
           <Button onClick={handleClose} color="primary">
-            Subscribe
+            Save
           </Button>
         </DialogActions>
       </Dialog>
