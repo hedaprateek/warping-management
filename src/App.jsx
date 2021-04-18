@@ -10,6 +10,12 @@ import Parties from './Parties';
 import Qualities from './Qualities';
 import Reports from './Reports';
 import Warping from './Warping';
+import DateFnsUtils from '@date-io/date-fns';
+import {
+  MuiPickersUtilsProvider,
+} from '@material-ui/pickers';
+
+
 
 const navItems = [
   {label: 'Home', to: '/', component: Home},
@@ -33,20 +39,22 @@ function NavButton({to, children}) {
 export default function App() {
   return (
     <Theme>
-      <Router>
-        <AppBar position="static">
-          <Toolbar variant="dense">
+      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+        <Router>
+          <AppBar position="static">
+            <Toolbar variant="dense">
+              {navItems.map((item)=>{
+                return <NavButton to={item.to}>{item.label}</NavButton>
+              })}
+            </Toolbar>
+          </AppBar>
+          <Switch>
             {navItems.map((item)=>{
-              return <NavButton to={item.to}>{item.label}</NavButton>
+              return <Route exact path={item.to} component={item.component} />
             })}
-          </Toolbar>
-        </AppBar>
-        <Switch>
-          {navItems.map((item)=>{
-            return <Route exact path={item.to} component={item.component} />
-          })}
-        </Switch>
-      </Router>
+          </Switch>
+        </Router>
+      </MuiPickersUtilsProvider>
     </Theme>
   );
 }

@@ -90,7 +90,6 @@ export const theme = createMuiTheme({
         },
         MuiOutlinedInput: {
             input: {
-                padding: defaultTheme.spacing(1, 1.5),
                 '&[readonly]':{
                     backgroundColor: defaultTheme.palette.grey[200],
                     opacity: 0.75
