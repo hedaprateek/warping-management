@@ -1,5 +1,5 @@
  import React from "react";
- import { useTable } from 'react-table';
+ import { useSortBy, useTable } from 'react-table';
  
  function TableComponent(props) {
      const filter = ""; // TODO : Later for filtering
@@ -10,7 +10,8 @@
      headerGroups,
      rows,
      prepareRow,
-   } = useTable({ columns: props.columns, data: props.data })
+   } = useTable({ columns: props.columns, data: props.data },
+    useSortBy)
  
    return (
      <table {...getTableProps()} style={{ border: 'solid 1px blue' }}>
@@ -19,7 +20,7 @@
            <tr {...headerGroup.getHeaderGroupProps()}>
              {headerGroup.headers.map(column => (
                <th
-                 {...column.getHeaderProps()}
+                 {...column.getHeaderProps(column.getSortByToggleProps())}
                  style={{
                    borderBottom: 'solid 3px red',
                    background: 'aliceblue',
@@ -28,6 +29,14 @@
                  }}
                >
                  {column.render('Header')}
+                  {/* Add a sort direction indicator */}
+                  <span>
+                    {column.isSorted
+                      ? column.isSortedDesc
+                        ? ' 🔽'
+                        : ' 🔼'
+                      : ''}
+                  </span>
                </th>
              ))}
            </tr>
