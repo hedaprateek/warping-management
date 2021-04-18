@@ -1,5 +1,5 @@
 import React from "react";
-import DraggableDialog from "./modal-dialog";
+import DraggableDialog from "./DraggableDialog";
 import TableComponent from "./TableComponent";
 
 class Qualities extends React.Component {
@@ -16,7 +16,7 @@ class Qualities extends React.Component {
        },
      ]
    ,
- 
+
     columns : [
        {
          Header: 'NAME',
@@ -27,13 +27,13 @@ class Qualities extends React.Component {
          accessor: 'col2',
        },
      ]
-     , 
-   
-   
+     ,
+
+
     }
 
-  render() {  
-    return <div> 
+  render() {
+    return <div>
       <h2>Qualities</h2>
         <TableComponent columns={this.state.columns} data={this.state.data} filterText={this.state.filter}/>
                 <DraggableDialog sectionTitle="Quality"> <div> <h3>Name :<input type='text'></input></h3>
