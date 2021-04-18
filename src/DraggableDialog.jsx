@@ -35,7 +35,7 @@ export default function DraggableDialog({children, sectionTitle, ...props}) {
         <Button autoFocus onClick={props.onClose} color="primary">
           Close
         </Button>
-        <Button onClick={props.onClose} color="primary">
+        <Button onClick={props.onSave} color="primary">
           Save
         </Button>
       </DialogActions>
