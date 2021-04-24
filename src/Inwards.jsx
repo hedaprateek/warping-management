@@ -9,59 +9,40 @@ import TableComponent from "./TableComponent";
 
 function InwardDialog({ ...props }) {
 
-  const colourOptions = [
-  { value: 'ocean', label: 'Ocean', color: '#00B8D9', isFixed: true },
-  { value: 'blue', label: 'Blue', color: '#0052CC', isDisabled: true },
-  { value: 'purple', label: 'Purple', color: '#5243AA' },
-  { value: 'red', label: 'Red', color: '#FF5630', isFixed: true },
-  { value: 'orange', label: 'Orange', color: '#FF8B00' },
-  { value: 'yellow', label: 'Yellow', color: '#FFC400' },
-  { value: 'green', label: 'Green', color: '#36B37E' },
-  { value: 'forest', label: 'Forest', color: '#00875A' },
-  { value: 'slate', label: 'Slate', color: '#253858' },
-  { value: 'silver', label: 'Silver', color: '#666666' },
-];
+  const [inwardValue, setInwardValue] = useState({});
 
-  const [qualityValue, setQualityValue] = useState({});
+  function updateInwardValues(e) {
 
-  function updateQualityValues(e) {
-
-    setQualityValue((prevValue) => {
+    setInwardValue((prevValue) => {
       return { ...prevValue, [e.target.id]: e.target.value }
     });
   }
 
   return (
-    <DraggableDialog sectionTitle="Inward"  {...props} onSave={() => { props.onSave(qualityValue) }} >
+    <DraggableDialog sectionTitle="Inward"  {...props} onSave={() => { props.onSave(inwardValue) }} >
 
-        <SelectComponent colourOptions = {colourOptions}/>
+        <SelectComponent selectionOptions = {props.qualities.map((quality)=>({label: quality.name, value: quality.id}))}/>
         <br/>
-
-
+        <SelectComponent selectionOptions = {props.parties.map((party)=>({label: party.name, value: party.id}))}/>
+        <br/>
       <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField label="Name" variant="outlined" fullWidth id="name" value={qualityValue.name} onChange={updateQualityValues} />
+          <TextField label="Date" variant="outlined" fullWidth id="date" value={inwardValue.date} onChange={updateInwardValues} />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField label="Description" variant="outlined" fullWidth id="desc" value={qualityValue.desc} onChange={updateQualityValues} />
+          <TextField label="Gatepass" variant="outlined" fullWidth id="gatepass" value={inwardValue.desc} onChange={updateInwardValues} />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField label="Name" variant="outlined" fullWidth id="name" value={qualityValue.name} onChange={updateQualityValues} />
+          <TextField label="Quantity bags" variant="outlined" fullWidth id="qtyBags" value={inwardValue.name} onChange={updateInwardValues} />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField label="Description" variant="outlined" fullWidth id="desc" value={qualityValue.desc} onChange={updateQualityValues} />
+          <TextField label="Quantity Cones" variant="outlined" fullWidth id="qtyCones" value={inwardValue.desc} onChange={updateInwardValues} />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField label="Name" variant="outlined" fullWidth id="name" value={qualityValue.name} onChange={updateQualityValues} />
+          <TextField label="Lot Number" variant="outlined" fullWidth id="lotNo" value={inwardValue.name} onChange={updateInwardValues} />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField label="Description" variant="outlined" fullWidth id="desc" value={qualityValue.desc} onChange={updateQualityValues} />
-        </Grid>
-        <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField label="Name" variant="outlined" fullWidth id="name" value={qualityValue.name} onChange={updateQualityValues} />
-        </Grid>
-        <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField label="Description" variant="outlined" fullWidth id="desc" value={qualityValue.desc} onChange={updateQualityValues} />
+          <TextField label="Net Weight" variant="outlined" fullWidth id="netWt" value={inwardValue.desc} onChange={updateInwardValues} />
         </Grid>
       </Grid>
     </DraggableDialog>
@@ -87,7 +68,6 @@ class Inwards extends React.Component {
   }
 
   state = {
-    radioValue: 'Yes',
     parties: [],
     qualities: [],
     filter: "",
@@ -124,10 +104,10 @@ class Inwards extends React.Component {
     this.setState({dialogOpen: show});
   }
 
-  saveDetails(partyValue) {
-    console.log(partyValue);
+  saveDetails(inwardValue) {
+    console.log(inwardValue);
 
-    axios.post(`http://localhost:7227/api/parties`, partyValue, {
+    axios.post(`/api/inward`, inwardValue, {
 		 headers: {
 			  'content-type': 'application/json',
 		 },
@@ -155,7 +135,7 @@ class Inwards extends React.Component {
         Add Inward
       </Button>
       {/* <TableComponent columns={this.state.columns} data={this.state.qualities} filterText={this.state.filter} /> */}
-      <InwardDialog open={this.state.dialogOpen} onClose={() => this.showDialog(false)} onSave={(qualityValue) => this.saveDetails(qualityValue)} />
+      <InwardDialog open={this.state.dialogOpen} onClose={() => this.showDialog(false)} onSave={(inwardValue) => this.saveDetails(inwardValue)} parties={this.state.parties} qualities={this.state.qualities}/>
       </div>;
 }
 }
