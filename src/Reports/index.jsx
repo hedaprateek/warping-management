@@ -13,11 +13,10 @@ function TabPanel(props) {
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
+      style={{height: '100%'}}
     >
       {value === index && (
-        <Box>
-          <Typography>{children}</Typography>
-        </Box>
+        <Typography component='div'>{children}</Typography>
       )}
     </div>
   );
@@ -32,7 +31,7 @@ export default function Reports() {
   };
 
   return (
-    <Box>
+    <Box height="100%">
       <Tabs value={tabvalue} onChange={tabChange} aria-label="simple tabs example">
         <Tab label="Inward report" />
         <Tab label="Other reports" />

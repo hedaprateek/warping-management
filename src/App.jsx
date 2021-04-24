@@ -1,4 +1,4 @@
-import { AppBar, Button, IconButton, Toolbar } from '@material-ui/core';
+import { AppBar, Box, Button, IconButton, Toolbar } from '@material-ui/core';
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Link as RouterLink, useRouteMatch } from 'react-router-dom';
 import About from './About';
@@ -41,18 +41,23 @@ export default function App() {
     <Theme>
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
         <Router>
-          <AppBar position="static">
-            <Toolbar variant="dense">
-              {navItems.map((item)=>{
-                return <NavButton to={item.to}>{item.label}</NavButton>
-              })}
-            </Toolbar>
-          </AppBar>
-          <Switch>
-            {navItems.map((item)=>{
-              return <Route exact path={item.to} component={item.component} />
-            })}
-          </Switch>
+          <Box display="flex" flexDirection="column" height="100%">
+            <AppBar position="fixed">
+              <Toolbar variant="dense">
+                {navItems.map((item)=>{
+                  return <NavButton to={item.to}>{item.label}</NavButton>
+                })}
+              </Toolbar>
+            </AppBar>
+            <Box><Toolbar variant="dense"/></Box>
+            <Box flexGrow="1" style={{minHeight: 0}}>
+              <Switch>
+                {navItems.map((item)=>{
+                  return <Route exact path={item.to} component={item.component} />
+                })}
+              </Switch>
+            </Box>
+          </Box>
         </Router>
       </MuiPickersUtilsProvider>
     </Theme>
