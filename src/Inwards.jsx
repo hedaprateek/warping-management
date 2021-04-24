@@ -1,5 +1,4 @@
 import { Button, FormControlLabel, Grid, Radio, RadioGroup, TextField } from "@material-ui/core";
-import zIndex from "@material-ui/core/styles/zIndex";
 import axios from "axios";
 import React, { useState } from "react";
 import DraggableDialog from "./DraggableDialog";
@@ -18,12 +17,18 @@ function InwardDialog({ ...props }) {
     });
   }
 
+  function callbackFromChild(childData) {
+    setInwardValue((prevValue) => {
+      return { ...prevValue, [childData.id]: childData.value }
+    }); 
+   }
+
   return (
     <DraggableDialog sectionTitle="Inward"  {...props} onSave={() => { props.onSave(inwardValue) }} >
 
-        <SelectComponent selectionOptions = {props.qualities.map((quality)=>({label: quality.name, value: quality.id}))}/>
+        <SelectComponent selectionOptions = {props.qualities.map((quality)=>({label: quality.name, value: quality.id, id:"qualityId"}))} parentCallback={callbackFromChild}/>
         <br/>
-        <SelectComponent selectionOptions = {props.parties.map((party)=>({label: party.name, value: party.id}))}/>
+        <SelectComponent selectionOptions = {props.parties.map((party)=>({label: party.name, value: party.id, id: "partyId"}))} parentCallback={callbackFromChild}/>
         <br/>
       <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
@@ -50,8 +55,6 @@ function InwardDialog({ ...props }) {
 }
 class Inwards extends React.Component {
 
-  
-
   componentDidMount() {
     axios.get(`/api/parties`)
       .then(res => {
@@ -65,11 +68,18 @@ class Inwards extends React.Component {
         this.setState({ qualities });
         console.log("qualities", qualities)
       })
+      axios.get(`/api/inward`)
+      .then(res => {
+        const inward = res.data;
+        this.setState({ inward });
+        console.log("Inward", inward)
+      })
   }
 
   state = {
     parties: [],
     qualities: [],
+    inward: [],
     filter: "",
     dialogOpen: false,
     columns : [
@@ -115,7 +125,6 @@ class Inwards extends React.Component {
       .then(res => {
         const parties = this.state.parties;
         const latestData = res.data;
-        // this.state.parties.push(latestData);
          this.setState((prevState)=> {
            return {parties: [
              ...prevState.parties, latestData

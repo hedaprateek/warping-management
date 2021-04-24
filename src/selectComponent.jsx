@@ -1,8 +1,11 @@
 import Select from 'react-select';
+import { useState } from "react";
 
 function SelectComponent(props) {
 
-    console.log(props, "prateek");
+    function updateValues(e) {
+    props.parentCallback(e);
+  }
 
 return (
     <div>
@@ -13,8 +16,7 @@ return (
           name="color"
           options={props.selectionOptions}
           menuPortalTarget={document.body}
-        //   menuIsOpen="true"
-styles={{ menuPortal: base => ({ ...base, zIndex: 9999}) }}        />
+          styles={{ menuPortal: base => ({ ...base, zIndex: 9999}) }}      onChange={updateValues}  />
 </div>
 
 )}
