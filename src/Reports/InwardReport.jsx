@@ -1,5 +1,5 @@
-import { Box, Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select, TextField } from '@material-ui/core';
-import React, { useMemo, useRef, useState } from 'react';
+import { Box, Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect } from '@material-ui/core';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   MuiPickersUtilsProvider,
   KeyboardTimePicker,
@@ -9,21 +9,75 @@ import CommonReport from './CommonReport';
 import ReactToPrint from 'react-to-print';
 import TableComponent from '../TableComponent';
 import axios from 'axios';
+import ReportViewer from './ReportViewer';
+import Select from 'react-select';
 
 
 const useStyles = makeStyles((theme)=>({
   reportContainer: {
     // backgroundColor: theme.palette.grey[100],
+    height: '100%',
+    overflow: 'auto',
+    flexGrow: 1,
+    minHeight: 0,
   }
 }));
 
+function FormField({label, children}) {
+  return (
+    <Box>
+      <Box p={0.5}>{label}</Box>
+      <Box>{children}</Box>
+    </Box>
+  );
+}
+
 export default function InwardReport(props) {
   const classes = useStyles();
+  const [dateType, setDateType] = useState(0);
   const [filter, setFilter] = useState({
-    date_type: 0,
+    party_id: null,
+    qualities: [],
+    from_date: new Date(),
+    to_date: new Date(),
   });
   const [data, setData] = useState([]);
-  const reportRef = useRef();
+  const [partiesOpts, setPartiesOpts] = useState([]);
+  const [qualityOpts, setQualityOpts] = useState([]);
+
+  useEffect(()=>{
+    let today = new Date();
+    let from_date = new Date();
+    let to_date = new Date();
+
+    if(dateType === 'current' || dateType === 'last-f') {
+      from_date.setMonth(3);
+      from_date.setDate(1);
+      to_date.setMonth(2);
+      to_date.setDate(31);
+
+      if(today.getMonth()+1 <= 3) {
+        let yearDiff = dateType === 'current' ? 0 : 1;
+        from_date.setFullYear(today.getFullYear()-1-yearDiff);
+        to_date.setFullYear(today.getFullYear()-yearDiff);
+      } else {
+        let yearDiff = dateType === 'current' ? 1 : 0;
+        from_date.setFullYear(today.getFullYear()-1+yearDiff);
+        to_date.setFullYear(today.getFullYear()+yearDiff);
+      }
+    } else if(dateType === 'last-m') {
+      let year = today.getMonth() === 0 ? today.getFullYear() -1 : today.getFullYear();
+      let month = today.getMonth() === 0 ? 11 : today.getMonth() - 1;
+      from_date = new Date(year, month, 1);
+      to_date = new Date(year, month + 1, 0);
+    }
+
+    setFilter((prev)=>({
+      ...prev,
+      from_date: from_date,
+      to_date: to_date,
+    }));
+  }, [dateType])
 
   const onChange = (e)=>{
     setFilter((prev)=>({
@@ -60,84 +114,123 @@ export default function InwardReport(props) {
   ]);
 
   const onReportClick = ()=>{
-    // axios.
+    axios.get('/api/reports/inward', {
+      params: {
+        foo: 'bar'
+      }
+    })
+    .then((res)=>{
+      console.log(res);
+    })
+    .catch((err)=>{
+      console.log(err);
+    });
   };
 
+  useEffect(()=>{
+    setDateType('last-m');
+    axios.get('/api/parties')
+      .then((res)=>{
+        setPartiesOpts(res.data.map((party)=>({label: party.name, value: party.id})));
+      })
+      .catch((err)=>{
+        console.log(err);
+      });
+
+    axios.get('/api/qualities')
+      .then((res)=>{
+        setQualityOpts(res.data.map((quality)=>({label: quality.name, value: quality.id})));
+      })
+      .catch((err)=>{
+        console.log(err);
+      });
+  }, []);
+
   return (
-  <Box p={1}>
-    <Box>
-      <Grid container spacing={3}>
+  <Box style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
+    <Box p={1}>
+      <Grid container spacing={2}>
         <Grid item md={4} xs={12}>
-          <TextField fullWidth />
+          <FormField label="Party">
+            <Select
+              value={partiesOpts.filter((party)=>party.value===filter.party_id)}
+              onChange={(value)=>{
+                setFilter((prev)=>({...prev, party_id: value.value}))
+              }}
+              options={partiesOpts}
+            />
+          </FormField>
         </Grid>
         <Grid item md={4} xs={12}>
-          <TextField fullWidth />
+          <FormField label="Qualities">
+            <Select
+              isMulti
+              value={qualityOpts.filter((quality)=>filter.qualities.indexOf(quality.value) > -1)}
+              onChange={(values)=>{
+                setFilter((prev)=>({...prev, qualities: values.map((value)=>value.value)}))
+              }}
+              options={qualityOpts}
+            />
+          </FormField>
         </Grid>
       </Grid>
     </Box>
-    <Box>
-      <Grid container spacing={3}>
+    <Box p={1}>
+      <Grid container spacing={2}>
         <Grid item md={4} xs={12}>
-          <FormControl variant="outlined" fullWidth>
-            <InputLabel>Date type</InputLabel>
-            <Select
-              value={filter.date_type}
-              onChange={onChange}
-              label="Date type"
+          <FormField label="Date type">
+            <MUISelect
+              value={dateType}
+              onChange={(e)=>setDateType(e.target.value)}
               variant="outlined"
               name="date_type"
               margin="dense"
+              fullWidth
             >
-              <MenuItem value={0}>Last financial year</MenuItem>
-              <MenuItem value={1}>Last month</MenuItem>
-              <MenuItem value={2}>Custom data range</MenuItem>
-            </Select>
-          </FormControl>
+              <MenuItem value={'current'}>Current financial year</MenuItem>
+              <MenuItem value={'last-m'}>Last month</MenuItem>
+              <MenuItem value={'custom-date'}>Custom data range</MenuItem>
+              <MenuItem value={'last-f'}>Last financial year</MenuItem>
+            </MUISelect>
+          </FormField>
         </Grid>
         <Grid item md={2} xs={12}>
-          <KeyboardDatePicker
-            disableToolbar
-            variant="inline"
-            format="MM/dd/yyyy"
-            id="date-picker-inline"
-            label="Date picker inline"
-            // value={selectedDate}
-            onChange={()=>{}}
-            KeyboardButtonProps={{
-              'aria-label': 'change date',
-            }}
-            fullWidth
-          />
+          <FormField label="From date">
+            <KeyboardDatePicker
+              disableToolbar
+              variant="inline"
+              format="dd/MM/yyyy"
+              value={filter.from_date}
+              onChange={()=>{}}
+              KeyboardButtonProps={{
+                'aria-label': 'change date',
+              }}
+              fullWidth
+            />
+          </FormField>
         </Grid>
         <Grid item md={2} xs={12}>
-          <KeyboardDatePicker
-            disableToolbar
-            variant="inline"
-            format="MM/dd/yyyy"
-            id="date-picker-inline"
-            label="Date picker inline"
-            // value={selectedDate}
-            onChange={()=>{}}
-            KeyboardButtonProps={{
-              'aria-label': 'change date',
-            }}
-            fullWidth
-          />
+          <FormField label="To date">
+            <KeyboardDatePicker
+              disableToolbar
+              variant="inline"
+              format="dd/MM/yyyy"
+              value={filter.to_date}
+              onChange={()=>{}}
+              KeyboardButtonProps={{
+                'aria-label': 'change date',
+              }}
+              fullWidth
+            />
+          </FormField>
         </Grid>
-        <Grid item md={4} xs={12}>
-          <Button color="primary" variant="contained" style={{marginRight: '0.5rem'}}>Get report</Button>
-          <ReactToPrint
-            trigger={()=>
-                <Button color="primary" variant="outlined">
-                    Print
-                </Button>}
-            content={()=>reportRef.current}
-          />
+        <Grid item md={4} xs={12} style={{display: 'flex'}}>
+          <Button color="primary" variant="contained" style={{marginTop: 'auto'}} onClick={onReportClick}>Get report</Button>
         </Grid>
       </Grid>
     </Box>
-    <Box flexGrow="1" height="100%" className={classes.reportContainer}>
-      <CommonReport ref={reportRef} columns={columns} data={data}/>
-    </Box>
+    <ReportViewer>
+      <CommonReport columns={columns} data={data}/>
+    </ReportViewer>
   </Box>);
 }

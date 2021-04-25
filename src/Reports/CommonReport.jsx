@@ -48,6 +48,9 @@ const useStyles = makeStyles(()=>({
     padding: '0.5rem',
     borderBottom: '1px solid black',
     borderRight: '1px solid black'
+  },
+  reportStyles: {
+    backgroundColor: '#fff',
   }
 }));
 
@@ -101,17 +104,31 @@ export default class CommonReport extends Component {
   }
 
   render() {
-    const pageStyle = {
-      height: '297mm',
-      width: '210mm',
-    }
     return (
-      <Box style={pageStyle}>
+      <>
         <Box>Some company name</Box>
         <Box>
           <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
+          <ReportTable columns={this.columns} data={this.data} />
         </Box>
-      </Box>
+      </>
     )
   }
 }
