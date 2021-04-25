@@ -82,30 +82,43 @@ class Inwards extends React.Component {
     inward: [],
     filter: "",
     dialogOpen: false,
+
     columns : [
       {
         Header: '',
         accessor: 'functionButtons', // accessor is the "key" in the data
       },
       {
-        Header: 'NAME',
-        accessor: 'name', // accessor is the "key" in the data
+        Header: 'DATE',
+        accessor: 'date', // accessor is the "key" in the data
       },
       {
-        Header: 'ADDRESS',
-        accessor: 'address',
+        Header: 'PARTY NAME',
+        accessor: 'partyName',
       },
       {
-        Header: 'GSTIN',
-        accessor: 'gstin', // accessor is the "key" in the data
+        Header: 'GATEPASS',
+        accessor: 'gatepass', // accessor is the "key" in the data
       },
       {
-        Header: 'CONTACT',
-        accessor: 'contact',
+        Header: 'QUALITY NAME',
+        accessor: 'qualityName',
       },
       {
-        Header: 'WEAVER',
-        accessor: 'isWeaver', // accessor is the "key" in the data
+        Header: 'QUANTITY BAGS',
+        accessor: 'qtyBags', // accessor is the "key" in the data
+      },
+      {
+        Header: 'QUANTITY CONES',
+        accessor: 'qtyCones', // accessor is the "key" in the data
+      },
+      {
+        Header: 'LOT NUMBER',
+        accessor: 'lotNo',
+      },
+      {
+        Header: 'NET WEIGHT',
+        accessor: 'netWt', // accessor is the "key" in the data
       },
     ],
   }
@@ -117,6 +130,16 @@ class Inwards extends React.Component {
   saveDetails(inwardValue) {
     console.log(inwardValue);
 
+    if(!inwardValue.partyId)
+    {
+      inwardValue.partyId = '1';
+  }
+    
+    if(!inwardValue.qualityId)
+    {
+      inwardValue.qualityId = '1';
+    }
+    
     axios.post(`/api/inward`, inwardValue, {
 		 headers: {
 			  'content-type': 'application/json',
@@ -143,7 +166,7 @@ class Inwards extends React.Component {
       <Button variant="outlined" color="primary" onClick={() => this.showDialog(true)}>
         Add Inward
       </Button>
-      {/* <TableComponent columns={this.state.columns} data={this.state.qualities} filterText={this.state.filter} /> */}
+      <TableComponent columns={this.state.columns} data={this.state.qualities} filterText={this.state.filter} />
       <InwardDialog open={this.state.dialogOpen} onClose={() => this.showDialog(false)} onSave={(inwardValue) => this.saveDetails(inwardValue)} parties={this.state.parties} qualities={this.state.qualities}/>
       </div>;
 }
