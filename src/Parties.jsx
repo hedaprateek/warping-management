@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   FormControl,
   FormControlLabel,
@@ -6,18 +7,24 @@ import {
   Grid,
   InputLabel,
   MenuItem,
+  OutlinedInput,
   Radio,
   RadioGroup,
   Select,
   TextField,
+  Typography,
 } from '@material-ui/core';
 import axios from 'axios';
 import React, { useState } from 'react';
 import DraggableDialog from './DraggableDialog';
+import { FormField, InputSelect, InputText } from './FormElements';
 import TableComponent from './TableComponent';
 
 function PartiesDialog({ ...props }) {
-  const [partyValue, setPartyValue] = useState({});
+  const defaults = {
+    isWeaver: 'Party'
+  }
+  const [partyValue, setPartyValue] = useState(defaults);
 
   function updatePartyValues(e) {
     setPartyValue((prevValue) => {
@@ -39,72 +46,36 @@ function PartiesDialog({ ...props }) {
     >
       <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField
-            label="Name"
-            variant="outlined"
-            fullWidth
-            id="name"
-            value={partyValue.name}
-            onChange={updatePartyValues}
-          />
+          <InputText label="Name" id="name" value={partyValue.name}
+            onChange={updatePartyValues} autoFocus />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField
-            label="Contact"
-            variant="outlined"
-            fullWidth
-            id="contact"
-            value={partyValue.contact}
-            onChange={updatePartyValues}
-          />
+          <InputText label="Contact" id="contact" value={partyValue.contact}
+            onChange={updatePartyValues} />
         </Grid>
       </Grid>
       <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField
-            label="GSTIN"
-            variant="outlined"
-            fullWidth
-            id="gstin"
-            value={partyValue.gstin}
-            onChange={updatePartyValues}
-          />
+          <InputText label="GSTIN" id="gstin" value={partyValue.gstin}
+            onChange={updatePartyValues} />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <InputLabel id="demo-simple-select-label">Client Type:</InputLabel>
-          <Select
-            labelId="demo-simple-select-label"
-            id="isWeaver"
-            name="isWeaver"
-            value={'Please select..'}
-            onChange={updatePartyValues}
-          >
-            <MenuItem value={'Weaver'}>
-              Weaver
-            </MenuItem>
-            <MenuItem value={'Party'}>
-              Party
-            </MenuItem>
-          </Select>
+          <InputSelect label="Client type" id="isWeaver" value={partyValue.isWeaver} onChange={updatePartyValues}
+            options={[
+              {label: 'Party', value: 'Party'},
+              {label: 'Weaver', value: 'Weaver'},
+            ]}/>
         </Grid>
       </Grid>
       <Grid container spacing={2}>
         <Grid item lg={12} md={12} sm={12} xs={12}>
-          <TextField
-            label="Address"
-            variant="outlined"
-            multiline
-            fullWidth
-            rows={4}
-            id="address"
-            value={partyValue.address}
-            onChange={updatePartyValues}
-          />
+          <InputText multiline rows={4} fullWidth label="Address" id="address" value={partyValue.address}
+            onChange={updatePartyValues} />
         </Grid>
       </Grid>
     </DraggableDialog>
   );
-  
+
 }
 
 class Parties extends React.Component {
@@ -177,26 +148,34 @@ class Parties extends React.Component {
 
   render() {
     return (
-      <div>
-        <h2>Parties</h2>
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => this.showDialog(true)}
-        >
-          Add party
-        </Button>
-        <TableComponent
-          columns={this.state.columns}
-          data={this.state.parties}
-          filterText={this.state.filter}
-        />
+      <Box>
+        <Box p={1}>
+          <Box display="flex">
+            <InputText placeholder="Search..." value={this.state.filter} style={{minWidth: '250px'}}
+              onChange={(e)=>this.setState({filter: e.target.value})} />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => this.showDialog(true)}
+              style={{marginLeft: '0.5rem'}}
+            >
+              Add party
+            </Button>
+          </Box>
+        </Box>
+        <Box>
+          <TableComponent
+            columns={this.state.columns}
+            data={this.state.parties}
+            filterText={this.state.filter}
+          />
+        </Box>
         <PartiesDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
           onSave={(partyValue) => this.saveDetails(partyValue)}
         />
-      </div>
+      </Box>
     );
   }
 }

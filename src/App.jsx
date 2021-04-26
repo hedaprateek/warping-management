@@ -1,4 +1,4 @@
-import { AppBar, Box, Button, IconButton, Toolbar } from '@material-ui/core';
+import { AppBar, Box, Button, IconButton, Toolbar, useTheme } from '@material-ui/core';
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Link as RouterLink, useRouteMatch } from 'react-router-dom';
 import About from './About';
@@ -32,7 +32,7 @@ function NavButton({to, children}) {
     exact: true,
   });
   return (
-    <Button color="primary" variant="contained" component={RouterLink} to={to} disableElevation>{children}</Button>
+    <Button color={urlMatch ? "secondary" : "primary"} variant="contained" component={RouterLink} to={to} disableElevation>{children}</Button>
   )
 }
 

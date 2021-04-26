@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/core";
 import { matchSorter } from "match-sorter";
-import React from "react";
+import React, { useEffect } from "react";
 import { useAsyncDebounce, useFilters, useGlobalFilter, useSortBy, useTable } from 'react-table';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -49,55 +49,19 @@ function TableComponent(props) {
     rows,
     prepareRow,
     state,
-    visibleColumns,
-    preGlobalFilteredRows,
     setGlobalFilter,
   } = useTable(
     { columns: props.columns, data: props.data },
     useFilters,
     useGlobalFilter, useSortBy);
 
-  // Define a default UI for filtering
-  function GlobalFilter({
-    preGlobalFilteredRows,
-    globalFilter,
-    setGlobalFilter,
-  }) {
-    const count = preGlobalFilteredRows.length
-    const [value, setValue] = React.useState(globalFilter)
-    const onChange = useAsyncDebounce(value => {
-      setGlobalFilter(value || undefined)
-    }, 200)
-
-    return (
-      <span>
-        Search:{' '}
-        <input
-          value={value || ""}
-          onChange={e => {
-            setValue(e.target.value);
-            onChange(e.target.value);
-          }}
-          placeholder={`${count} records...`}
-          style={{
-            fontSize: '1.1rem',
-            border: '0',
-          }}
-        />
-      </span>
-    )
-  }
+  useEffect(()=>{
+    setGlobalFilter(props.filterText);
+  }, [props.filterText])
 
   return (
     <div>
-      <GlobalFilter
-        preGlobalFilteredRows={preGlobalFilteredRows}
-        globalFilter={state.globalFilter}
-        setGlobalFilter={setGlobalFilter}
-      />
-
       <table {...getTableProps()} className={classes.table}>
-
         <thead>
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>

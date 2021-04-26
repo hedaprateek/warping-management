@@ -9,7 +9,7 @@ const globalTheme = createMuiTheme({
             main: '#0089ef',
         },
         secondary: {
-            main: '#c0d6df',
+            main: '#e53935',
         },
         info: {
             main: '#fde74c'
@@ -56,6 +56,9 @@ export const theme = createMuiTheme({
             root: {
                 minHeight: 0,
             },
+            indicator: {
+                height: '3px',
+            }
         },
         MuiTab: {
             root: {
@@ -114,7 +117,7 @@ export const theme = createMuiTheme({
         },
         MuiDialogContent: {
             dividers: {
-                padding: defaultTheme.spacing(1, 0.5),
+                padding: defaultTheme.spacing(1, 2),
             }
         }
     }

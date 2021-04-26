@@ -20,22 +20,22 @@ export default function DraggableDialog({children, sectionTitle, ...props}) {
   return (
     <Dialog
       PaperComponent={PaperComponent}
-      aria-labelledby="draggable-dialog-title"
+      fullWidth
       {...props}
     >
       <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
         Add New {sectionTitle}
       </DialogTitle>
-      <DialogContent>
+      <DialogContent dividers={true}>
         <DialogContentText>
           {children}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button autoFocus onClick={props.onClose} color="primary">
+        <Button onClick={props.onClose} color="secondary" variant="outlined">
           Close
         </Button>
-        <Button onClick={props.onSave} color="primary">
+        <Button onClick={props.onSave} color="primary" variant="contained">
           Save
         </Button>
       </DialogActions>

@@ -11,6 +11,7 @@ import TableComponent from '../TableComponent';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import Select from 'react-select';
+import {FormField} from '../FormElements';
 
 
 const useStyles = makeStyles((theme)=>({
@@ -22,15 +23,6 @@ const useStyles = makeStyles((theme)=>({
     minHeight: 0,
   }
 }));
-
-function FormField({label, children}) {
-  return (
-    <Box>
-      <Box p={0.5}>{label}</Box>
-      <Box>{children}</Box>
-    </Box>
-  );
-}
 
 export default function InwardReport(props) {
   const classes = useStyles();
