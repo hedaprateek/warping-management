@@ -1,19 +1,39 @@
-import { Button, FormControlLabel, Grid, Radio, TextField } from "@material-ui/core";
-import axios from "axios";
-import React, { useState } from "react";
-import DraggableDialog from "./DraggableDialog";
-import TableComponent from "./TableComponent";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Grid,
+  InputLabel,
+  MenuItem,
+  OutlinedInput,
+  Radio,
+  RadioGroup,
+  Select,
+  TextField,
+  Typography,
+} from '@material-ui/core';
+import axios from 'axios';
+import React, { useState } from 'react';
+import DraggableDialog from './DraggableDialog';
+import { FormField, InputSelect, InputText } from './FormElements';
+import TableComponent from './TableComponent';
 
 function QualitiesDialog({ ...props }) {
+  const defaults = {}
 
-  const [qualityValue, setQualityValue] = useState({});
+  const [qualityValue, setQualityValue] = useState(defaults);
 
   function updateQualityValues(e) {
-
     setQualityValue((prevValue) => {
-      return { ...prevValue, [e.target.id]: e.target.value }
-    });
-  }
+      if (e.target.id) {
+        return { ...prevValue, [e.target.id]: e.target.value };
+        } else {
+                return { ...prevValue, [e.target.name]: e.target.value };
+        }
+      });
+    }
 
   return (
     <DraggableDialog sectionTitle="Quality"  {...props} onSave={() => { props.onSave(qualityValue) }}>
@@ -43,7 +63,6 @@ class Qualities extends React.Component {
     qualities: [],
     filter: "",
     dialogOpen: false,
-
     columns: [
       {
         Header: 'NAME',
@@ -68,7 +87,7 @@ class Qualities extends React.Component {
         'content-type': 'application/json',
       },
     })
-      .then(res => {
+      .then((res) => {
         const qualities = this.state.qualities;
         const latestData = res.data;
         this.setState((prevState) => {
@@ -76,22 +95,44 @@ class Qualities extends React.Component {
             qualities: [
               ...prevState.qualities, latestData
             ]
-          }
-        })
-      })
+          };
+        });
+      });
 
     this.showDialog(false);
   }
 
   render() {
-    return <div>
-      <h2>Qualities</h2>
-      <Button variant="outlined" color="primary" onClick={() => this.showDialog(true)}>
-        Add Quality
-      </Button>
-      <TableComponent columns={this.state.columns} data={this.state.qualities} filterText={this.state.filter} />
-      <QualitiesDialog open={this.state.dialogOpen} onClose={() => this.showDialog(false)} onSave={(qualityValue) => this.saveDetails(qualityValue)} />
-    </div>;
+    return (
+      <Box>
+        <Box p={1}>
+          <Box display="flex">
+            <InputText placeholder="Search..." value={this.state.filter} style={{minWidth: '250px'}}
+              onChange={(e)=>this.setState({filter: e.target.value})} />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => this.showDialog(true)}
+              style={{marginLeft: '0.5rem'}}
+            >
+              Add Quality
+            </Button>
+          </Box>
+        </Box>
+        <Box>
+          <TableComponent
+            columns={this.state.columns}
+            data={this.state.qualities}
+            filterText={this.state.filter}
+          />
+        </Box>
+        <QualitiesDialog
+          open={this.state.dialogOpen}
+          onClose={() => this.showDialog(false)}
+          onSave={(qualityValue) => this.saveDetails(qualityValue)}
+        />
+      </Box>
+    );
   }
 }
 
