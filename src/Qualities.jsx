@@ -21,7 +21,7 @@ import { FormField, InputSelect, InputText } from './FormElements';
 import TableComponent from './TableComponent';
 
 function QualitiesDialog({ ...props }) {
-  const defaults = {}
+  const defaults = {};
 
   const [qualityValue, setQualityValue] = useState(defaults);
 
@@ -29,20 +29,40 @@ function QualitiesDialog({ ...props }) {
     setQualityValue((prevValue) => {
       if (e.target.id) {
         return { ...prevValue, [e.target.id]: e.target.value };
-        } else {
-                return { ...prevValue, [e.target.name]: e.target.value };
-        }
-      });
-    }
+      } else {
+        return { ...prevValue, [e.target.name]: e.target.value };
+      }
+    });
+  }
 
   return (
-    <DraggableDialog sectionTitle="Quality"  {...props} onSave={() => { props.onSave(qualityValue) }}>
+    <DraggableDialog
+      sectionTitle="Quality"
+      {...props}
+      onSave={() => {
+        props.onSave(qualityValue);
+      }}
+    >
       <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField label="Name" variant="outlined" fullWidth id="name" value={qualityValue.name} onChange={updateQualityValues} />
+          <TextField
+            label="Yarn Type"
+            variant="outlined"
+            fullWidth
+            id="name"
+            value={qualityValue.name}
+            onChange={updateQualityValues}
+          />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField label="Description" variant="outlined" fullWidth id="desc" value={qualityValue.desc} onChange={updateQualityValues} />
+          <TextField
+            label="Company"
+            variant="outlined"
+            fullWidth
+            id="desc"
+            value={qualityValue.desc}
+            onChange={updateQualityValues}
+          />
         </Grid>
       </Grid>
     </DraggableDialog>
@@ -50,30 +70,29 @@ function QualitiesDialog({ ...props }) {
 }
 class Qualities extends React.Component {
   componentDidMount() {
-    axios.get(`http://localhost:7227/api/qualities`)
-      .then(res => {
-        const qualities = res.data;
-        this.setState({ qualities });
-        console.log("qualities", qualities)
-      })
+    axios.get(`http://localhost:7227/api/qualities`).then((res) => {
+      const qualities = res.data;
+      this.setState({ qualities });
+      console.log('qualities', qualities);
+    });
   }
 
   state = {
     radioValue: 'Yes',
     qualities: [],
-    filter: "",
+    filter: '',
     dialogOpen: false,
     columns: [
       {
-        Header: 'NAME',
+        Header: 'YARN TYPE',
         accessor: 'name', // accessor is the "key" in the data
       },
       {
-        Header: 'DESCRIPTION',
+        Header: 'COMPANY',
         accessor: 'desc',
       },
     ],
-  }
+  };
 
   showDialog(show) {
     this.setState({ dialogOpen: show });
@@ -82,19 +101,18 @@ class Qualities extends React.Component {
   saveDetails(qualityValue) {
     console.log(qualityValue);
 
-    axios.post(`http://localhost:7227/api/qualities`, qualityValue, {
-      headers: {
-        'content-type': 'application/json',
-      },
-    })
+    axios
+      .post(`http://localhost:7227/api/qualities`, qualityValue, {
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
       .then((res) => {
         const qualities = this.state.qualities;
         const latestData = res.data;
         this.setState((prevState) => {
           return {
-            qualities: [
-              ...prevState.qualities, latestData
-            ]
+            qualities: [...prevState.qualities, latestData],
           };
         });
       });
@@ -107,13 +125,17 @@ class Qualities extends React.Component {
       <Box>
         <Box p={1}>
           <Box display="flex">
-            <InputText placeholder="Search..." value={this.state.filter} style={{minWidth: '250px'}}
-              onChange={(e)=>this.setState({filter: e.target.value})} />
+            <InputText
+              placeholder="Search..."
+              value={this.state.filter}
+              style={{ minWidth: '250px' }}
+              onChange={(e) => this.setState({ filter: e.target.value })}
+            />
             <Button
               variant="contained"
               color="primary"
               onClick={() => this.showDialog(true)}
-              style={{marginLeft: '0.5rem'}}
+              style={{ marginLeft: '0.5rem' }}
             >
               Add Quality
             </Button>
@@ -135,6 +157,5 @@ class Qualities extends React.Component {
     );
   }
 }
-
 
 export default Qualities;

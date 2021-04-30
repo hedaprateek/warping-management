@@ -6,6 +6,7 @@ import {
   RadioGroup,
   TextField,
 } from '@material-ui/core';
+import { KeyboardDatePicker } from '@material-ui/pickers';
 import axios from 'axios';
 import React, { useState } from 'react';
 import DraggableDialog from './DraggableDialog';
@@ -16,9 +17,16 @@ function InwardDialog({ ...props }) {
   const [inwardValue, setInwardValue] = useState({});
 
   function updateInwardValues(e) {
-    setInwardValue((prevValue) => {
-      return { ...prevValue, [e.target.id]: e.target.value };
-    });
+    if(e.target) {
+
+      setInwardValue((prevValue) => {
+        return { ...prevValue, [e.target.id]: e.target.value };
+      });
+    } else {
+      setInwardValue((prevValue) => {
+        return { ...prevValue, date: e.toDateString() };
+      });
+    }
   }
 
   function callbackFromChild(childData) {
@@ -55,13 +63,16 @@ function InwardDialog({ ...props }) {
       <br />
       <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField
-            label="Date"
-            variant="outlined"
-            fullWidth
+          <KeyboardDatePicker
+            margin="normal"
             id="date"
+            label="Date"
+            format="MM/dd/yyyy"
             value={inwardValue.date}
             onChange={updateInwardValues}
+            KeyboardButtonProps={{
+              'aria-label': 'change date',
+            }}
           />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
