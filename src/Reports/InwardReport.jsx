@@ -11,7 +11,7 @@ import TableComponent from '../TableComponent';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import Select from 'react-select';
-import {FormField} from '../FormElements';
+import {FormField, InputSelectSearch} from '../FormElements';
 
 
 const useStyles = makeStyles((theme)=>({
@@ -138,90 +138,104 @@ export default function InwardReport(props) {
   }, []);
 
   return (
-  <Box style={{display: 'flex', flexDirection: 'column', height: '100%'}}>
-    <Box p={1}>
-      <Grid container spacing={2}>
-        <Grid item md={4} xs={12}>
-          <FormField label="Party">
-            <Select
-              value={partiesOpts.filter((party)=>party.value===filter.party_id)}
-              onChange={(value)=>{
-                setFilter((prev)=>({...prev, party_id: value.value}))
-              }}
-              options={partiesOpts}
-            />
-          </FormField>
+    <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Box p={1}>
+        <Grid container spacing={2}>
+          <Grid item md={4} xs={12}>
+              <InputSelectSearch
+                value={partiesOpts.filter(
+                  (party) => party.value === filter.party_id
+                )}
+                onChange={(value) => {
+                  setFilter((prev) => ({ ...prev, party_id: value.value }));
+                }}
+                options={partiesOpts}
+                label="Party"
+              />
+          </Grid>
+          <Grid item md={4} xs={12}>
+            <FormField label="Qualities">
+              <Select
+                isMulti
+                value={qualityOpts.filter(
+                  (quality) => filter.qualities.indexOf(quality.value) > -1
+                )}
+                onChange={(values) => {
+                  setFilter((prev) => ({
+                    ...prev,
+                    qualities: values.map((value) => value.value),
+                  }));
+                }}
+                options={qualityOpts}
+              />
+            </FormField>
+          </Grid>
         </Grid>
-        <Grid item md={4} xs={12}>
-          <FormField label="Qualities">
-            <Select
-              isMulti
-              value={qualityOpts.filter((quality)=>filter.qualities.indexOf(quality.value) > -1)}
-              onChange={(values)=>{
-                setFilter((prev)=>({...prev, qualities: values.map((value)=>value.value)}))
-              }}
-              options={qualityOpts}
-            />
-          </FormField>
-        </Grid>
-      </Grid>
-    </Box>
-    <Box p={1}>
-      <Grid container spacing={2}>
-        <Grid item md={4} xs={12}>
-          <FormField label="Date type">
-            <MUISelect
-              value={dateType}
-              onChange={(e)=>setDateType(e.target.value)}
-              variant="outlined"
-              name="date_type"
-              margin="dense"
-              fullWidth
+      </Box>
+      <Box p={1}>
+        <Grid container spacing={2}>
+          <Grid item md={4} xs={12}>
+            <FormField label="Date type">
+              <MUISelect
+                value={dateType}
+                onChange={(e) => setDateType(e.target.value)}
+                variant="outlined"
+                name="date_type"
+                margin="dense"
+                fullWidth
+              >
+                <MenuItem value={'current'}>Current financial year</MenuItem>
+                <MenuItem value={'last-m'}>Last month</MenuItem>
+                <MenuItem value={'custom-date'}>Custom data range</MenuItem>
+                <MenuItem value={'last-f'}>Last financial year</MenuItem>
+              </MUISelect>
+            </FormField>
+          </Grid>
+          <Grid item md={2} xs={12}>
+            <FormField label="From date">
+              <KeyboardDatePicker
+                disableToolbar
+                variant="inline"
+                format="dd/MM/yyyy"
+                value={filter.from_date}
+                onChange={() => {}}
+                KeyboardButtonProps={{
+                  'aria-label': 'change date',
+                }}
+                fullWidth
+              />
+            </FormField>
+          </Grid>
+          <Grid item md={2} xs={12}>
+            <FormField label="To date">
+              <KeyboardDatePicker
+                disableToolbar
+                variant="inline"
+                format="dd/MM/yyyy"
+                value={filter.to_date}
+                onChange={() => {}}
+                KeyboardButtonProps={{
+                  'aria-label': 'change date',
+                }}
+                fullWidth
+              />
+            </FormField>
+          </Grid>
+          <Grid item md={4} xs={12} style={{ display: 'flex' }}>
+            <Button
+              color="primary"
+              variant="contained"
+              style={{ marginTop: 'auto' }}
+              onClick={onReportClick}
             >
-              <MenuItem value={'current'}>Current financial year</MenuItem>
-              <MenuItem value={'last-m'}>Last month</MenuItem>
-              <MenuItem value={'custom-date'}>Custom data range</MenuItem>
-              <MenuItem value={'last-f'}>Last financial year</MenuItem>
-            </MUISelect>
-          </FormField>
+              Get report
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item md={2} xs={12}>
-          <FormField label="From date">
-            <KeyboardDatePicker
-              disableToolbar
-              variant="inline"
-              format="dd/MM/yyyy"
-              value={filter.from_date}
-              onChange={()=>{}}
-              KeyboardButtonProps={{
-                'aria-label': 'change date',
-              }}
-              fullWidth
-            />
-          </FormField>
-        </Grid>
-        <Grid item md={2} xs={12}>
-          <FormField label="To date">
-            <KeyboardDatePicker
-              disableToolbar
-              variant="inline"
-              format="dd/MM/yyyy"
-              value={filter.to_date}
-              onChange={()=>{}}
-              KeyboardButtonProps={{
-                'aria-label': 'change date',
-              }}
-              fullWidth
-            />
-          </FormField>
-        </Grid>
-        <Grid item md={4} xs={12} style={{display: 'flex'}}>
-          <Button color="primary" variant="contained" style={{marginTop: 'auto'}} onClick={onReportClick}>Get report</Button>
-        </Grid>
-      </Grid>
+      </Box>
+      <ReportViewer>
+        <CommonReport columns={columns} data={data} />
+      </ReportViewer>
     </Box>
-    <ReportViewer>
-      <CommonReport columns={columns} data={data}/>
-    </ReportViewer>
-  </Box>);
+  );
 }

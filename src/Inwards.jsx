@@ -10,21 +10,25 @@ import { KeyboardDatePicker } from '@material-ui/pickers';
 import axios from 'axios';
 import React, { useState } from 'react';
 import DraggableDialog from './DraggableDialog';
+import { InputDate, InputSelectSearch, InputText } from './FormElements';
 import SelectComponent from './selectComponent';
 import TableComponent from './TableComponent';
 
 function InwardDialog({ ...props }) {
   const [inwardValue, setInwardValue] = useState({});
 
-  function updateInwardValues(e) {
-    if(e.target) {
-
+  function updateInwardValues(e, id) {
+    if (e.target) {
       setInwardValue((prevValue) => {
         return { ...prevValue, [e.target.id]: e.target.value };
       });
-    } else {
+    } else if (id === 'date') {
       setInwardValue((prevValue) => {
         return { ...prevValue, date: e.toDateString() };
+      });
+    } else {
+      setInwardValue((prevValue) => {
+        return { ...prevValue, [id]: e };
       });
     }
   }
@@ -35,6 +39,17 @@ function InwardDialog({ ...props }) {
     });
   }
 
+  const getSelectValue = (options, value) => {
+    let selectVal = options.filter((option) => option.id === value)[0];
+    if (selectVal) {
+      selectVal = {
+        label: selectVal.name,
+        value: selectVal.id,
+      };
+    }
+    return selectVal;
+  };
+
   return (
     <DraggableDialog
       sectionTitle="Inward"
@@ -43,40 +58,61 @@ function InwardDialog({ ...props }) {
         props.onSave(inwardValue);
       }}
     >
-      <SelectComponent
-        selectionOptions={props.qualities.map((quality) => ({
+      <InputSelectSearch
+        value={getSelectValue(props.qualities, inwardValue.qualityId)}
+        onChange={(value) => {
+          updateInwardValues(value.value, 'qualityId');
+        }}
+        options={props.qualities.map((quality) => ({
           label: quality.name,
           value: quality.id,
-          id: 'qualityId',
         }))}
-        parentCallback={callbackFromChild}
+        label="Quality"
       />
+
       <br />
-      <SelectComponent
+      <InputSelectSearch
+        value={getSelectValue(props.parties, inwardValue.partyId)}
+        onChange={(value) => {
+          updateInwardValues(value.value, 'partyId');
+        }}
+        options={props.parties.map((party) => ({
+          label: party.name,
+          value: party.id,
+        }))}
+        label="Party"
+      />
+      {/* <SelectComponent
         selectionOptions={props.parties.map((party) => ({
           label: party.name,
           value: party.id,
           id: 'partyId',
         }))}
         parentCallback={callbackFromChild}
-      />
+      /> */}
       <br />
       <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <KeyboardDatePicker
+          <InputDate
+            id="date"
+            label="Date"
+            value={inwardValue.date}
+            onChange={(value) => updateInwardValues(value, 'date')}
+          />
+          {/* <KeyboardDatePicker
             margin="normal"
             id="date"
             label="Date"
             format="MM/dd/yyyy"
             value={inwardValue.date}
-            onChange={updateInwardValues}
+            onChange={(value) => updateInwardValues(value, 'date')}
             KeyboardButtonProps={{
               'aria-label': 'change date',
             }}
-          />
+          /> */}
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField
+          <InputText
             label="Gatepass"
             variant="outlined"
             fullWidth
@@ -86,7 +122,7 @@ function InwardDialog({ ...props }) {
           />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField
+          <InputText
             label="Quantity bags"
             variant="outlined"
             fullWidth
@@ -96,7 +132,7 @@ function InwardDialog({ ...props }) {
           />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField
+          <InputText
             label="Quantity Cones"
             variant="outlined"
             fullWidth
@@ -106,7 +142,7 @@ function InwardDialog({ ...props }) {
           />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField
+          <InputText
             label="Lot Number"
             variant="outlined"
             fullWidth
@@ -116,7 +152,7 @@ function InwardDialog({ ...props }) {
           />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
-          <TextField
+          <InputText
             label="Net Weight"
             variant="outlined"
             fullWidth
@@ -242,7 +278,7 @@ class Inwards extends React.Component {
         const parties = this.state.parties;
         const latestData = res.data;
         this.setState((prevState) => {
-          return { parties: [...prevState.parties, latestData] };
+          return { inward: [...prevState.inward, latestData] };
         });
       });
 

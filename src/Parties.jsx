@@ -15,16 +15,29 @@ import {
   Typography,
 } from '@material-ui/core';
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import SimpleReactValidator from 'simple-react-validator';
 import DraggableDialog from './DraggableDialog';
 import { FormField, InputSelect, InputText } from './FormElements';
 import TableComponent from './TableComponent';
 
-function PartiesDialog({ ...props }) {
+function PartiesDialog({ open, ...props }) {
+
+  const [validator, setValidator] = useState(new SimpleReactValidator());
+
   const defaults = {
     isWeaver: 'Party',
+    name:'',
+    contact:'',
+    address:'',
+    gstin:''
   };
   const [partyValue, setPartyValue] = useState(defaults);
+
+  useEffect(() => {
+setPartyValue(defaults);
+setValidator(new SimpleReactValidator());
+  },[open])
 
   function updatePartyValues(e) {
     setPartyValue((prevValue) => {
@@ -38,10 +51,11 @@ function PartiesDialog({ ...props }) {
 
   return (
     <DraggableDialog
+    open={open}
       sectionTitle="Party"
       {...props}
       onSave={() => {
-        props.onSave(partyValue);
+        props.onSave(partyValue, validator);
       }}
     >
       <Grid container spacing={2}>
@@ -52,6 +66,7 @@ function PartiesDialog({ ...props }) {
             value={partyValue.name}
             onChange={updatePartyValues}
             autoFocus
+            errorMsg={validator.message('Name', partyValue.name, 'required')}
           />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
@@ -60,6 +75,11 @@ function PartiesDialog({ ...props }) {
             id="contact"
             value={partyValue.contact}
             onChange={updatePartyValues}
+            errorMsg={validator.message(
+              'Contact',
+              partyValue.contact,
+              'required|phone'
+            )}
           />
         </Grid>
       </Grid>
@@ -96,6 +116,11 @@ function PartiesDialog({ ...props }) {
             id="address"
             value={partyValue.address}
             onChange={updatePartyValues}
+            errorMsg={validator.message(
+              'Address',
+              partyValue.address,
+              'required'
+            )}
           />
         </Grid>
       </Grid>
@@ -149,25 +174,34 @@ class Parties extends React.Component {
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails(partyValue) {
-    console.log(partyValue);
+  saveDetails(partyValue, validator) {
 
-    axios
-      .post(`http://localhost:7227/api/parties`, partyValue, {
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-      .then((res) => {
-        const parties = this.state.parties;
-        const latestData = res.data;
-        // this.state.parties.push(latestData);
-        this.setState((prevState) => {
-          return { parties: [...prevState.parties, latestData] };
+    if (validator.allValid()) {
+      console.log(partyValue);
+
+      axios
+        .post(`http://localhost:7227/api/parties`, partyValue, {
+          headers: {
+            'content-type': 'application/json',
+          },
+        })
+        .then((res) => {
+          const parties = this.state.parties;
+          const latestData = res.data;
+          // this.state.parties.push(latestData);
+          this.setState((prevState) => {
+            return { parties: [...prevState.parties, latestData] };
+          });
         });
-      });
 
-    this.showDialog(false);
+      this.showDialog(false);
+    } else {
+      validator.showMessages();
+      // rerender to show messages for the first time
+      // you can use the autoForceUpdate option to do this automatically`
+      this.forceUpdate();
+    }
+    
   }
 
   render() {
@@ -201,7 +235,8 @@ class Parties extends React.Component {
         <PartiesDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(partyValue) => this.saveDetails(partyValue)}
+          onSave={(partyValue, validator) => this.saveDetails(partyValue, validator)}
+          
         />
       </Box>
     );
