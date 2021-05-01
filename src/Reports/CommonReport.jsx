@@ -96,39 +96,13 @@ function ReportTable({ columns, data }) {
   )
 }
 
-export default class CommonReport extends Component {
-  constructor({columns, data}) {
-    super();
-    this.columns = columns || [];
-    this.data = data || [];
-  }
-
-  render() {
-    return (
-      <>
-        <Box>Some company name</Box>
-        <Box>
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-          <ReportTable columns={this.columns} data={this.data} />
-        </Box>
-      </>
-    )
-  }
+export default function CommonReport({columns, data}) {
+  return(
+    <>
+      <Box>Some company name</Box>
+      <Box>
+        <ReportTable columns={columns} data={data} />
+      </Box>
+    </>
+  )
 }

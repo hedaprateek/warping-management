@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   const WarpingQualities = sequelize.define('WarpingQualities', {
     warpId: DataTypes.INTEGER,
     qualityId: DataTypes.INTEGER,
-    totalEnds: DataTypes.INTEGER,
+    count: DataTypes.REAL,
     usedYarn: DataTypes.REAL
   }, {});
   WarpingQualities.associate = function(models) {

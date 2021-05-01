@@ -14,6 +14,9 @@ module.exports = {
       meter: {
         type: Sequelize.REAL
       },
+      totalEnds: {
+        type: Sequelize.INTEGER
+      },
       partyId: {
         type: Sequelize.INTEGER
       },

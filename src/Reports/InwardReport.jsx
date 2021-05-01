@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme)=>({
 
 export default function InwardReport(props) {
   const classes = useStyles();
-  const [dateType, setDateType] = useState(0);
+  const [dateType, setDateType] = useState('custom-date');
   const [filter, setFilter] = useState({
     party_id: null,
     qualities: [],
@@ -97,11 +97,11 @@ export default function InwardReport(props) {
     },
     {
       Header: 'Lot number',
-      accessor: 'lotnumber',
+      accessor: 'lotNo',
     },
     {
       Header: 'Net Wt.',
-      accessor: 'netwt',
+      accessor: 'netWt',
     },
   ]);
 
@@ -112,7 +112,7 @@ export default function InwardReport(props) {
       }
     })
     .then((res)=>{
-      console.log(res);
+      setData(res.data);
     })
     .catch((err)=>{
       console.log(err);
@@ -120,7 +120,6 @@ export default function InwardReport(props) {
   };
 
   useEffect(()=>{
-    setDateType('last-m');
     axios.get('/api/parties')
       .then((res)=>{
         setPartiesOpts(res.data.map((party)=>({label: party.name, value: party.id})));

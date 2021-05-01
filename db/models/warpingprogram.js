@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   const WarpingProgram = sequelize.define('WarpingProgram', {
     design: DataTypes.STRING,
     meter: DataTypes.REAL,
+    totalEnds: DataTypes.INTEGER,
     partyId: DataTypes.INTEGER,
     weaverId: DataTypes.INTEGER,
     date: DataTypes.STRING

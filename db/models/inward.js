@@ -11,7 +11,16 @@ module.exports = (sequelize, DataTypes) => {
     netWt: DataTypes.REAL
   }, {});
   Inward.associate = function(models) {
-    // associations can be defined here
+    Inward.hasOne(models.Parties, {
+      foreignKey: 'id',
+      sourceKey: 'partyId',
+      as: "PartyDetails",
+    });
+    Inward.hasOne(models.Qualities, {
+      foreignKey: 'id',
+      sourceKey: 'qualityId',
+      as: "QualityDetails",
+    });
   };
   return Inward;
 };

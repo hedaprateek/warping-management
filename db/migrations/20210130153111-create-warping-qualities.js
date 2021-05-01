@@ -16,9 +16,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
-      totalEnds: {
+      count: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.REAL,
       },
       usedYarn: {
         allowNull: false,
