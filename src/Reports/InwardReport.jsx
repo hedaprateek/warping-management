@@ -108,7 +108,7 @@ export default function InwardReport(props) {
   const onReportClick = ()=>{
     axios.get('/api/reports/inward', {
       params: {
-        foo: 'bar'
+        ...filter,
       }
     })
     .then((res)=>{

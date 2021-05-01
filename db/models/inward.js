@@ -1,7 +1,7 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const Inward = sequelize.define('Inward', {
-    date: DataTypes.STRING,
+    date: DataTypes.DATEONLY,
     partyId: DataTypes.INTEGER,
     gatepass: DataTypes.STRING,
     qualityId: DataTypes.INTEGER,

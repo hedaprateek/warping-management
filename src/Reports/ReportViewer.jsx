@@ -33,32 +33,9 @@ export default function ReportViewer({children}) {
   const reportRef = useRef();
 
   const pageStyle = `
-    @media all {
-      .pagebreak {
-        display: none;
-      }
-
-      .footer {
-        display: none;
-      }
-    }
-
-    @media print {
-      .pagebreak {
-        page-break-before: always;
-      }
-
-      .footer {
-        display: block;
-        position: fixed;
-        bottom: 0pt;
-        right: 0pt;
-      }
-
-      :after {
-        content: counter(page);
-        counter-increment: page;
-      }
+    @page {
+      size: A4;
+      margin: 0mm;
     }
   `;
 
