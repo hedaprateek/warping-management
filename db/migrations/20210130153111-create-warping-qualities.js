@@ -16,6 +16,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER
       },
+      ends: {
+        allowNull: false,
+        type: Sequelize.INTEGER
+      },
       count: {
         allowNull: false,
         type: Sequelize.REAL,
