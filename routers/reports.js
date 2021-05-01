@@ -13,7 +13,7 @@ router.get('/inward', function(req, res) {
   if(req.query.party_id) {
     where.partyId = parseInt(req.query.party_id);
   }
-  if(req.query.qualities?.length > 0) {
+  if(req.query.qualities && req.query.qualities.length > 0) {
     where.qualityId = {
       [Op.in]: req.query.qualities.map((v)=>parseInt(v)),
     }
