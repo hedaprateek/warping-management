@@ -2,6 +2,7 @@ import {
   Button,
   FormControlLabel,
   Grid,
+  IconButton,
   Radio,
   RadioGroup,
   TextField,
@@ -13,10 +14,14 @@ import SimpleReactValidator from 'simple-react-validator';
 import DraggableDialog from './DraggableDialog';
 import { InputDate, InputSelectSearch, InputText } from './FormElements';
 import TableComponent from './TableComponent';
+import EditIcon from '@material-ui/icons/Edit';
 
 function InwardDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
 
+  const [isEdit, setIsEdit] = useState(false);
+  const editModeInward = props.editModeInwardValue;
+  // const isEdit = false;
   const defaults = {
     partyId: '',
     qualityId: '',
@@ -58,7 +63,14 @@ function InwardDialog({ open, ...props }) {
   };
 
   useEffect(() => {
-    setInwardValue(defaults);
+    console.log('editModeInward', editModeInward);
+    if (editModeInward && editModeInward.id) {
+      setIsEdit(true);
+      setInwardValue(editModeInward);
+    } else {
+      setIsEdit(false);
+      setInwardValue(defaults);
+    }
     setValidator(new SimpleReactValidator());
   }, [open]);
 
@@ -68,7 +80,7 @@ function InwardDialog({ open, ...props }) {
       open={open}
       {...props}
       onSave={() => {
-        props.onSave(inwardValue, validator);
+        props.onSave(inwardValue, validator, isEdit);
       }}
     >
       <InputSelectSearch
@@ -123,6 +135,7 @@ function InwardDialog({ open, ...props }) {
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
           <InputText
+            type="number"
             label="Quantity bags"
             variant="outlined"
             fullWidth
@@ -138,6 +151,7 @@ function InwardDialog({ open, ...props }) {
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
           <InputText
+            type="number"
             label="Quantity Cones"
             variant="outlined"
             fullWidth
@@ -163,7 +177,8 @@ function InwardDialog({ open, ...props }) {
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
           <InputText
-            label="Net Weight"
+            type="number"
+            label="Net Weight (Kg)"
             variant="outlined"
             fullWidth
             id="netWt"
@@ -199,7 +214,14 @@ class Inwards extends React.Component {
     });
   }
 
+  editInward(row) {
+    console.log('Prateek', row);
+    this.showDialog(true);
+    if (row && row.values) this.state.editModeInwardValue = row.original;
+  }
+
   state = {
+    editModeInwardValue: [],
     parties: [],
     qualities: [],
     inward: [],
@@ -209,7 +231,19 @@ class Inwards extends React.Component {
     columns: [
       {
         Header: '',
-        accessor: 'functionButtons', // accessor is the "key" in the data
+        accessor: 'editButton',
+        id: 'btn-edit',
+        Cell: ({ row }) => {
+          return (
+            <IconButton
+              onClick={() => {
+                this.editInward(row);
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          );
+        },
       },
       {
         Header: 'DATE',
@@ -269,35 +303,49 @@ class Inwards extends React.Component {
   };
 
   showDialog(show) {
+    if (!show) {
+      this.state.editModeInwardValue = [];
+    }
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails(inwardValue, validator) {
+  saveDetails(inwardValue, validator, isEdit) {
     if (validator.allValid()) {
       console.log(inwardValue);
 
-      if (!inwardValue.partyId) {
-        inwardValue.partyId = '1';
-      }
-
-      if (!inwardValue.qualityId) {
-        inwardValue.qualityId = '1';
-      }
-
-      axios
-        .post(`/api/inward`, inwardValue, {
-          headers: {
-            'content-type': 'application/json',
-          },
-        })
-        .then((res) => {
-          const parties = this.state.parties;
-          const latestData = res.data;
-          this.setState((prevState) => {
-            return { inward: [...prevState.inward, latestData] };
+      if (isEdit) {
+        axios
+          .put(`/api/inward/` + inwardValue.id, inwardValue, {
+            headers: {
+              'content-type': 'application/json',
+            },
+          })
+          .then((res) => {
+            // const parties = this.state.parties;
+            // const latestData = res.data;
+            let indx = 
+            this.setState((prevState) => {
+              let indx = prevState.inward.findIndex((i)=>i.id===inwardValue.id);
+              return {
+                inward: [...prevState.inward.slice(0, indx), inwardValue, ...prevState.inward.slice(indx+1)]
+              };
+            });
           });
-        });
-
+      } else {
+        axios
+          .post(`/api/inward`, inwardValue, {
+            headers: {
+              'content-type': 'application/json',
+            },
+          })
+          .then((res) => {
+            const parties = this.state.parties;
+            const latestData = res.data;
+            this.setState((prevState) => {
+              return { inward: [...prevState.inward, latestData] };
+            });
+          });
+      }
       this.showDialog(false);
     } else {
       validator.showMessages();
@@ -307,11 +355,18 @@ class Inwards extends React.Component {
     }
   }
 
+  isEdit = false;
+
   render() {
     return (
       <div>
         <h2>Inwards</h2>
-
+        <InputText
+          placeholder="Search..."
+          value={this.state.filter}
+          style={{ minWidth: '250px' }}
+          onChange={(e) => this.setState({ filter: e.target.value })}
+        />
         <Button
           variant="outlined"
           color="primary"
@@ -327,11 +382,12 @@ class Inwards extends React.Component {
         <InwardDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(inwardValue, validator) =>
-            this.saveDetails(inwardValue, validator)
+          onSave={(inwardValue, validator, isEdit) =>
+            this.saveDetails(inwardValue, validator, isEdit)
           }
           parties={this.state.parties}
           qualities={this.state.qualities}
+          editModeInwardValue={this.state.editModeInwardValue}
         />
       </div>
     );
