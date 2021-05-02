@@ -5,6 +5,7 @@ import {
   FormControlLabel,
   FormLabel,
   Grid,
+  IconButton,
   InputLabel,
   MenuItem,
   OutlinedInput,
@@ -20,24 +21,32 @@ import SimpleReactValidator from 'simple-react-validator';
 import DraggableDialog from './DraggableDialog';
 import { FormField, InputSelect, InputText } from './FormElements';
 import TableComponent from './TableComponent';
+import EditIcon from '@material-ui/icons/Edit';
 
 function PartiesDialog({ open, ...props }) {
-
   const [validator, setValidator] = useState(new SimpleReactValidator());
+  const [isEdit, setIsEdit] = useState(false);
+  const editModeParty = props.editModePartyValue;
 
   const defaults = {
     isWeaver: 'Party',
-    name:'',
-    contact:'',
-    address:'',
-    gstin:''
+    name: '',
+    contact: '',
+    address: '',
+    gstin: '',
   };
   const [partyValue, setPartyValue] = useState(defaults);
 
   useEffect(() => {
-setPartyValue(defaults);
-setValidator(new SimpleReactValidator());
-  },[open])
+    if (editModeParty && editModeParty.id) {
+      setIsEdit(true);
+      setPartyValue(editModeParty);
+    } else {
+      setIsEdit(false);
+      setPartyValue(defaults);
+    }
+    setValidator(new SimpleReactValidator());
+  }, [open]);
 
   function updatePartyValues(e) {
     setPartyValue((prevValue) => {
@@ -51,11 +60,11 @@ setValidator(new SimpleReactValidator());
 
   return (
     <DraggableDialog
-    open={open}
+      open={open}
       sectionTitle="Party"
       {...props}
       onSave={() => {
-        props.onSave(partyValue, validator);
+        props.onSave(partyValue, validator, isEdit);
       }}
     >
       <Grid container spacing={2}>
@@ -137,7 +146,13 @@ class Parties extends React.Component {
     });
   }
 
+  editParty(row) {
+    console.log('Prateek', row);
+    this.showDialog(true);
+    if (row && row.values) this.state.editModePartyValue = row.original;
+  }
   state = {
+    editModePartyValue: [],
     radioValue: 'Yes',
     parties: [],
     filter: '',
@@ -145,7 +160,19 @@ class Parties extends React.Component {
     columns: [
       {
         Header: '',
-        accessor: 'functionButtons', // accessor is the "key" in the data
+        accessor: 'editButton',
+        id: 'btn-edit',
+        Cell: ({ row }) => {
+          return (
+            <IconButton
+              onClick={() => {
+                this.editParty(row);
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          );
+        },
       },
       {
         Header: 'NAME',
@@ -171,29 +198,53 @@ class Parties extends React.Component {
   };
 
   showDialog(show) {
+    if (!show) {
+      this.state.editModeQualityValue = [];
+    }
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails(partyValue, validator) {
-
+  saveDetails(partyValue, validator, isEdit) {
     if (validator.allValid()) {
       console.log(partyValue);
 
-      axios
-        .post(`http://localhost:7227/api/parties`, partyValue, {
-          headers: {
-            'content-type': 'application/json',
-          },
-        })
-        .then((res) => {
-          const parties = this.state.parties;
-          const latestData = res.data;
-          // this.state.parties.push(latestData);
-          this.setState((prevState) => {
-            return { parties: [...prevState.parties, latestData] };
+      if (isEdit) {
+        axios
+          .put(`/api/parties/` + partyValue.id, partyValue, {
+            headers: {
+              'content-type': 'application/json',
+            },
+          })
+          .then((res) => {
+            let indx = this.setState((prevState) => {
+              let indx = prevState.parties.findIndex(
+                (i) => i.id === partyValue.id
+              );
+              return {
+                party: [
+                  ...prevState.parties.slice(0, indx),
+                  partyValue,
+                  ...prevState.parties.slice(indx + 1),
+                ],
+              };
+            });
           });
-        });
-
+      } else {
+        axios
+          .post(`/api/parties`, partyValue, {
+            headers: {
+              'content-type': 'application/json',
+            },
+          })
+          .then((res) => {
+            const parties = this.state.parties;
+            const latestData = res.data;
+            // this.state.parties.push(latestData);
+            this.setState((prevState) => {
+              return { parties: [...prevState.parties, latestData] };
+            });
+          });
+      }
       this.showDialog(false);
     } else {
       validator.showMessages();
@@ -201,7 +252,6 @@ class Parties extends React.Component {
       // you can use the autoForceUpdate option to do this automatically`
       this.forceUpdate();
     }
-    
   }
 
   render() {
@@ -235,8 +285,10 @@ class Parties extends React.Component {
         <PartiesDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(partyValue, validator) => this.saveDetails(partyValue, validator)}
-          
+          onSave={(partyValue, validator, isEdit) =>
+            this.saveDetails(partyValue, validator, isEdit)
+          }
+          editModePartyValue={this.state.editModePartyValue}
         />
       </Box>
     );

@@ -5,6 +5,7 @@ import {
   FormControlLabel,
   FormLabel,
   Grid,
+  IconButton,
   InputLabel,
   MenuItem,
   OutlinedInput,
@@ -20,16 +21,25 @@ import SimpleReactValidator from 'simple-react-validator';
 import DraggableDialog from './DraggableDialog';
 import { FormField, InputSelect, InputText } from './FormElements';
 import TableComponent from './TableComponent';
+import EditIcon from '@material-ui/icons/Edit';
 
 function QualitiesDialog({ open, ...props }) {
   const defaults = {};
 
   const [validator, setValidator] = useState(new SimpleReactValidator());
+  const [isEdit, setIsEdit] = useState(false);
+  const editModeQuality = props.editModeQualityValue;
 
   const [qualityValue, setQualityValue] = useState(defaults);
 
   useEffect(() => {
-    setQualityValue(defaults);
+    if (editModeQuality && editModeQuality.id) {
+      setIsEdit(true);
+      setQualityValue(editModeQuality);
+    } else {
+      setIsEdit(false);
+      setQualityValue(defaults);
+    }
     setValidator(new SimpleReactValidator());
   }, [open]);
   function updateQualityValues(e) {
@@ -48,7 +58,7 @@ function QualitiesDialog({ open, ...props }) {
       sectionTitle="Quality"
       {...props}
       onSave={() => {
-        props.onSave(qualityValue, validator);
+        props.onSave(qualityValue, validator, isEdit);
       }}
     >
       <Grid container spacing={2}>
@@ -60,7 +70,11 @@ function QualitiesDialog({ open, ...props }) {
             id="name"
             value={qualityValue.name}
             onChange={updateQualityValues}
-            errorMsg={validator.message('Yarn type', qualityValue.name, 'required')}
+            errorMsg={validator.message(
+              'Yarn type',
+              qualityValue.name,
+              'required'
+            )}
           />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
@@ -71,7 +85,11 @@ function QualitiesDialog({ open, ...props }) {
             id="desc"
             value={qualityValue.desc}
             onChange={updateQualityValues}
-            errorMsg={validator.message('count', qualityValue.desc, 'required|numeric')}
+            errorMsg={validator.message(
+              'count',
+              qualityValue.desc,
+              'required|numeric'
+            )}
           />
         </Grid>
       </Grid>
@@ -87,12 +105,35 @@ class Qualities extends React.Component {
     });
   }
 
+  editQuality(row) {
+    console.log('Prateek', row);
+    this.showDialog(true);
+    if (row && row.values) this.state.editModeQualityValue = row.original;
+  }
+
   state = {
+    editModeQualityValue: [],
     radioValue: 'Yes',
     qualities: [],
     filter: '',
     dialogOpen: false,
     columns: [
+      {
+        Header: '',
+        accessor: 'editButton',
+        id: 'btn-edit',
+        Cell: ({ row }) => {
+          return (
+            <IconButton
+              onClick={() => {
+                this.editQuality(row);
+              }}
+            >
+              <EditIcon />
+            </IconButton>
+          );
+        },
+      },
       {
         Header: 'YARN TYPE',
         accessor: 'name', // accessor is the "key" in the data
@@ -105,38 +146,63 @@ class Qualities extends React.Component {
   };
 
   showDialog(show) {
+    if (!show) {
+      this.state.editModeQualityValue = [];
+    }
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails(qualityValue, validator) {
-
+  saveDetails(qualityValue, validator, isEdit) {
     if (validator.allValid()) {
-       console.log(qualityValue);
+      console.log(qualityValue);
 
-       axios
-         .post(`http://localhost:7227/api/qualities`, qualityValue, {
-           headers: {
-             'content-type': 'application/json',
-           },
-         })
-         .then((res) => {
-           const qualities = this.state.qualities;
-           const latestData = res.data;
-           this.setState((prevState) => {
-             return {
-               qualities: [...prevState.qualities, latestData],
-             };
-           });
-         });
-
-       this.showDialog(false);
+      if (isEdit) {
+        axios
+          .put(`/api/qualities/` + qualityValue.id, qualityValue, {
+            headers: {
+              'content-type': 'application/json',
+            },
+          })
+          .then((res) => {
+            // const parties = this.state.parties;
+            // const latestData = res.data;
+            let indx = this.setState((prevState) => {
+              let indx = prevState.qualities.findIndex(
+                (i) => i.id === qualityValue.id
+              );
+              return {
+                quality: [
+                  ...prevState.qualities.slice(0, indx),
+                  qualityValue,
+                  ...prevState.qualities.slice(indx + 1),
+                ],
+              };
+            });
+          });
+      } else {
+        axios
+          .post(`/api/qualities`, qualityValue, {
+            headers: {
+              'content-type': 'application/json',
+            },
+          })
+          .then((res) => {
+            const qualities = this.state.qualities;
+            const latestData = res.data;
+            this.setState((prevState) => {
+              return {
+                qualities: [...prevState.qualities, latestData],
+              };
+            });
+          });
+      }
+      this.showDialog(false);
     } else {
       validator.showMessages();
       // rerender to show messages for the first time
       // you can use the autoForceUpdate option to do this automatically`
       this.forceUpdate();
     }
-    
   }
 
   render() {
@@ -170,7 +236,10 @@ class Qualities extends React.Component {
         <QualitiesDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(qualityValue, validator) => this.saveDetails(qualityValue, validator)}
+          onSave={(qualityValue, validator, isEdit) =>
+            this.saveDetails(qualityValue, validator, isEdit)
+          }
+          editModeQualityValue={this.state.editModeQualityValue}
         />
       </Box>
     );
