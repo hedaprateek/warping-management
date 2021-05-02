@@ -69,7 +69,7 @@ export function InputDate({ label, ...props }) {
     <FormField label={label}>
       <KeyboardDatePicker
         margin="none"
-        format="MM/dd/yyyy"
+        format="dd/MM/yyyy"
         KeyboardButtonProps={{
           'aria-label': 'change date',
         }}

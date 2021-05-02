@@ -11,7 +11,7 @@ import TableComponent from '../TableComponent';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import Select from 'react-select';
-import {FormField, InputSelectSearch} from '../FormElements';
+import {FormField, InputDate, InputSelectSearch} from '../FormElements';
 
 
 const useStyles = makeStyles((theme)=>({
@@ -192,34 +192,22 @@ export default function InwardReport(props) {
             </FormField>
           </Grid>
           <Grid item md={2} xs={12}>
-            <FormField label="From date">
-              <KeyboardDatePicker
-                disableToolbar
-                variant="inline"
-                format="dd/MM/yyyy"
-                value={filter.from_date}
-                onChange={() => {}}
-                KeyboardButtonProps={{
-                  'aria-label': 'change date',
-                }}
-                fullWidth
-              />
-            </FormField>
+            <InputDate
+              label="From date"
+              value={filter.from_date}
+              onChange={(value) => {
+                setFilter((prev) => ({ ...prev, from_date: value }));
+              }}
+            />
           </Grid>
           <Grid item md={2} xs={12}>
-            <FormField label="To date">
-              <KeyboardDatePicker
-                disableToolbar
-                variant="inline"
-                format="dd/MM/yyyy"
-                value={filter.to_date}
-                onChange={() => {}}
-                KeyboardButtonProps={{
-                  'aria-label': 'change date',
-                }}
-                fullWidth
-              />
-            </FormField>
+            <InputDate
+              label="To date"
+              value={filter.to_date}
+              onChange={(value) => {
+                setFilter((prev) => ({ ...prev, to_date: value }));
+              }}
+            />
           </Grid>
           <Grid item md={4} xs={12} style={{ display: 'flex' }}>
             <Button
