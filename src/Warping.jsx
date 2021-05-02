@@ -19,6 +19,18 @@ import DataGrid from './DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
 
+const ROUND_DECIMAL = 5;
+
+function parse(num) {
+  if(!isNaN(num)) {
+    num = Math.round(num + "e" + ROUND_DECIMAL);
+    return Number(num + "e" + -ROUND_DECIMAL);
+  } else {
+    return Number(0.0);
+  }
+}
+
+
 const warpingReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
   let rows = null;
@@ -28,8 +40,8 @@ const warpingReducer = (state, action)=>{
       break;
     case 'set_value':
       _.set(newState, action.path, action.value);
-      if(action.postReducer) {
-        newState = action.postReducer(newState);
+      if(action.path.indexOf('designs') > -1) {
+        newState = designReducer(newState, _.slice(action.path, 0, action.path.indexOf('designs')+2));
       }
       break;
     case 'add_grid_row':
@@ -41,12 +53,29 @@ const warpingReducer = (state, action)=>{
       rows = _.get(newState, action.path, []);
       rows.splice(action.value, 1);
       _.set(newState, action.path, rows);
-      if(action.postReducer) {
-        newState = action.postReducer(newState, true);
+      let desInd = action.path.indexOf('designs');
+      if(desInd < action.path.length-1) {
+        newState = designReducer(newState, _.slice(action.path, 0, action.path.indexOf('designs')+2));
       }
       break;
   }
   return newState;
+}
+
+function designReducer(state, path) {
+  let designData = _.get(state, path);
+  designData.totalMeter = parse(designData.lassa)*parse(designData.cuts);
+
+  designData.totalEnds = 0;
+  (designData.qualities || []).forEach((q)=>{
+    designData.totalEnds += parse(q.ends);
+    q.usedYarn = parse(designData.totalMeter*parse(q.ends)/1693.333/parse(q.count));
+  });
+
+  designData.actualUsedYarn = parse(designData.filledBeamWt) - parse(designData.emptyBeamWt);
+
+  _.set(state, path, designData);
+  return state;
 }
 
 function getNumberCell(dataDispatch, basePath, readOnly=false) {
@@ -84,19 +113,21 @@ function getSelectCell(dataDispatch, basePath, options, readOnly=false) {
 }
 
 
-function DesignDetails({data, accessPath, dataDispatch, onRemove, qualityOpts}) {
+function DesignDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityOpts}) {
   const onChange = (e, name)=>{
     if(e.target) {
       dataDispatch({
         type: 'set_value',
         path: accessPath.concat(e.target.name),
         value: e.target.value,
+        postReducer: designReducer,
       });
     } else {
       dataDispatch({
         type: 'set_value',
         path: accessPath.concat(name),
         value: e,
+        postReducer: designReducer,
       });
     }
   };
@@ -134,17 +165,33 @@ function DesignDetails({data, accessPath, dataDispatch, onRemove, qualityOpts}) 
     {
       Header: 'Ends',
       accessor: 'ends',
-      Cell: getNumberCell(dataDispatch, accessPath.concat('qualities'))
+      Cell: getNumberCell(dataDispatch, accessPath.concat('qualities')),
     },
     {
       Header: 'Count',
       accessor: 'count',
-      Cell: getNumberCell(dataDispatch, accessPath.concat('qualities'))
+      Cell: getNumberCell(dataDispatch, accessPath.concat('qualities')),
+      Footer: ()=>'Total used yarn',
     },
     {
       Header: 'Used yarn',
       accessor: 'usedYarn',
-      Cell: getNumberCell(null, accessPath.concat('qualities'), true)
+      Cell: getNumberCell(null, accessPath.concat('qualities'), true),
+      Footer: (info)=>{
+        let total = info.rows.reduce((sum, row) => {
+            return (row.values[info.column.id] || 0) + sum
+          }, 0
+        );
+        total = parse(total);
+        return (
+          <OutlinedInput
+            fullWidth type="number" value={total} readOnly
+            size="small"
+            margin="dense"
+            value={total}
+          />
+        );
+      },
     },
   ], [qualityOpts]);
 
@@ -152,11 +199,14 @@ function DesignDetails({data, accessPath, dataDispatch, onRemove, qualityOpts}) 
   return (
     <Card variant="outlined" style={{marginBottom: '0.5rem'}}>
       <CardHeader title="Design details" titleTypographyProps={{variant: 'h6'}} action={
-        <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>
+        <Box>
+          <Button color="primary" variant="outlined" onClick={onCopy} style={{marginRight:'0.5rem'}}>Copy</Button>
+          <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>
+        </Box>
       } />
       <CardContent>
         <Grid container spacing={1}>
-          <Grid item lg={3} md={3} sm={12} xs={12}>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputText
               label="Design"
               name="design"
@@ -164,15 +214,35 @@ function DesignDetails({data, accessPath, dataDispatch, onRemove, qualityOpts}) 
               onChange={onChange}
             />
           </Grid>
-          <Grid item lg={3} md={3} sm={12} xs={12}>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputText
-              label="Meter"
-              name="meter"
-              value={data.meter}
+              label="Lassa"
+              name="lassa"
+              value={data.lassa}
               onChange={onChange}
+              type="number"
             />
           </Grid>
-          <Grid item lg={3} md={3} sm={12} xs={12}>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
+            <InputText
+              label="Cuts"
+              name="cuts"
+              value={data.cuts}
+              onChange={onChange}
+              type="number"
+            />
+          </Grid>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
+            <InputText
+              label="Total Meter"
+              name="totalMeter"
+              value={data.totalMeter}
+              onChange={onChange}
+              type="number"
+              readOnly
+            />
+          </Grid>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputText
               label="Total Ends"
               name="totalEnds"
@@ -181,7 +251,7 @@ function DesignDetails({data, accessPath, dataDispatch, onRemove, qualityOpts}) 
               readOnly
             />
           </Grid>
-          <Grid item lg={3} md={3} sm={12} xs={12}>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputDate
               label="Date"
               name="date"
@@ -199,6 +269,35 @@ function DesignDetails({data, accessPath, dataDispatch, onRemove, qualityOpts}) 
             value: {},
           });
         }}>Add quality</Button>
+        <Grid container spacing={1}>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
+            <InputText
+              label="Filled beam wt."
+              name="filledBeamWt"
+              value={data.filledBeamWt}
+              onChange={onChange}
+              type="number"
+            />
+          </Grid>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
+            <InputText
+              label="Empty beam wt."
+              name="emptyBeamWt"
+              value={data.emptyBeamWt}
+              onChange={onChange}
+              type="number"
+            />
+          </Grid>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
+            <InputText
+              label="Actual used yarn"
+              name="actualUsedYarn"
+              value={data.actualUsedYarn}
+              onChange={onChange}
+              readOnly
+            />
+          </Grid>
+        </Grid>
       </CardContent>
     </Card>
   );
@@ -307,6 +406,13 @@ function WarpingDialog({ open, ...props }) {
                   type: 'remove_grid_row',
                   path: ['designs'],
                   value: i,
+                });
+              }}
+              onCopy={()=>{
+                warpingDispatch({
+                  type: 'add_grid_row',
+                  path: ['designs'],
+                  value: design,
                 });
               }}
               qualityOpts={qualityOpts}
