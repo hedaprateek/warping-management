@@ -3,15 +3,43 @@ var router = require('express').Router();
 const db = require('../db/models');
 
 router.get('/', function(req, res) {
-  db.Qualities.findAll({
-    order: [['name', 'ASC']],
-    raw: true,
-  }).then((data)=>{
-    res.status(200).json(data);
-  })
-  .catch(err => {
-    console.error('Unable to connect to the database:', err);
-  });
+  if(req.query.partyId) {
+    db.Inward.findAll({
+      raw: true,
+      attributes: ['qualityId'],
+      where: {
+        'partyId': req.query.partyId,
+      },
+    }).then((data)=>{
+      console.log(data);
+      let qualityIn = data.map((q)=>q.qualityId);
+      console.log(qualityIn);
+      db.Qualities.findAll({
+        order: [['name', 'ASC']],
+        raw: true,
+        where: {
+          id: qualityIn,
+        },
+      }).then((data)=>{
+        res.status(200).json(data);
+      })
+      .catch(err => {
+        res.status(500).json({message: err});
+      });
+    }).catch(err => {
+      res.status(500).json({message: err});
+    });
+  } else {
+    db.Qualities.findAll({
+      order: [['name', 'ASC']],
+      raw: true,
+    }).then((data)=>{
+      res.status(200).json(data);
+    })
+    .catch(err => {
+      res.status(500).json({message: err});
+    });
+  }
 });
 
 router.delete('/:id', function(req, res) {
@@ -23,7 +51,7 @@ router.delete('/:id', function(req, res) {
     res.status(200).json(data);
   })
   .catch(err => {
-    console.error('Unable to connect to the database:', err);
+    res.status(500).json({message: err});
   });
 });
 

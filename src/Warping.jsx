@@ -1,6 +1,9 @@
 import {
   Box,
   Button,
+  Card,
+  CardContent,
+  CardHeader,
   Grid,
   IconButton,
   OutlinedInput,
@@ -9,7 +12,7 @@ import {
 import axios from 'axios';
 import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import DraggableDialog from './DraggableDialog';
-import { FormField, InputSelect, InputText } from './FormElements';
+import { FormField, InputDate, InputSelect, InputSelectSearch, InputText } from './FormElements';
 import TableComponent from './TableComponent';
 import Select from 'react-select';
 import DataGrid from './DataGrid';
@@ -46,7 +49,7 @@ const warpingReducer = (state, action)=>{
   return newState;
 }
 
-function getTextCell(dataDispatch, basePath, readOnly=false) {
+function getNumberCell(dataDispatch, basePath, readOnly=false) {
   return ({value, row, column})=>{
     return <OutlinedInput
       fullWidth type="number" value={value} readOnly={readOnly}
@@ -62,9 +65,27 @@ function getTextCell(dataDispatch, basePath, readOnly=false) {
   };
 }
 
+function getSelectCell(dataDispatch, basePath, options, readOnly=false) {
+  return ({value, row, column})=>{
+    return <InputSelectSearch
+      value={options.filter(
+        (op) => op.value === value
+      )}
+      onChange={(value) => {
+        dataDispatch({
+          type: 'set_value',
+          path: basePath.concat([row.index, column.id]),
+          value: value.value,
+        })
+      }}
+      options={options}
+    />
+  };
+}
 
-function DesignDetails({data, accessPath, dataDispatch, onRemove}) {
-  const onChange = (e, path)=>{
+
+function DesignDetails({data, accessPath, dataDispatch, onRemove, qualityOpts}) {
+  const onChange = (e, name)=>{
     if(e.target) {
       dataDispatch({
         type: 'set_value',
@@ -74,8 +95,8 @@ function DesignDetails({data, accessPath, dataDispatch, onRemove}) {
     } else {
       dataDispatch({
         type: 'set_value',
-        path: accessPath.concat(e.target.name),
-        value: e.target.value,
+        path: accessPath.concat(name),
+        value: e,
       });
     }
   };
@@ -105,72 +126,85 @@ function DesignDetails({data, accessPath, dataDispatch, onRemove}) {
     {
       Header: 'Quality',
       accessor: 'qualityId',
-      Cell: getTextCell(dataDispatch, accessPath.concat('qualities'))
+      style: {
+        width: '40%',
+      },
+      Cell: getSelectCell(dataDispatch, accessPath.concat('qualities'), qualityOpts)
     },
     {
       Header: 'Ends',
       accessor: 'ends',
-      Cell: getTextCell(dataDispatch, accessPath.concat('qualities'))
+      Cell: getNumberCell(dataDispatch, accessPath.concat('qualities'))
     },
     {
       Header: 'Count',
       accessor: 'count',
-      Cell: getTextCell(dataDispatch, accessPath.concat('qualities'))
+      Cell: getNumberCell(dataDispatch, accessPath.concat('qualities'))
     },
     {
       Header: 'Used yarn',
       accessor: 'usedYarn',
-      Cell: getTextCell(null, accessPath.concat('qualities'), true)
+      Cell: getNumberCell(null, accessPath.concat('qualities'), true)
     },
-  ], []);
+  ], [qualityOpts]);
 
 
   return (
-    <Paper variant="outlined" style={{padding: '1rem', marginBottom: '0.5rem'}}>
-      <Grid container spacing={2}>
-        <Grid item lg={3} md={3} sm={12} xs={12}>
-          <InputText
-            label="Design"
-            name="design"
-            value={data.design}
-            onChange={onChange}
-          />
+    <Card variant="outlined" style={{marginBottom: '0.5rem'}}>
+      <CardHeader title="Design details" titleTypographyProps={{variant: 'h6'}} action={
+        <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>
+      } />
+      <CardContent>
+        <Grid container spacing={1}>
+          <Grid item lg={3} md={3} sm={12} xs={12}>
+            <InputText
+              label="Design"
+              name="design"
+              value={data.design}
+              onChange={onChange}
+            />
+          </Grid>
+          <Grid item lg={3} md={3} sm={12} xs={12}>
+            <InputText
+              label="Meter"
+              name="meter"
+              value={data.meter}
+              onChange={onChange}
+            />
+          </Grid>
+          <Grid item lg={3} md={3} sm={12} xs={12}>
+            <InputText
+              label="Total Ends"
+              name="totalEnds"
+              value={data.totalEnds}
+              onChange={onChange}
+              readOnly
+            />
+          </Grid>
+          <Grid item lg={3} md={3} sm={12} xs={12}>
+            <InputDate
+              label="Date"
+              name="date"
+              value={data.date}
+              onChange={(v)=>onChange(v, 'date')}
+            />
+          </Grid>
         </Grid>
-        <Grid item lg={3} md={3} sm={12} xs={12}>
-          <InputText
-            label="Meter"
-            name="meter"
-            value={data.meter}
-            onChange={onChange}
-          />
-        </Grid>
-        <Grid item lg={3} md={3} sm={12} xs={12}>
-          <InputText
-            label="Total Ends"
-            name="totalEnds"
-            value={data.totalEnds}
-            onChange={onChange}
-            readOnly
-          />
-        </Grid>
-        <Grid item lg={3} md={3} sm={12} xs={12} style={{textAlign: 'end'}}>
-          <IconButton color="secondary" onClick={onRemove}><DeleteForeverRoundedIcon /></IconButton>
-        </Grid>
-      </Grid>
-      <Box p={1}></Box>
-      <DataGrid columns={qualityCols} data={data.qualities || []} showFooter={true} />
-      <Button variant="outlined" color="primary" onClick={()=>{
-        dataDispatch({
-          type: 'add_grid_row',
-          path: accessPath.concat('qualities'),
-          value: {},
-        });
-      }}>Add quality</Button>
-    </Paper>
-  )
+        <Box p={1}></Box>
+        <DataGrid columns={qualityCols} data={data.qualities || []} showFooter={true} />
+        <Button variant="outlined" color="primary" onClick={()=>{
+          dataDispatch({
+            type: 'add_grid_row',
+            path: accessPath.concat('qualities'),
+            value: {},
+          });
+        }}>Add quality</Button>
+      </CardContent>
+    </Card>
+  );
 }
 
-function WarpingDialog({ ...props }) {
+function WarpingDialog({ open, ...props }) {
   const defaultDesign = {
     design: '',
     meter: '',
@@ -183,16 +217,34 @@ function WarpingDialog({ ...props }) {
   const [warpingValue, warpingDispatch] = useReducer(warpingReducer, defaults);
   const [partiesOpts, setPartiesOpts] = useState([]);
   const [weaverOpts, setWeaverOpts] = useState([]);
+  const [qualityOpts, setQualityOpts] = useState([]);
 
   useEffect(()=>{
-    axios.get('/api/parties')
-      .then((res)=>{
-        setPartiesOpts(res.data.map((party)=>({label: party.name, value: party.id})));
-      })
-      .catch((err)=>{
+    if(open) {
+      axios.get('/api/parties')
+        .then((res)=>{
+          setPartiesOpts(res.data.filter((p)=>p.isWeaver=='Party').map((party)=>({label: party.name, value: party.id})));
+          setWeaverOpts(res.data.filter((p)=>p.isWeaver=='Weaver').map((party)=>({label: party.name, value: party.id})));
+        })
+        .catch((err)=>{
+          console.log(err);
+        });
+    }
+  }, [open]);
+
+  useEffect(()=>{
+    if(!_.isUndefined(warpingValue.partyId) && !_.isNull(warpingValue.partyId)) {
+      axios.get('/api/qualities', {
+        params: {
+          partyId: warpingValue.partyId,
+        }
+      }).then((res)=>{
+        setQualityOpts(res.data.map((quality)=>({label: quality.name, value: quality.id})));
+      }).catch((err)=>{
         console.log(err);
       });
-  }, []);
+    }
+  }, [warpingValue.partyId]);
 
 
   function updatewarpingValues(e, name) {
@@ -218,6 +270,7 @@ function WarpingDialog({ ...props }) {
       onSave={() => {
         props.onSave(warpingValue);
       }}
+      open={open}
       fullScreen
     >
       <Grid container>
@@ -248,13 +301,16 @@ function WarpingDialog({ ...props }) {
           </Grid>
           <Box p={1}></Box>
           {warpingValue.designs.map((design, i)=>{
-            return <DesignDetails data={design} accessPath={['designs', i]} dataDispatch={warpingDispatch} onRemove={()=>{
-              warpingDispatch({
-                type: 'remove_grid_row',
-                path: ['designs'],
-                value: i,
-              });
-            }}/>
+            return <DesignDetails data={design} accessPath={['designs', i]} dataDispatch={warpingDispatch}
+              onRemove={()=>{
+                warpingDispatch({
+                  type: 'remove_grid_row',
+                  path: ['designs'],
+                  value: i,
+                });
+              }}
+              qualityOpts={qualityOpts}
+            />
           })}
           <Button color="primary" variant="outlined" onClick={()=>{
             warpingDispatch({

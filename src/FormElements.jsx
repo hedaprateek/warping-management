@@ -72,6 +72,7 @@ export function InputDate({ label, ...props }) {
         KeyboardButtonProps={{
           'aria-label': 'change date',
         }}
+        fullWidth
         {...props}
       />
     </FormField>
