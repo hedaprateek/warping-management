@@ -8,14 +8,21 @@ import {
 } from '@material-ui/core';
 import { KeyboardDatePicker } from '@material-ui/pickers';
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import SimpleReactValidator from 'simple-react-validator';
 import DraggableDialog from './DraggableDialog';
 import { InputDate, InputSelectSearch, InputText } from './FormElements';
-import SelectComponent from './selectComponent';
 import TableComponent from './TableComponent';
 
-function InwardDialog({ ...props }) {
-  const [inwardValue, setInwardValue] = useState({});
+function InwardDialog({ open, ...props }) {
+  const [validator, setValidator] = useState(new SimpleReactValidator());
+
+  const defaults = {
+    partyId: '',
+    qualityId: '',
+    date: new Date(),
+  };
+  const [inwardValue, setInwardValue] = useState(defaults);
 
   function updateInwardValues(e, id) {
     if (e.target) {
@@ -50,14 +57,32 @@ function InwardDialog({ ...props }) {
     return selectVal;
   };
 
+  useEffect(() => {
+    setInwardValue(defaults);
+    setValidator(new SimpleReactValidator());
+  }, [open]);
+
   return (
     <DraggableDialog
       sectionTitle="Inward"
+      open={open}
       {...props}
       onSave={() => {
-        props.onSave(inwardValue);
+        props.onSave(inwardValue, validator);
       }}
     >
+      <InputSelectSearch
+        value={getSelectValue(props.parties, inwardValue.partyId)}
+        onChange={(value) => {
+          updateInwardValues(value.value, 'partyId');
+        }}
+        options={props.parties
+          .filter((p) => p.isWeaver === 'Party')
+          .map((party) => ({ label: party.name, value: party.id }))}
+        label="Party"
+        errorMsg={validator.message('Party', inwardValue.partyId, 'required')}
+      />
+      <br />
       <InputSelectSearch
         value={getSelectValue(props.qualities, inwardValue.qualityId)}
         onChange={(value) => {
@@ -68,29 +93,15 @@ function InwardDialog({ ...props }) {
           value: quality.id,
         }))}
         label="Quality"
+        errorMsg={validator.message(
+          'Quality',
+          inwardValue.qualityId,
+          'required'
+        )}
       />
 
       <br />
-      <InputSelectSearch
-        value={getSelectValue(props.parties, inwardValue.partyId)}
-        onChange={(value) => {
-          updateInwardValues(value.value, 'partyId');
-        }}
-        options={props.parties.map((party) => ({
-          label: party.name,
-          value: party.id,
-        }))}
-        label="Party"
-      />
-      {/* <SelectComponent
-        selectionOptions={props.parties.map((party) => ({
-          label: party.name,
-          value: party.id,
-          id: 'partyId',
-        }))}
-        parentCallback={callbackFromChild}
-      /> */}
-      <br />
+
       <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
           <InputDate
@@ -99,17 +110,6 @@ function InwardDialog({ ...props }) {
             value={inwardValue.date}
             onChange={(value) => updateInwardValues(value, 'date')}
           />
-          {/* <KeyboardDatePicker
-            margin="normal"
-            id="date"
-            label="Date"
-            format="MM/dd/yyyy"
-            value={inwardValue.date}
-            onChange={(value) => updateInwardValues(value, 'date')}
-            KeyboardButtonProps={{
-              'aria-label': 'change date',
-            }}
-          /> */}
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
           <InputText
@@ -117,7 +117,7 @@ function InwardDialog({ ...props }) {
             variant="outlined"
             fullWidth
             id="gatepass"
-            value={inwardValue.desc}
+            value={inwardValue.gatepass}
             onChange={updateInwardValues}
           />
         </Grid>
@@ -127,8 +127,13 @@ function InwardDialog({ ...props }) {
             variant="outlined"
             fullWidth
             id="qtyBags"
-            value={inwardValue.name}
+            value={inwardValue.qtyBags}
             onChange={updateInwardValues}
+            errorMsg={validator.message(
+              'Quantity bags',
+              inwardValue.qtyBags,
+              'required|numeric'
+            )}
           />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
@@ -137,8 +142,13 @@ function InwardDialog({ ...props }) {
             variant="outlined"
             fullWidth
             id="qtyCones"
-            value={inwardValue.desc}
+            value={inwardValue.qtyCones}
             onChange={updateInwardValues}
+            errorMsg={validator.message(
+              'Quantity Cones',
+              inwardValue.qtyCones,
+              'required|numeric'
+            )}
           />
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
@@ -147,7 +157,7 @@ function InwardDialog({ ...props }) {
             variant="outlined"
             fullWidth
             id="lotNo"
-            value={inwardValue.name}
+            value={inwardValue.lotNo}
             onChange={updateInwardValues}
           />
         </Grid>
@@ -157,8 +167,13 @@ function InwardDialog({ ...props }) {
             variant="outlined"
             fullWidth
             id="netWt"
-            value={inwardValue.desc}
+            value={inwardValue.netWt}
             onChange={updateInwardValues}
+            errorMsg={validator.message(
+              'Net Weight',
+              inwardValue.netWt,
+              'required|numeric'
+            )}
           />
         </Grid>
       </Grid>
@@ -257,32 +272,39 @@ class Inwards extends React.Component {
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails(inwardValue) {
-    console.log(inwardValue);
+  saveDetails(inwardValue, validator) {
+    if (validator.allValid()) {
+      console.log(inwardValue);
 
-    if (!inwardValue.partyId) {
-      inwardValue.partyId = '1';
-    }
+      if (!inwardValue.partyId) {
+        inwardValue.partyId = '1';
+      }
 
-    if (!inwardValue.qualityId) {
-      inwardValue.qualityId = '1';
-    }
+      if (!inwardValue.qualityId) {
+        inwardValue.qualityId = '1';
+      }
 
-    axios
-      .post(`/api/inward`, inwardValue, {
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-      .then((res) => {
-        const parties = this.state.parties;
-        const latestData = res.data;
-        this.setState((prevState) => {
-          return { inward: [...prevState.inward, latestData] };
+      axios
+        .post(`/api/inward`, inwardValue, {
+          headers: {
+            'content-type': 'application/json',
+          },
+        })
+        .then((res) => {
+          const parties = this.state.parties;
+          const latestData = res.data;
+          this.setState((prevState) => {
+            return { inward: [...prevState.inward, latestData] };
+          });
         });
-      });
 
-    this.showDialog(false);
+      this.showDialog(false);
+    } else {
+      validator.showMessages();
+      // rerender to show messages for the first time
+      // you can use the autoForceUpdate option to do this automatically`
+      this.forceUpdate();
+    }
   }
 
   render() {
@@ -305,7 +327,9 @@ class Inwards extends React.Component {
         <InwardDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(inwardValue) => this.saveDetails(inwardValue)}
+          onSave={(inwardValue, validator) =>
+            this.saveDetails(inwardValue, validator)
+          }
           parties={this.state.parties}
           qualities={this.state.qualities}
         />
