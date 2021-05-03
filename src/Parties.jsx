@@ -221,7 +221,7 @@ class Parties extends React.Component {
                 (i) => i.id === partyValue.id
               );
               return {
-                party: [
+                parties: [
                   ...prevState.parties.slice(0, indx),
                   partyValue,
                   ...prevState.parties.slice(indx + 1),

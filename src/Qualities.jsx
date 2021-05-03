@@ -171,7 +171,7 @@ class Qualities extends React.Component {
                 (i) => i.id === qualityValue.id
               );
               return {
-                quality: [
+                qualities: [
                   ...prevState.qualities.slice(0, indx),
                   qualityValue,
                   ...prevState.qualities.slice(indx + 1),
