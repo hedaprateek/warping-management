@@ -18,7 +18,6 @@ router.get('/inward', function(req, res) {
       [Op.in]: req.query.qualities.map((v)=>parseInt(v)),
     }
   }
-  console.log(where);
   db.Inward.findAll({
     attributes: ['date', [Sequelize.col('PartyDetails.name'), 'party'],
       'gatepass', [Sequelize.col('QualityDetails.name'), 'quality'], 'lotNo', 'netWt'],
@@ -27,7 +26,19 @@ router.get('/inward', function(req, res) {
     where: where,
     include: ["PartyDetails", "QualityDetails"],
   }).then((data)=>{
-    res.status(200).json(data);
+    let retVal = {};
+    data.forEach((row)=>{
+      let party = retVal[row.party] = retVal[row.party] || {};
+      let quality = party[row.quality] = party[row.quality] || [];
+      quality.push({
+        date: row.date,
+        gatepass: row.gatepass,
+        lotNo: row.lotNo,
+        netWt: row.netWt
+      });
+    })
+
+    res.status(200).json(retVal);
   })
   .catch(err => {
     console.error('DB execute error:', err);

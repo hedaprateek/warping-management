@@ -18,17 +18,7 @@ import Select from 'react-select';
 import DataGrid from './DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
-
-const ROUND_DECIMAL = 5;
-
-function parse(num) {
-  if(!isNaN(num)) {
-    num = Math.round(num + "e" + ROUND_DECIMAL);
-    return Number(num + "e" + -ROUND_DECIMAL);
-  } else {
-    return Number(0.0);
-  }
-}
+import { parse } from './utils';
 
 
 const warpingReducer = (state, action)=>{
@@ -454,10 +444,6 @@ class Warping extends React.Component {
         accessor: 'date', // accessor is the "key" in the data
       },
       {
-        Header: 'Design No',
-        accessor: 'design',
-      },
-      {
         Header: 'Party Name',
         accessor: 'partyId',
       },
@@ -466,8 +452,12 @@ class Warping extends React.Component {
         accessor: 'weaverId',
       },
       {
-        Header: 'Total Ends',
-        accessor: 'totalEnds', // accessor is the "key" in the data
+        Header: 'Design No',
+        accessor: 'design',
+      },
+      {
+        Header: 'Actual used yarn',
+        accessor: 'actualUsedYarn', // accessor is the "key" in the data
       },
     ],
   };

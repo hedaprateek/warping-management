@@ -36,6 +36,7 @@ const useStyles = makeStyles(()=>({
   table: {
     borderSpacing: 0,
     border: '1px solid black',
+    width: '100%'
   },
   tr: {
 
@@ -54,13 +55,14 @@ const useStyles = makeStyles(()=>({
   }
 }));
 
-function ReportTable({ columns, data }) {
+export function ReportTable({ columns, data, showFooter }) {
   const classes = useStyles();
   // Use the state and functions returned from useTable to build your UI
   const {
     getTableProps,
     getTableBodyProps,
     headerGroups,
+    footerGroups,
     rows,
     prepareRow,
   } = useTable({
@@ -92,6 +94,16 @@ function ReportTable({ columns, data }) {
           )
         })}
       </tbody>
+      {showFooter &&
+        <tfoot>
+        {footerGroups.map(group => (
+          <tr {...group.getFooterGroupProps()}>
+            {group.headers.map(column => (
+              <td {...column.getFooterProps()} className={classes.td}>{column.render('Footer')}</td>
+            ))}
+          </tr>
+        ))}
+      </tfoot>}
     </table>
   )
 }

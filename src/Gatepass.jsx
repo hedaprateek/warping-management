@@ -295,7 +295,7 @@ function GatepassDialog({ open, ...props }) {
 
   return (
     <DraggableDialog
-      sectionTitle="Program"
+      sectionTitle="Gatepass"
       {...props}
       onSave={() => {
         props.onSave(warpingValue);
@@ -385,10 +385,6 @@ class Gatepass extends React.Component {
         accessor: 'date', // accessor is the "key" in the data
       },
       {
-        Header: 'Design No',
-        accessor: 'design',
-      },
-      {
         Header: 'Party Name',
         accessor: 'partyId',
       },
@@ -397,8 +393,12 @@ class Gatepass extends React.Component {
         accessor: 'weaverId',
       },
       {
-        Header: 'Total Ends',
-        accessor: 'totalEnds', // accessor is the "key" in the data
+        Header: 'Quality name',
+        accessor: 'qualityIds',
+      },
+      {
+        Header: 'NetWt',
+        accessor: 'netWt', // accessor is the "key" in the data
       },
     ],
   };

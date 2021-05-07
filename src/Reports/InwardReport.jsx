@@ -1,17 +1,18 @@
-import { Box, Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect } from '@material-ui/core';
+import { Box, Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect, Typography } from '@material-ui/core';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   MuiPickersUtilsProvider,
   KeyboardTimePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
-import CommonReport from './CommonReport';
+import CommonReport, { ReportTable } from './CommonReport';
 import ReactToPrint from 'react-to-print';
 import TableComponent from '../TableComponent';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import Select from 'react-select';
 import {FormField, InputDate, InputSelectSearch} from '../FormElements';
+import { parse } from '../utils';
 
 
 const useStyles = makeStyles((theme)=>({
@@ -146,11 +147,12 @@ export default function InwardReport(props) {
                 value={partiesOpts.filter(
                   (party) => party.value === filter.party_id
                 )}
-                onChange={(value) => {
-                  setFilter((prev) => ({ ...prev, party_id: value.value }));
+                onChange={(op) => {
+                  setFilter((prev) => ({ ...prev, party_id: op?.value }));
                 }}
                 options={partiesOpts}
                 label="Party"
+                isClearable
               />
           </Grid>
           <Grid item md={4} xs={12}>
@@ -222,8 +224,65 @@ export default function InwardReport(props) {
         </Grid>
       </Box>
       <ReportViewer>
-        <CommonReport columns={columns} data={data} />
+        <FinalReport data={data} />
+
+        {/* <CommonReport columns={columns} data={data} /> */}
       </ReportViewer>
     </Box>
   );
+}
+// {"party1":{"q1":[{"date":"2021-05-07","gatepass":"123","lotNo":"1","netWt":123}]}}
+
+function FinalReport({data}) {
+  return (
+    <>
+      {Object.keys(data).map((partyName)=>{
+        let party = data[partyName];
+        return (
+          <>
+          <Box borderTop={1} margin={1}></Box>
+          <Typography>Party: {partyName}</Typography>
+          {Object.keys(party).map((qualityName)=>{
+            let quality = party[qualityName];
+            return (
+              <>
+              <Typography>Quality: {qualityName}</Typography>
+              <ReportTable showFooter data={quality} columns={[
+                {
+                  Header: 'Date',
+                  accessor: 'date',
+                },
+                {
+                  Header: 'Gatepass No.',
+                  accessor: 'gatepass',
+                },
+                {
+                  Header: 'Lot number',
+                  accessor: 'lotNo',
+                  Footer: (info)=>{
+                    return <span style={{fontWeight: 'bold'}}>Total</span>
+                  }
+                },
+                {
+                  Header: 'Net Wt.',
+                  accessor: 'netWt',
+                  Footer: (info)=>{
+                    let total = info.rows.reduce((sum, row) => {
+                        return (row.values[info.column.id] || 0) + sum
+                      }, 0
+                    );
+                    total = parse(total);
+                    return <span style={{fontWeight: 'bold'}}>{total}</span>
+                  }
+                },
+              ]}/>
+              </>
+            )
+          })}
+          </>
+        )
+      })}
+      <ReportTable columns={[]}/>
+    </>
+  )
 }
