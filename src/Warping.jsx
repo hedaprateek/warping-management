@@ -431,7 +431,7 @@ function WarpingDialog({ open, ...props }) {
   );
 }
 
-class Parties extends React.Component {
+class Warping extends React.Component {
   componentDidMount() {
     axios.get(`http://localhost:7227/api/warping`).then((res) => {
       const warpings = res.data;
@@ -534,4 +534,4 @@ class Parties extends React.Component {
   }
 }
 
-export default Parties;
+export default Warping;

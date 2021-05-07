@@ -14,13 +14,14 @@ import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
+import Outwards from './Outwards';
 
 
 
 const navItems = [
   {label: 'Home', to: '/', component: Home},
   {label: 'Inwards', to: '/inwards', component: Inwards},
-  {label: 'Warping', to: '/warping', component: Warping},
+  {label: 'Outwards', to: '/outwards', component: Outwards},
   {label: 'Qualities', to: '/qualities', component: Qualities},
   {label: 'Parties', to: '/parties', component: Parties},
   {label: 'Reports', to: '/reports', component: Reports},
