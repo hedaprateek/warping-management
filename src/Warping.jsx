@@ -105,7 +105,7 @@ function getSelectCell(dataDispatch, basePath, options, readOnly=false) {
 
 function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityOpts}) {
   const onChange = (e, name)=>{
-    if(e.target) {
+    if (e?.target) {
       dataDispatch({
         type: 'set_value',
         path: accessPath.concat(e.target.name),

@@ -15,17 +15,20 @@ import {
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
 import Outwards from './Outwards';
+import Settings from './Settings';
 
 
 
 const navItems = [
-  {label: 'Home', to: '/', component: Home},
-  {label: 'Inwards', to: '/inwards', component: Inwards},
-  {label: 'Outwards', to: '/outwards', component: Outwards},
-  {label: 'Qualities', to: '/qualities', component: Qualities},
-  {label: 'Parties', to: '/parties', component: Parties},
-  {label: 'Reports', to: '/reports', component: Reports},
+  { label: 'Home', to: '/', component: Home },
+  { label: 'Inwards', to: '/inwards', component: Inwards },
+  { label: 'Outwards', to: '/outwards', component: Outwards },
+  { label: 'Qualities', to: '/qualities', component: Qualities },
+  { label: 'Parties', to: '/parties', component: Parties },
+  { label: 'Reports', to: '/reports', component: Reports },
 ];
+
+const settings = { label: 'Settings', to: '/settings', component: Settings };
 
 function NavButton({to, children}) {
   let urlMatch = useRouteMatch({
@@ -45,17 +48,27 @@ export default function App() {
           <Box display="flex" flexDirection="column" height="100%">
             <AppBar position="fixed">
               <Toolbar variant="dense">
-                {navItems.map((item)=>{
-                  return <NavButton to={item.to}>{item.label}</NavButton>
+                {navItems.map((item) => {
+                  return <NavButton to={item.to}>{item.label}</NavButton>;
                 })}
+                <NavButton to={settings.to}>{settings.label}</NavButton>
               </Toolbar>
             </AppBar>
-            <Box><Toolbar variant="dense"/></Box>
-            <Box flexGrow="1" style={{minHeight: 0}}>
+            <Box>
+              <Toolbar variant="dense" />
+            </Box>
+            <Box flexGrow="1" style={{ minHeight: 0 }}>
               <Switch>
-                {navItems.map((item)=>{
-                  return <Route exact path={item.to} component={item.component} />
+                {navItems.map((item) => {
+                  return (
+                    <Route exact path={item.to} component={item.component} />
+                  );
                 })}
+                <Route
+                  exact
+                  path={settings.to}
+                  component={settings.component}
+                />
               </Switch>
             </Box>
           </Box>

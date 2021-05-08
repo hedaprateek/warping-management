@@ -31,11 +31,11 @@ function InwardDialog({ open, ...props }) {
   const [inwardValue, setInwardValue] = useState(defaults);
 
   function updateInwardValues(e, id) {
-    if (e.target) {
+    if (e?.target) {
       setInwardValue((prevValue) => {
         return { ...prevValue, [e.target.id]: e.target.value };
       });
-    } else if (id === 'date') {
+    } else if (e && id === 'date') {
       setInwardValue((prevValue) => {
         return { ...prevValue, date: e.toDateString() };
       });
