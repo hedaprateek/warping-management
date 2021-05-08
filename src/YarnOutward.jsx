@@ -18,6 +18,7 @@ import Select from 'react-select';
 import DataGrid from './DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
+import EditIcon from '@material-ui/icons/Edit';
 
 const ROUND_DECIMAL = 5;
 
@@ -243,12 +244,26 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
   );
 }
 
-function YarnOutwardDialog({ open, ...props }) {
+function parseOutwardValue(outwardValue) {
+  let newVal = [];
+  outwardValue.outwards.forEach((bag)=>{
+    newVal.push({
+      partyId: outwardValue.partyId,
+      weaverId: outwardValue.weaverId,
+      ...bag,
+    });
+  });
+
+  return newVal;
+}
+
+function YarnOutwardDialog({ open, parties, weavers,...props }) {
   const defaultOutward = {
     design: '',
     meter: '',
     totalEnds: '',
     bags: [],
+    date: new Date(),
   };
   const defaults = {
     outwards: [defaultOutward],
@@ -260,14 +275,8 @@ function YarnOutwardDialog({ open, ...props }) {
 
   useEffect(()=>{
     if(open) {
-      axios.get('/api/parties')
-        .then((res)=>{
-          setPartiesOpts(res.data.filter((p)=>p.isWeaver=='Party').map((party)=>({label: party.name, value: party.id})));
-          setWeaverOpts(res.data.filter((p)=>p.isWeaver=='Weaver').map((party)=>({label: party.name, value: party.id})));
-        })
-        .catch((err)=>{
-          console.log(err);
-        });
+      setPartiesOpts(parties.map((party)=>({label: party.name, value: party.id})));
+      setWeaverOpts(weavers.map((party)=>({label: party.name, value: party.id})));
     }
   }, [open]);
 
@@ -307,7 +316,7 @@ function YarnOutwardDialog({ open, ...props }) {
       sectionTitle="Yarn outward"
       {...props}
       onSave={() => {
-        props.onSave(outwardValue);
+        props.onSave(parseOutwardValue(outwardValue));
       }}
       open={open}
       fullScreen
@@ -373,21 +382,40 @@ function YarnOutwardDialog({ open, ...props }) {
 
 class YarnOutward extends React.Component {
   componentDidMount() {
-    axios.get(`http://localhost:7227/api/warping`).then((res) => {
-      const warpings = res.data;
-      this.setState({ warpings });
+    axios.get(`/api/parties`).then((res) => {
+      const parties = res.data.filter((p)=>p.isWeaver==='Party');
+      const weavers = res.data.filter((p)=>p.isWeaver==='Weaver');
+      this.setState({ parties, weavers });
+    });
+    axios.get(`/api/outward`).then((res) => {
+      const outwards = res.data;
+      this.setState({ outwards });
     });
   }
 
   state = {
     radioValue: 'Yes',
+    outwards: [],
     parties: [],
+    weavers: [],
     filter: '',
     dialogOpen: false,
     columns: [
       {
         Header: '',
-        accessor: 'functionButtons', // accessor is the "key" in the data
+        accessor: 'editButton',
+        id: 'btn-edit',
+        Cell: ({ row }) => {
+          return (
+            <IconButton
+              // onClick={() => {
+              //   this.editInward(row);
+              // }}
+            >
+              <EditIcon />
+            </IconButton>
+          );
+        },
       },
       {
         Header: 'Date',
@@ -403,7 +431,7 @@ class YarnOutward extends React.Component {
       },
       {
         Header: 'Quality name',
-        accessor: 'qualityIds',
+        accessor: 'qualityId',
       },
       {
         Header: 'NetWt',
@@ -417,22 +445,17 @@ class YarnOutward extends React.Component {
   }
 
   saveDetails(outwardValue) {
-
-    axios
-      .post(`http://localhost:7227/api/warping`, outwardValue, {
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-      .then((res) => {
-        const parties = this.state.parties;
-        const latestData = res.data;
-        // this.state.parties.push(latestData);
+    outwardValue.forEach((singleOut)=>{
+      axios.post('/api/outward', singleOut)
+      .then((res)=>{
         this.setState((prevState) => {
-          return { parties: [...prevState.parties, latestData] };
+          return { outwards: [...prevState.outwards, res.data] };
         });
+      })
+      .catch((err)=>{
+        console.log(err)
       });
-
+    })
     this.showDialog(false);
   }
 
@@ -460,7 +483,7 @@ class YarnOutward extends React.Component {
         <Box>
           <TableComponent
             columns={this.state.columns}
-            data={this.state.parties}
+            data={this.state.outwards}
             filterText={this.state.filter}
           />
         </Box>
@@ -468,6 +491,8 @@ class YarnOutward extends React.Component {
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
           onSave={(outwardValue) => this.saveDetails(outwardValue)}
+          parties={this.state.parties}
+          weavers={this.state.weavers}
         />
       </Box>
     );

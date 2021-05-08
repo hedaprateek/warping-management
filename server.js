@@ -26,6 +26,7 @@ module.exports = () => {
   app.use('/api/qualities', require('./routers/qualities'));
   app.use('/api/inward', require('./routers/inward'));
   app.use('/api/warping', require('./routers/warping'));
+  app.use('/api/outward', require('./routers/outward'));
   app.use('/api/reports', require('./routers/reports'));
 
   var port = 7227;

@@ -8,7 +8,7 @@ module.exports = {
       username: 'admin',
       password: encrypt('admin', 'password'),
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     }], {});
   },
 

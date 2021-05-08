@@ -19,7 +19,7 @@ import DataGrid from './DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
 import { parse } from './utils';
-
+import EditIcon from '@material-ui/icons/Edit';
 
 const warpingReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
@@ -456,7 +456,19 @@ class Warping extends React.Component {
     columns: [
       {
         Header: '',
-        accessor: 'functionButtons', // accessor is the "key" in the data
+        accessor: 'editButton',
+        id: 'btn-edit',
+        Cell: ({ row }) => {
+          return (
+            <IconButton
+              // onClick={() => {
+              //   this.editInward(row);
+              // }}
+            >
+              <EditIcon />
+            </IconButton>
+          );
+        },
       },
       {
         Header: 'Date',
