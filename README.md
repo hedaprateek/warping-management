@@ -68,3 +68,21 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `yarn build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+/* Sequelize */
+
+
+npx sequelize-cli model:generate --name Party --attributes pmttype:string,desc:string
+
+npx sequelize-cli model:generate --name MASTER_EMPLOYEE --attributes firstname:string,lastname:string,startdate:date,enddate:date,phonenumber:string
+
+npx sequelize-cli model:generate --name DAILYATTENDANCE --attributes empid:integer,firstin:date,lunchout:date,lunchin:date,finalout:date,workingtime:real,breaktime:real
+
+npx sequelize-cli model:generate --name DAILYWAGES --attributes empid:integer,wagedate:date,wages:real
+
+npx sequelize-cli model:generate --name TRASNACTION --attributes empid:integer,pmttypeid:integer,compid:integer,transdate:date,amount:real,desc:string
+
+/** Seeders **/ npx sequelize-cli seed:generate --name default-users npx sequelize-cli seed:generate --name default-wagetype
+npx sequelize-cli seed:generate --name default-settings

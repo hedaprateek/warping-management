@@ -30,8 +30,8 @@ const warpingReducer = (state, action)=>{
       break;
     case 'set_value':
       _.set(newState, action.path, action.value);
-      if(action.path.indexOf('designs') > -1) {
-        newState = designReducer(newState, _.slice(action.path, 0, action.path.indexOf('designs')+2));
+      if(action.path.indexOf('beams') > -1) {
+        newState = beamReducer(newState, _.slice(action.path, 0, action.path.indexOf('beams')+2));
       }
       break;
     case 'add_grid_row':
@@ -43,28 +43,28 @@ const warpingReducer = (state, action)=>{
       rows = _.get(newState, action.path, []);
       rows.splice(action.value, 1);
       _.set(newState, action.path, rows);
-      let desInd = action.path.indexOf('designs');
+      let desInd = action.path.indexOf('beams');
       if(desInd < action.path.length-1) {
-        newState = designReducer(newState, _.slice(action.path, 0, action.path.indexOf('designs')+2));
+        newState = beamReducer(newState, _.slice(action.path, 0, action.path.indexOf('beams')+2));
       }
       break;
   }
   return newState;
 }
 
-function designReducer(state, path) {
-  let designData = _.get(state, path);
-  designData.totalMeter = parse(designData.lassa)*parse(designData.cuts);
+function beamReducer(state, path) {
+  let beamData = _.get(state, path);
+  beamData.totalMeter = parse(beamData.lassa)*parse(beamData.cuts);
 
-  designData.totalEnds = 0;
-  (designData.qualities || []).forEach((q)=>{
-    designData.totalEnds += parse(q.ends);
-    q.usedYarn = parse(designData.totalMeter*parse(q.ends)/1693.333/parse(q.count));
+  beamData.totalEnds = 0;
+  (beamData.qualities || []).forEach((q)=>{
+    beamData.totalEnds += parse(q.ends);
+    q.usedYarn = parse(beamData.totalMeter*parse(q.ends)/1693.333/parse(q.count));
   });
 
-  designData.actualUsedYarn = parse(designData.filledBeamWt) - parse(designData.emptyBeamWt);
+  beamData.actualUsedYarn = parse(beamData.filledBeamWt) - parse(beamData.emptyBeamWt);
 
-  _.set(state, path, designData);
+  _.set(state, path, beamData);
   return state;
 }
 
@@ -103,21 +103,21 @@ function getSelectCell(dataDispatch, basePath, options, readOnly=false) {
 }
 
 
-function DesignDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityOpts}) {
+function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityOpts}) {
   const onChange = (e, name)=>{
     if(e.target) {
       dataDispatch({
         type: 'set_value',
         path: accessPath.concat(e.target.name),
         value: e.target.value,
-        postReducer: designReducer,
+        postReducer: beamReducer,
       });
     } else {
       dataDispatch({
         type: 'set_value',
         path: accessPath.concat(name),
         value: e,
-        postReducer: designReducer,
+        postReducer: beamReducer,
       });
     }
   };
@@ -161,7 +161,7 @@ function DesignDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualit
       Header: 'Count',
       accessor: 'count',
       Cell: getNumberCell(dataDispatch, accessPath.concat('qualities')),
-      Footer: ()=>'Total used yarn',
+      Footer: ()=>'Net used yarn',
     },
     {
       Header: 'Used yarn',
@@ -188,7 +188,7 @@ function DesignDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualit
 
   return (
     <Card variant="outlined" style={{marginBottom: '0.5rem'}}>
-      <CardHeader title="Design details" titleTypographyProps={{variant: 'h6'}} action={
+      <CardHeader title="Beam details" titleTypographyProps={{variant: 'h6'}} action={
         <Box>
           <Button color="primary" variant="outlined" onClick={onCopy} style={{marginRight:'0.5rem'}}>Copy</Button>
           <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>
@@ -293,15 +293,33 @@ function DesignDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualit
   );
 }
 
-function WarpingDialog({ open, ...props }) {
-  const defaultDesign = {
+function parseWarpingValue(warpingValue) {
+  let newVal = [];
+  warpingValue.beams.forEach((beam)=>{
+    newVal.push({
+      partyId: warpingValue.partyId,
+      weaverId: warpingValue.weaverId,
+      ...beam,
+    });
+  });
+
+  return newVal;
+}
+
+function WarpingDialog({ open, parties, weavers, ...props }) {
+  const defaultBeam = {
     design: '',
-    meter: '',
-    totalEnds: '',
+    lassa: 0,
+    cuts: 0,
+    totalMeter: 0,
+    totalEnds: 0,
     qualities: [],
+    date: new Date(),
   };
   const defaults = {
-    designs: [defaultDesign]
+    partyId: null,
+    weaverId: null,
+    beams: [defaultBeam]
   };
   const [warpingValue, warpingDispatch] = useReducer(warpingReducer, defaults);
   const [partiesOpts, setPartiesOpts] = useState([]);
@@ -310,14 +328,8 @@ function WarpingDialog({ open, ...props }) {
 
   useEffect(()=>{
     if(open) {
-      axios.get('/api/parties')
-        .then((res)=>{
-          setPartiesOpts(res.data.filter((p)=>p.isWeaver=='Party').map((party)=>({label: party.name, value: party.id})));
-          setWeaverOpts(res.data.filter((p)=>p.isWeaver=='Weaver').map((party)=>({label: party.name, value: party.id})));
-        })
-        .catch((err)=>{
-          console.log(err);
-        });
+      setPartiesOpts(parties.map((party)=>({label: party.name, value: party.id})));
+      setWeaverOpts(weavers.map((party)=>({label: party.name, value: party.id})));
     }
   }, [open]);
 
@@ -357,7 +369,7 @@ function WarpingDialog({ open, ...props }) {
       sectionTitle="Program"
       {...props}
       onSave={() => {
-        props.onSave(warpingValue);
+        props.onSave(parseWarpingValue(warpingValue));
       }}
       open={open}
       fullScreen
@@ -389,20 +401,20 @@ function WarpingDialog({ open, ...props }) {
             </Grid>
           </Grid>
           <Box p={1}></Box>
-          {warpingValue.designs.map((design, i)=>{
-            return <DesignDetails data={design} accessPath={['designs', i]} dataDispatch={warpingDispatch}
+          {warpingValue.beams.map((beam, i)=>{
+            return <BeamDetails data={beam} accessPath={['beams', i]} dataDispatch={warpingDispatch}
               onRemove={()=>{
                 warpingDispatch({
                   type: 'remove_grid_row',
-                  path: ['designs'],
+                  path: ['beams'],
                   value: i,
                 });
               }}
               onCopy={()=>{
                 warpingDispatch({
                   type: 'add_grid_row',
-                  path: ['designs'],
-                  value: design,
+                  path: ['beams'],
+                  value: beam,
                 });
               }}
               qualityOpts={qualityOpts}
@@ -411,10 +423,10 @@ function WarpingDialog({ open, ...props }) {
           <Button color="primary" variant="outlined" onClick={()=>{
             warpingDispatch({
               type: 'add_grid_row',
-              path: ['designs'],
-              value: defaultDesign,
+              path: ['beams'],
+              value: defaultBeam,
             });
-          }}>Add design</Button>
+          }}>Add beam</Button>
         </Grid>
       </Grid>
     </DraggableDialog>
@@ -423,7 +435,12 @@ function WarpingDialog({ open, ...props }) {
 
 class Warping extends React.Component {
   componentDidMount() {
-    axios.get(`http://localhost:7227/api/warping`).then((res) => {
+    axios.get(`/api/parties`).then((res) => {
+      const parties = res.data.filter((p)=>p.isWeaver==='Party');
+      const weavers = res.data.filter((p)=>p.isWeaver==='Weaver');
+      this.setState({ parties, weavers });
+    });
+    axios.get(`/api/warping`).then((res) => {
       const warpings = res.data;
       this.setState({ warpings });
     });
@@ -431,7 +448,9 @@ class Warping extends React.Component {
 
   state = {
     radioValue: 'Yes',
+    warpings: [],
     parties: [],
+    weavers: [],
     filter: '',
     dialogOpen: false,
     columns: [
@@ -446,10 +465,32 @@ class Warping extends React.Component {
       {
         Header: 'Party Name',
         accessor: 'partyId',
+        Cell: ({ value }) => {
+          let partyName = [];
+          if (value) {
+            partyName = this.state.parties.filter((party) => {
+              if (party.id === value) {
+                return party;
+              }
+            });
+          }
+          return partyName[0] ? partyName[0].name : '-';
+        },
       },
       {
         Header: 'Weaver Name',
         accessor: 'weaverId',
+        Cell: ({ value }) => {
+          let weaverName = [];
+          if (value) {
+            weaverName = this.state.weavers.filter((party) => {
+              if (party.id === value) {
+                return party;
+              }
+            });
+          }
+          return weaverName[0] ? weaverName[0].name : '-';
+        },
       },
       {
         Header: 'Design No',
@@ -467,22 +508,17 @@ class Warping extends React.Component {
   }
 
   saveDetails(warpingValue) {
-
-    axios
-      .post(`http://localhost:7227/api/warping`, warpingValue, {
-        headers: {
-          'content-type': 'application/json',
-        },
-      })
-      .then((res) => {
-        const parties = this.state.parties;
-        const latestData = res.data;
-        // this.state.parties.push(latestData);
+    warpingValue.forEach((singleWarp)=>{
+      axios.post('/api/warping', singleWarp)
+      .then((res)=>{
         this.setState((prevState) => {
-          return { parties: [...prevState.parties, latestData] };
+          return { warpings: [...prevState.warpings, res.data] };
         });
+      })
+      .catch((err)=>{
+        console.log(err)
       });
-
+    })
     this.showDialog(false);
   }
 
@@ -510,7 +546,7 @@ class Warping extends React.Component {
         <Box>
           <TableComponent
             columns={this.state.columns}
-            data={this.state.parties}
+            data={this.state.warpings}
             filterText={this.state.filter}
           />
         </Box>
@@ -518,6 +554,8 @@ class Warping extends React.Component {
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
           onSave={(warpingValue) => this.saveDetails(warpingValue)}
+          parties={this.state.parties}
+          weavers={this.state.weavers}
         />
       </Box>
     );

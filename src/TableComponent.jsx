@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useAsyncDebounce, useFilters, useGlobalFilter, useSortBy, useTable } from 'react-table';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import clsx from 'clsx';
 
 function fuzzyTextFilterFn(rows, id, filterValue) {
   return matchSorter(rows, filterValue, { keys: [row => row.values[id]] })
@@ -24,6 +25,9 @@ const useStyles = makeStyles((theme)=>({
       borderRight: 0
     },
     textAlign: 'left',
+  },
+  actionBtn: {
+    width: '30px',
   }
 }));
 
@@ -65,10 +69,11 @@ function TableComponent(props) {
         <thead>
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  className={classes.cell}
+              {headerGroup.headers.map(column => {
+                let actionBtn = column?.id.startsWith('btn-');
+                return (<th
+                  {...column.getHeaderProps(actionBtn ? {} : column.getSortByToggleProps())}
+                  className={clsx(classes.cell, actionBtn ? classes.actionBtn : null)}
                 >
                   <div style={{display: 'flex', alignItems: 'center'}}>
                     <div>{column.render('Header')}</div>
@@ -78,8 +83,8 @@ function TableComponent(props) {
                         : <KeyboardArrowUpIcon />
                       : <KeyboardArrowDownIcon style={{visibility: 'hidden'}} />}</div>
                   </div>
-                </th>
-              ))}
+                </th>)
+              })}
             </tr>
           ))}
         </thead>

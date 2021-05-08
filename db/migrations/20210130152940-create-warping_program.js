@@ -11,7 +11,13 @@ module.exports = {
       design: {
         type: Sequelize.STRING
       },
-      meter: {
+      lassa: {
+        type: Sequelize.REAL
+      },
+      cuts: {
+        type: Sequelize.REAL
+      },
+      totalMeter: {
         type: Sequelize.REAL
       },
       totalEnds: {
@@ -24,7 +30,16 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       date: {
-        type: Sequelize.STRING
+        type: Sequelize.DATEONLY
+      },
+      filledBeamWt: {
+        type: Sequelize.REAL
+      },
+      emptyBeamWt: {
+        type: Sequelize.REAL
+      },
+      actualUsedYarn: {
+        type: Sequelize.REAL
       },
       createdAt: {
         allowNull: false,

@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     address: DataTypes.STRING,
     gstin: DataTypes.STRING,
     contact: DataTypes.STRING,
-    isWeaver: DataTypes.STRING
+    isWeaver: DataTypes.STRING,
   }, {});
   Parties.associate = function(models) {
     // associations can be defined here

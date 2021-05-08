@@ -31,7 +31,7 @@ function parse(num) {
 }
 
 
-const warpingReducer = (state, action)=>{
+const outwardValueReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
   let rows = null;
   switch(action.type) {
@@ -40,8 +40,8 @@ const warpingReducer = (state, action)=>{
       break;
     case 'set_value':
       _.set(newState, action.path, action.value);
-      if(action.path.indexOf('designs') > -1) {
-        newState = qualityReducer(newState, _.slice(action.path, 0, action.path.indexOf('designs')+2));
+      if(action.path.indexOf('outwards') > -1) {
+        newState = outwardReducer(newState, _.slice(action.path, 0, action.path.indexOf('outwards')+2));
       }
       break;
     case 'add_grid_row':
@@ -53,16 +53,16 @@ const warpingReducer = (state, action)=>{
       rows = _.get(newState, action.path, []);
       rows.splice(action.value, 1);
       _.set(newState, action.path, rows);
-      let desInd = action.path.indexOf('designs');
+      let desInd = action.path.indexOf('outwards');
       if(desInd < action.path.length-1) {
-        newState = qualityReducer(newState, _.slice(action.path, 0, action.path.indexOf('designs')+2));
+        newState = outwardReducer(newState, _.slice(action.path, 0, action.path.indexOf('outwards')+2));
       }
       break;
   }
   return newState;
 }
 
-function qualityReducer(state, path) {
+function outwardReducer(state, path) {
   let qualityData = _.get(state, path);
   let totalGrossWt = 0;
   let totalCones = 0;
@@ -70,7 +70,7 @@ function qualityReducer(state, path) {
     totalGrossWt += parse(q.grossWt);
     totalCones += parse(q.cones);
   });
-  qualityData.netWt = totalGrossWt - parse(qualityData.emptyConeWt)*totalCones
+  qualityData.netWt = totalGrossWt - parse(qualityData.emptyConeWt)*totalCones - parse(qualityData.emptyBagWt);
   _.set(state, path, qualityData);
   return state;
 }
@@ -115,14 +115,14 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
         type: 'set_value',
         path: accessPath.concat(e.target.name),
         value: e.target.value,
-        postReducer: qualityReducer,
+        postReducer: outwardReducer,
       });
     } else {
       dataDispatch({
         type: 'set_value',
         path: accessPath.concat(name),
         value: e,
-        postReducer: qualityReducer,
+        postReducer: outwardReducer,
       });
     }
   };
@@ -156,7 +156,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
       Footer: TotalFooter,
     },
     {
-      Header: 'Gross weight',
+      Header: 'Gross weight (Kg)',
       accessor: 'grossWt',
       Cell: getNumberCell(dataDispatch, accessPath.concat('bags')),
       Footer: TotalFooter,
@@ -166,7 +166,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
 
   return (
     <Card variant="outlined" style={{marginBottom: '0.5rem'}}>
-      <CardHeader title="Quality details" titleTypographyProps={{variant: 'h6'}} action={
+      <CardHeader title="Outward details" titleTypographyProps={{variant: 'h6'}} action={
         <Box>
           <Button color="primary" variant="outlined" onClick={onCopy} style={{marginRight:'0.5rem'}}>Copy</Button>
           <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>
@@ -212,7 +212,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
         <Grid container spacing={1}>
           <Grid item lg={3} md={2} sm={12} xs={12}>
             <InputText
-              label="Empty cone wt."
+              label="Empty cone wt. (Kg)"
               name="emptyConeWt"
               value={data.emptyConeWt}
               onChange={onChange}
@@ -221,7 +221,16 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
           </Grid>
           <Grid item lg={3} md={2} sm={12} xs={12}>
             <InputText
-              label="Net wt."
+              label="Total empty bag wt. (Kg)"
+              name="emptyBagWt"
+              value={data.emptyBagWt}
+              onChange={onChange}
+              type="number"
+            />
+          </Grid>
+          <Grid item lg={3} md={2} sm={12} xs={12}>
+            <InputText
+              label="Net wt. (Kg)"
               name="netWt"
               value={data.netWt}
               type="number"
@@ -234,17 +243,17 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
   );
 }
 
-function GatepassDialog({ open, ...props }) {
-  const defaultDesign = {
+function YarnOutwardDialog({ open, ...props }) {
+  const defaultOutward = {
     design: '',
     meter: '',
     totalEnds: '',
     bags: [],
   };
   const defaults = {
-    designs: [defaultDesign]
+    outwards: [defaultOutward],
   };
-  const [warpingValue, warpingDispatch] = useReducer(warpingReducer, defaults);
+  const [outwardValue, outwardDispatch] = useReducer(outwardValueReducer, defaults);
   const [partiesOpts, setPartiesOpts] = useState([]);
   const [weaverOpts, setWeaverOpts] = useState([]);
   const [qualityOpts, setQualityOpts] = useState([]);
@@ -263,10 +272,10 @@ function GatepassDialog({ open, ...props }) {
   }, [open]);
 
   useEffect(()=>{
-    if(!_.isUndefined(warpingValue.partyId) && !_.isNull(warpingValue.partyId)) {
+    if(!_.isUndefined(outwardValue.partyId) && !_.isNull(outwardValue.partyId)) {
       axios.get('/api/qualities', {
         params: {
-          partyId: warpingValue.partyId,
+          partyId: outwardValue.partyId,
         }
       }).then((res)=>{
         setQualityOpts(res.data.map((quality)=>({label: quality.name, value: quality.id})));
@@ -274,18 +283,18 @@ function GatepassDialog({ open, ...props }) {
         console.log(err);
       });
     }
-  }, [warpingValue.partyId]);
+  }, [outwardValue.partyId]);
 
 
-  function updatewarpingValues(e, name) {
+  function updateoutwardValues(e, name) {
     if(e.target) {
-      warpingDispatch({
+      outwardDispatch({
         type: 'set_value',
         path: [e.target.id || e.target.name],
         value: e.target.value
       });
     } else {
-      warpingDispatch({
+      outwardDispatch({
         type: 'set_value',
         path: [name],
         value: e,
@@ -295,10 +304,10 @@ function GatepassDialog({ open, ...props }) {
 
   return (
     <DraggableDialog
-      sectionTitle="Gatepass"
+      sectionTitle="Yarn outward"
       {...props}
       onSave={() => {
-        props.onSave(warpingValue);
+        props.onSave(outwardValue);
       }}
       open={open}
       fullScreen
@@ -309,9 +318,9 @@ function GatepassDialog({ open, ...props }) {
             <Grid item md={6} xs={12}>
               <FormField label="Party">
                 <Select
-                  value={partiesOpts.filter((party)=>party.value===warpingValue.partyId)}
+                  value={partiesOpts.filter((party)=>party.value===outwardValue.partyId)}
                   onChange={(value)=>{
-                    updatewarpingValues(value.value, 'partyId')
+                    updateoutwardValues(value.value, 'partyId')
                   }}
                   options={partiesOpts}
                 />
@@ -320,9 +329,9 @@ function GatepassDialog({ open, ...props }) {
             <Grid item md={6} xs={12}>
               <FormField label="Weaver">
                 <Select
-                  value={weaverOpts.filter((party)=>party.value===warpingValue.weaverId)}
+                  value={weaverOpts.filter((party)=>party.value===outwardValue.weaverId)}
                   onChange={(value)=>{
-                    updatewarpingValues(value.value, 'weaverId')
+                    updateoutwardValues(value.value, 'weaverId')
                   }}
                   options={weaverOpts}
                 />
@@ -330,19 +339,19 @@ function GatepassDialog({ open, ...props }) {
             </Grid>
           </Grid>
           <Box p={1}></Box>
-          {warpingValue.designs.map((design, i)=>{
-            return <QualityDetails data={design} accessPath={['designs', i]} dataDispatch={warpingDispatch}
+          {outwardValue.outwards.map((design, i)=>{
+            return <QualityDetails data={design} accessPath={['outwards', i]} dataDispatch={outwardDispatch}
               onRemove={()=>{
-                warpingDispatch({
+                outwardDispatch({
                   type: 'remove_grid_row',
-                  path: ['designs'],
+                  path: ['outwards'],
                   value: i,
                 });
               }}
               onCopy={()=>{
-                warpingDispatch({
+                outwardDispatch({
                   type: 'add_grid_row',
-                  path: ['designs'],
+                  path: ['outwards'],
                   value: design,
                 });
               }}
@@ -350,19 +359,19 @@ function GatepassDialog({ open, ...props }) {
             />
           })}
           <Button color="primary" variant="outlined" onClick={()=>{
-            warpingDispatch({
+            outwardDispatch({
               type: 'add_grid_row',
-              path: ['designs'],
-              value: defaultDesign,
+              path: ['outwards'],
+              value: defaultOutward,
             });
-          }}>Add quality</Button>
+          }}>Add outward</Button>
         </Grid>
       </Grid>
     </DraggableDialog>
   );
 }
 
-class Gatepass extends React.Component {
+class YarnOutward extends React.Component {
   componentDidMount() {
     axios.get(`http://localhost:7227/api/warping`).then((res) => {
       const warpings = res.data;
@@ -407,10 +416,10 @@ class Gatepass extends React.Component {
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails(warpingValue) {
+  saveDetails(outwardValue) {
 
     axios
-      .post(`http://localhost:7227/api/warping`, warpingValue, {
+      .post(`http://localhost:7227/api/warping`, outwardValue, {
         headers: {
           'content-type': 'application/json',
         },
@@ -444,7 +453,7 @@ class Gatepass extends React.Component {
               onClick={() => this.showDialog(true)}
               style={{ marginLeft: '0.5rem' }}
             >
-              Add gatepass
+              Add yarn outward
             </Button>
           </Box>
         </Box>
@@ -455,14 +464,14 @@ class Gatepass extends React.Component {
             filterText={this.state.filter}
           />
         </Box>
-        <GatepassDialog
+        <YarnOutwardDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(warpingValue) => this.saveDetails(warpingValue)}
+          onSave={(outwardValue) => this.saveDetails(outwardValue)}
         />
       </Box>
     );
   }
 }
 
-export default Gatepass;
+export default YarnOutward;

@@ -6,9 +6,12 @@ module.exports = (sequelize, DataTypes) => {
     ends: DataTypes.INTEGER,
     count: DataTypes.REAL,
     usedYarn: DataTypes.REAL
-  }, {});
+  }, {
+    timestamps: false,
+  });
   WarpingQualities.associate = function(models) {
     // associations can be defined here
   };
+  WarpingQualities.removeAttribute("id");
   return WarpingQualities;
 };
