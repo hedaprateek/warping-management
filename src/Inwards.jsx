@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   FormControlLabel,
   Grid,
@@ -115,7 +116,7 @@ function InwardDialog({ open, ...props }) {
       <br />
 
       <Grid container spacing={2}>
-        <Grid item lg={6} md={6} sm={12} xs={12}>
+        <Grid item lg={4} md={4} sm={12} xs={12}>
           <InputDate
             id="date"
             label="Date"
@@ -123,7 +124,7 @@ function InwardDialog({ open, ...props }) {
             onChange={(value) => updateInwardValues(value, 'date')}
           />
         </Grid>
-        <Grid item lg={6} md={6} sm={12} xs={12}>
+        <Grid item lg={4} md={4} sm={12} xs={12}>
           <InputText
             label="Gatepass"
             variant="outlined"
@@ -133,7 +134,17 @@ function InwardDialog({ open, ...props }) {
             onChange={updateInwardValues}
           />
         </Grid>
-        <Grid item lg={6} md={6} sm={12} xs={12}>
+        <Grid item lg={4} md={4} sm={12} xs={12}>
+          <InputText
+            label="Lot Number"
+            variant="outlined"
+            fullWidth
+            id="lotNo"
+            value={inwardValue.lotNo}
+            onChange={updateInwardValues}
+          />
+        </Grid>
+        <Grid item lg={4} md={4} sm={12} xs={12}>
           <InputText
             type="number"
             label="Quantity bags"
@@ -149,7 +160,7 @@ function InwardDialog({ open, ...props }) {
             )}
           />
         </Grid>
-        <Grid item lg={6} md={6} sm={12} xs={12}>
+        <Grid item lg={4} md={4} sm={12} xs={12}>
           <InputText
             type="number"
             label="Quantity Cones"
@@ -165,17 +176,8 @@ function InwardDialog({ open, ...props }) {
             )}
           />
         </Grid>
-        <Grid item lg={6} md={6} sm={12} xs={12}>
-          <InputText
-            label="Lot Number"
-            variant="outlined"
-            fullWidth
-            id="lotNo"
-            value={inwardValue.lotNo}
-            onChange={updateInwardValues}
-          />
-        </Grid>
-        <Grid item lg={6} md={6} sm={12} xs={12}>
+
+        <Grid item lg={4} md={4} sm={12} xs={12}>
           <InputText
             type="number"
             label="Net Weight (Kg)"
@@ -360,20 +362,25 @@ class Inwards extends React.Component {
   render() {
     return (
       <div>
-        <h2>Inwards</h2>
-        <InputText
-          placeholder="Search..."
-          value={this.state.filter}
-          style={{ minWidth: '250px' }}
-          onChange={(e) => this.setState({ filter: e.target.value })}
-        />
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => this.showDialog(true)}
-        >
-          Add Inward
-        </Button>
+        <Box p={1}>
+          <Box display="flex">
+            <InputText
+              placeholder="Search..."
+              value={this.state.filter}
+              style={{ minWidth: '250px' }}
+              onChange={(e) => this.setState({ filter: e.target.value })}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => this.showDialog(true)}
+              style={{ marginLeft: '0.5rem' }}
+            >
+              Add Inward
+            </Button>
+          </Box>
+        </Box>
+        
         <TableComponent
           columns={this.state.columns}
           data={this.state.inward}
