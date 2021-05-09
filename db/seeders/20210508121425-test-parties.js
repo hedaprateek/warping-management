@@ -4,17 +4,8 @@ const { DATEONLY } = require("sequelize");
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    /**
-     * Add seed commands here.
-     *
-     * Example:
-     * await queryInterface.bulkInsert('People', [{
-     *   name: 'John Doe',
-     *   isBetaMember: false
-     * }], {});
-    */
-    await queryInterface.bulkInsert('Parties', [{
-      name: "B.R Textile",
+       await queryInterface.bulkInsert('Parties', [{
+      name: "Tithiksha Enterprise",
       address: "ABCD",
       gstin: "ABCDEF",
       contact: "01234567890",
@@ -22,7 +13,7 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: "Tithiksha Textile",
+      name: "B.R Enterprise",
       address: "ABCD",
       gstin: "ABCDEF",
       contact: "01234567890",
@@ -30,7 +21,7 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: "Shyam Sadi Center",
+      name: "Nakuldev Textile",
       address: "ABCD",
       gstin: "ABCDEF",
       contact: "01234567890",
@@ -38,7 +29,73 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: "Ashok Yadav",
+      name: "Harish Textile",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Party",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Raghavendra Textile",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Party",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      name: "Sanjay Bohra",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Party",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Vivek Corporation",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Party",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },
+    {
+      name: "Bhadrakali Textile",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Party",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Shri Krishna Textile",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Party",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "S.N Laddha and Sons",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Party",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Kavita Cottex",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Party",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Siotia",
       address: "ABCD",
       gstin: "ABCDEF",
       contact: "01234567890",
@@ -46,7 +103,7 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: "Mama Jadhav",
+      name: "Bharat Bohra",
       address: "ABCD",
       gstin: "ABCDEF",
       contact: "01234567890",
@@ -54,7 +111,175 @@ module.exports = {
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: "Mirasaheab",
+      name: "Garthode",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Karisidh Text",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Khamkar",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Shirgave",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Sabale",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Gugale",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Ashok",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Ajay Aman",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Mahalaxmi",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "S N Laddha",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "SB",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Jyoti",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "D.K",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "B.T",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Kiran Ketkale",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Shivraj",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Mudgal",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Shankar Patil",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "GNK",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Dayma",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "KSPL",
+      address: "ABCD",
+      gstin: "ABCDEF",
+      contact: "01234567890",
+      isWeaver: "Weaver",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "Varute",
       address: "ABCD",
       gstin: "ABCDEF",
       contact: "01234567890",
@@ -64,104 +289,280 @@ module.exports = {
     }]);
 
     await queryInterface.bulkInsert('Qualities', [{
-      name: "150 Roto Bhilosa",
+      name: "150 Roto Wellknown",
       desc: "34",
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: "150 Black Bhilosa",
+      name: "150 Black Wellknown",
+      desc: "34",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "150 White Bhilosa",
       desc: "32",
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: "150 Blue Bhilosa",
+      name: "150 Black Bhilosa",
       desc: "35",
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: "150 Red Bhilosa",
+      name: "150 Roto Bhilosa",
       desc: "35",
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: "150 Pink Bhilosa",
+      name: "150 Red Unify",
       desc: "35",
       createdAt: new Date(),
       updatedAt: new Date()
     },{
-      name: "2/100 Samathana",
+      name: "150 Black Samathana",
       desc: "22",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "150 White Wellknown",
+      desc: "35",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "150 N Blue Unify",
+      desc: "35",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "150 Black Unify",
+      desc: "35",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "150 Roto Indorama",
+      desc: "35",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "150 Firojee Unify",
+      desc: "35",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "150 Mustard Wellknown",
+      desc: "35",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "150 Sky Blue Wellknown",
+      desc: "35",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    },{
+      name: "150 Skin Unify",
+      desc: "35",
       createdAt: new Date(),
       updatedAt: new Date()
     }]);
 
     await queryInterface.bulkInsert('Inward', [{
-      date: Sequelize.literal('DATE("now")'),
-      partyId: "1",
-      gatepass: "1",
-      qualityId: "1",
-      qtyBags: "100",
-      qtyCones: "3200",
-      lotNo: "1",
-      netWt: "3200",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },{
-      date: Sequelize.literal('DATE("now")'),
-      partyId: "1",
-      gatepass: "2",
-      qualityId: "2",
-      qtyBags: "100",
-      qtyCones: "1000",
-      lotNo: "2",
-      netWt: "1000",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },{
-      date: Sequelize.literal('DATE("now")'),
-      partyId: "2",
-      gatepass: "3",
-      qualityId: "3",
-      qtyBags: "200",
-      qtyCones: "2000",
-      lotNo: "3",
-      netWt: "2000",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },{
-      date: Sequelize.literal('DATE("now")'),
-      partyId: "2",
-      gatepass: "4",
-      qualityId: "4",
-      qtyBags: "100",
-      qtyCones: "500",
-      lotNo: "4",
-      netWt: "500",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },{
-      date: Sequelize.literal('DATE("now")'),
-      partyId: "3",
-      gatepass: "5",
-      qualityId: "5",
-      qtyBags: "50",
-      qtyCones: "250",
-      lotNo: "5",
-      netWt: "250",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },{
-      date: Sequelize.literal('DATE("now")'),
-      partyId: "3",
-      gatepass: "6",
-      qualityId: "6",
-      qtyBags: "40",
-      qtyCones: "200",
-      lotNo: "6",
-      netWt: "200",
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }]);
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "1",
+      gatepass: "",
+      qualityId: "15",
+      qtyBags: "16",
+      qtyCones: "128",
+      lotNo: "",
+      netWt: "438.4",
+      createdAt: new Date(),
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "2",	 
+      qtyBags: "50",	
+      qtyCones: "344", 
+      lotNo: "",		
+      netWt: "1586.05",       
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "2",	 
+      qtyBags: "34",	
+      qtyCones: "209", 
+      lotNo: "",		
+      netWt: "1116.63",       
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "3",	 
+      qtyBags: "34",	
+      qtyCones: "261", 
+      lotNo: "41254",	
+      netWt: "1033.74",   
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "7",	 
+      qtyBags: "32",	
+      qtyCones: "192", lotNo: "",		
+      netWt: "980.8",	        
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "7",	 
+      qtyBags: "32",	
+      qtyCones: "192", 
+      lotNo: "",		
+      netWt: "972.21",	    
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "8",	 
+      qtyBags: "49",	
+      qtyCones: "306", 
+      lotNo: "54024",	
+      netWt: "1554.92" ,  
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "10", 
+      qtyBags: "40",	
+      qtyCones: "240", 
+      lotNo: "",		
+      netWt: "1324.56",       
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "10", 
+      qtyBags: "20",	
+      qtyCones: "120", 
+      lotNo: "",		
+      netWt: "661.44",	    
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "8",	 
+      qtyBags: "46",	
+      qtyCones: "350", 
+      lotNo: "54024",	
+      netWt: "1363.33",   
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "2",	 
+      qtyBags: "52",	
+      qtyCones: "394", 
+      lotNo: "",		
+      netWt: "1581.68",       
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "2",	 
+      qtyBags: "32",	
+      qtyCones: "194", 
+      lotNo: "",		
+      netWt: "1029.36",       
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "2",	 
+      qtyBags: "16",	
+      qtyCones: "0",	 
+      lotNo: "",		
+      netWt: "513.61",	    
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "13", 
+      qtyBags: "16",	
+      qtyCones: "96",	 
+      lotNo: "",		
+      netWt: "463.95",	    
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "2", 
+      gatepass: "",	
+      qualityId: "13", 
+      qtyBags: "24",	
+      qtyCones: "0",	 
+      lotNo: "",		
+      netWt: "595.59",	    
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "3", 
+      gatepass: "",	
+      qualityId: "7",	 
+      qtyBags: "32",	
+      qtyCones: "208", 
+      lotNo: "",		
+      netWt: "948.33",	    
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "4", 
+      gatepass: "",	
+      qualityId: "4",	 
+      qtyBags: "17",	
+      qtyCones: "104", 
+      lotNo: "",		
+      netWt: "529.62",	    
+      createdAt: new Date(),
+      updatedAt: new Date()
+      },{
+      date: Sequelize.literal('DATE("now")'),
+      partyId: "4", 
+      gatepass: "",	
+      qualityId: "5",	 
+      qtyBags: "18",	
+      qtyCones: "110", 
+      lotNo: "53059",	
+      netWt: "519.3",	    
+      createdAt: new Date(), 
+      updatedAt: new Date()
+      }]);
 
 
   },
