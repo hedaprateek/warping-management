@@ -28,6 +28,7 @@ module.exports = () => {
   app.use('/api/warping', require('./routers/warping'));
   app.use('/api/outward', require('./routers/outward'));
   app.use('/api/reports', require('./routers/reports'));
+  app.use('/api/settings', require('./routers/settings'));
 
   var port = 7227;
   app.listen(port, console.log(`App listening at http://localhost:${port}`));

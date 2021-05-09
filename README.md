@@ -89,5 +89,7 @@ npx sequelize-cli seed:generate --name default-settings
 
 
 npx sequelize-cli model:generate --name Outward --attributes partyId:integer,weaverId:integer,qualityId:integer,date:dateonly,empConeWt:real,emptyBagWt:real,netWt:real
+npx sequelize-cli model:generate --name Settings --attributes companyName:string,companyAddress:string,companyGst:string,companyContact:string
+npx sequelize-cli seed:generate --name default-settings
 
 npx sequelize-cli model:generate --name OutwardBags --attributes outwardId:integer,cones:integer,date:dateonly,grossWt:real

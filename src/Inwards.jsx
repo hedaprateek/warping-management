@@ -253,12 +253,11 @@ class Inwards extends React.Component {
       },
       {
         Header: 'PARTY NAME',
-        accessor: 'partyId',
-        Cell: ({ value }) => {
+        accessor: (row) => {
           let partyName = [];
-          if (value) {
+          if (row.partyId) {
             partyName = this.state.parties.filter((party) => {
-              if (party.id === value) {
+              if (party.id === row.partyId) {
                 return party;
               }
             });
@@ -272,12 +271,11 @@ class Inwards extends React.Component {
       },
       {
         Header: 'QUALITY NAME',
-        accessor: 'qualityId',
-        Cell: ({ value }) => {
+        accessor: (row) => {
           let qualityName = [];
-          if (value) {
+          if (row.partyId) {
             qualityName = this.state.qualities.filter((quality) => {
-              if (quality.id === value) {
+              if (quality.id === row.partyId) {
                 return quality;
               }
             });
@@ -325,11 +323,16 @@ class Inwards extends React.Component {
           .then((res) => {
             // const parties = this.state.parties;
             // const latestData = res.data;
-            let indx = 
-            this.setState((prevState) => {
-              let indx = prevState.inward.findIndex((i)=>i.id===inwardValue.id);
+            let indx = this.setState((prevState) => {
+              let indx = prevState.inward.findIndex(
+                (i) => i.id === inwardValue.id
+              );
               return {
-                inward: [...prevState.inward.slice(0, indx), inwardValue, ...prevState.inward.slice(indx+1)]
+                inward: [
+                  ...prevState.inward.slice(0, indx),
+                  inwardValue,
+                  ...prevState.inward.slice(indx + 1),
+                ],
               };
             });
           });
@@ -380,7 +383,7 @@ class Inwards extends React.Component {
             </Button>
           </Box>
         </Box>
-        
+
         <TableComponent
           columns={this.state.columns}
           data={this.state.inward}
