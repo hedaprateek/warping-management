@@ -19,6 +19,11 @@ module.exports = (sequelize, DataTypes) => {
       sourceKey: 'id',
       as: "qualities",
     });
+    WarpingProgram.hasOne(models.Parties, {
+      foreignKey: 'id',
+      sourceKey: 'weaverId',
+      as: "WeaverDetails",
+    });
   };
   return WarpingProgram
   ;

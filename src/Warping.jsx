@@ -435,14 +435,17 @@ function WarpingDialog({ open, parties, weavers, ...props }) {
 
 class Warping extends React.Component {
   componentDidMount() {
-    axios.get(`/api/parties`).then((res) => {
+    const p1 = axios.get(`/api/parties`).then((res) => {
       const parties = res.data.filter((p)=>p.isWeaver==='Party');
       const weavers = res.data.filter((p)=>p.isWeaver==='Weaver');
       this.setState({ parties, weavers });
     });
-    axios.get(`/api/warping`).then((res) => {
-      const warpings = res.data;
-      this.setState({ warpings });
+
+    Promise.all([p1]).then(()=>{
+      axios.get(`/api/warping`).then((res) => {
+        const warpings = res.data;
+        this.setState({ warpings });
+      });
     });
   }
 
@@ -476,12 +479,11 @@ class Warping extends React.Component {
       },
       {
         Header: 'Party Name',
-        accessor: 'partyId',
-        Cell: ({ value }) => {
+        accessor: (row) => {
           let partyName = [];
-          if (value) {
+          if (row.partyId) {
             partyName = this.state.parties.filter((party) => {
-              if (party.id === value) {
+              if (party.id === row.partyId) {
                 return party;
               }
             });
@@ -491,12 +493,11 @@ class Warping extends React.Component {
       },
       {
         Header: 'Weaver Name',
-        accessor: 'weaverId',
-        Cell: ({ value }) => {
+        accessor: (row) => {
           let weaverName = [];
-          if (value) {
+          if (row.weaverId) {
             weaverName = this.state.weavers.filter((party) => {
-              if (party.id === value) {
+              if (party.id === row.weaverId) {
                 return party;
               }
             });
@@ -509,8 +510,16 @@ class Warping extends React.Component {
         accessor: 'design',
       },
       {
-        Header: 'Actual used yarn',
-        accessor: 'actualUsedYarn', // accessor is the "key" in the data
+        Header: 'Total meter',
+        accessor: 'totalMeter',
+      },
+      {
+        Header: 'Total ends',
+        accessor: 'totalEnds',
+      },
+      {
+        Header: 'Actual used yarn(Kg)',
+        accessor: 'actualUsedYarn',
       },
     ],
   };

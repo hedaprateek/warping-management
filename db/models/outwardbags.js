@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'OutwardBags',
+    timestamps: false,
   });
   OutwardBags.removeAttribute("id");
   return OutwardBags;

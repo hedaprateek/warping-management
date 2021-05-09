@@ -1,5 +1,6 @@
-import { Box, Button, makeStyles } from '@material-ui/core';
-import React, { useRef } from 'react';
+import { Box, Button, Divider, makeStyles, Typography } from '@material-ui/core';
+import axios from 'axios';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactToPrint from 'react-to-print';
 import CommonReport from './CommonReport';
 
@@ -28,9 +29,24 @@ const useStyles = makeStyles((theme)=>({
   }
 }));
 
-export default function ReportViewer({children}) {
+function ReportHeader({reportName, settings}) {
+  return (
+    <Box textAlign="center">
+      <Typography>{reportName}</Typography>
+      <Box borderBottom={1} />
+      <Typography style={{fontWeight: 'bold'}}>{settings.companyName}</Typography>
+      <Typography variant="subtitle2">{settings.companyAddress}</Typography>
+      <Typography style={{fontWeight: 'bold'}} variant="subtitle2">GSTIN: {settings.companyGst}</Typography>
+      <Typography variant="body2">{settings.companyContact}</Typography>
+      <Box borderBottom={1} />
+    </Box>
+  )
+}
+
+export default function ReportViewer({reportName, children}) {
   const classes = useStyles();
   const reportRef = useRef();
+  const [settings, setSettings] = useState({});
 
   const pageStyle = `
     @page {
@@ -38,6 +54,15 @@ export default function ReportViewer({children}) {
       margin: 0mm;
     }
   `;
+
+  useEffect(()=>{
+    axios.get('/api/settings')
+      .then((res)=>{
+        setSettings(res.data);
+      }).catch((err)=>{
+        console.log(err);
+      });
+  }, []);
 
   return (
     <Box className={classes.viewerRoot}>
@@ -50,7 +75,10 @@ export default function ReportViewer({children}) {
         <Button color="primary" variant="outlined" disabled>Download PDF</Button>
       </Box>
       <Box className={classes.viewerReport}>
-        <Box ref={reportRef} className={classes.pages}>{children}</Box>
+        <Box ref={reportRef} className={classes.pages}>
+          <ReportHeader reportName={reportName} settings={settings} />
+          {children}
+        </Box>
       </Box>
     </Box>
   )

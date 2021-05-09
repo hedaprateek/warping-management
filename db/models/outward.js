@@ -15,6 +15,18 @@ module.exports = (sequelize, DataTypes) => {
         sourceKey: 'id',
         as: "bags",
       });
+
+      Outward.hasOne(models.Parties, {
+        foreignKey: 'id',
+        sourceKey: 'weaverId',
+        as: "WeaverDetails",
+      });
+
+      Outward.hasOne(models.Qualities, {
+        foreignKey: 'id',
+        sourceKey: 'qualityId',
+        as: "QualityDetails",
+      });
     }
   };
   Outward.init({

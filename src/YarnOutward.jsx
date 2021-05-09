@@ -382,14 +382,27 @@ function YarnOutwardDialog({ open, parties, weavers,...props }) {
 
 class YarnOutward extends React.Component {
   componentDidMount() {
-    axios.get(`/api/parties`).then((res) => {
+    let p1 = axios.get(`/api/parties`).then((res) => {
       const parties = res.data.filter((p)=>p.isWeaver==='Party');
       const weavers = res.data.filter((p)=>p.isWeaver==='Weaver');
       this.setState({ parties, weavers });
+    }).catch((err)=>{
+      console.log(err);
     });
-    axios.get(`/api/outward`).then((res) => {
-      const outwards = res.data;
-      this.setState({ outwards });
+    let p2 = axios.get('/api/qualities').then((res)=>{
+      const qualities = res.data;
+      this.setState({ qualities });
+    }).catch((err)=>{
+      console.log(err);
+    });
+
+    Promise.all([p1, p2]).then(()=>{
+      axios.get(`/api/outward`).then((res) => {
+        const outwards = res.data;
+        this.setState({ outwards });
+      }).catch((err)=>{
+        console.log(err);
+      });
     });
   }
 
@@ -398,6 +411,7 @@ class YarnOutward extends React.Component {
     outwards: [],
     parties: [],
     weavers: [],
+    qualities: [],
     filter: '',
     dialogOpen: false,
     columns: [
@@ -423,15 +437,45 @@ class YarnOutward extends React.Component {
       },
       {
         Header: 'Party Name',
-        accessor: 'partyId',
+        accessor: (row) => {
+          let partyName = [];
+          if (row.partyId) {
+            partyName = this.state.parties.filter((party) => {
+              if (party.id === row.partyId) {
+                return party;
+              }
+            });
+          }
+          return partyName[0] ? partyName[0].name : '-';
+        },
       },
       {
         Header: 'Weaver Name',
-        accessor: 'weaverId',
+        accessor: (row) => {
+          let weaverName = [];
+          if (row.weaverId) {
+            weaverName = this.state.weavers.filter((party) => {
+              if (party.id === row.weaverId) {
+                return party;
+              }
+            });
+          }
+          return weaverName[0] ? weaverName[0].name : '-';
+        },
       },
       {
         Header: 'Quality name',
-        accessor: 'qualityId',
+        accessor: (row) => {
+          let qualityName = [];
+          if (row.qualityId) {
+            qualityName = this.state.qualities.filter((quality) => {
+              if (quality.id === row.qualityId) {
+                return quality;
+              }
+            });
+          }
+          return qualityName[0] ? qualityName[0].name : '-';
+        },
       },
       {
         Header: 'NetWt',

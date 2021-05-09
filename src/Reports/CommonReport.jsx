@@ -1,36 +1,6 @@
 import { Box, Divider, makeStyles } from "@material-ui/core"
-import { Component } from "react"
 import { useTable } from "react-table"
-
-// const Styles = styled.div`
-//   padding: 1rem;
-
-//   table {
-//     border-spacing: 0;
-//     border: 1px solid black;
-
-//     tr {
-//       :last-child {
-//         td {
-//           border-bottom: 0;
-//         }
-//       }
-//     }
-
-//     th,
-//     td {
-//       margin: 0;
-//       padding: 0.5rem;
-//       border-bottom: 1px solid black;
-//       border-right: 1px solid black;
-
-//       :last-child {
-//         border-right: 0;
-//       }
-//     }
-//   }
-// `
-
+import clsx from 'clsx';
 
 const useStyles = makeStyles(()=>({
   table: {
@@ -38,17 +8,17 @@ const useStyles = makeStyles(()=>({
     border: '1px solid black',
     width: '100%'
   },
-  tr: {
-
-  },
-  th: {
-
-  },
   td: {
     margin: 0,
     padding: '0.5rem',
     borderBottom: '1px solid black',
     borderRight: '1px solid black'
+  },
+  noBorderBottom: {
+    borderBottom: 0,
+  },
+  noBorderRight: {
+    borderRight: 0,
   },
   reportStyles: {
     backgroundColor: '#fff',
@@ -76,8 +46,11 @@ export function ReportTable({ columns, data, showFooter }) {
       <thead>
         {headerGroups.map(headerGroup => (
           <tr {...headerGroup.getHeaderGroupProps()}>
-            {headerGroup.headers.map(column => (
-              <th {...column.getHeaderProps()} className={classes.td}>{column.render('Header')}</th>
+            {headerGroup.headers.map((column,i)=> (
+              <th {...column.getHeaderProps()}
+                className={clsx(classes.td, i==headerGroup.headers.length-1 ? classes.noBorderRight : null)}>
+                  {column.render('Header')}
+              </th>
             ))}
           </tr>
         ))}
@@ -87,8 +60,11 @@ export function ReportTable({ columns, data, showFooter }) {
           prepareRow(row)
           return (
             <tr {...row.getRowProps()}>
-              {row.cells.map(cell => {
-                return <td {...cell.getCellProps()} className={classes.td}>{cell.render('Cell')}</td>
+              {row.cells.map((cell, j) => {
+                let finalClasses = [classes.td];
+                (j===row.cells.length-1) && finalClasses.push(classes.noBorderRight);
+                !showFooter && (i===rows.length-1) && finalClasses.push(classes.noBorderBottom);
+                return <td {...cell.getCellProps()} className={clsx(finalClasses)}>{cell.render('Cell')}</td>
               })}
             </tr>
           )
@@ -98,23 +74,15 @@ export function ReportTable({ columns, data, showFooter }) {
         <tfoot>
         {footerGroups.map(group => (
           <tr {...group.getFooterGroupProps()}>
-            {group.headers.map(column => (
-              <td {...column.getFooterProps()} className={classes.td}>{column.render('Footer')}</td>
-            ))}
+            {group.headers.map((column, i) => {
+              return <td {...column.getFooterProps()}
+                className={clsx(classes.td, classes.noBorderBottom, i==group.headers.length-1 ? classes.noBorderRight : null)}>
+                  {column.render('Footer')}
+              </td>
+            })}
           </tr>
         ))}
       </tfoot>}
     </table>
-  )
-}
-
-export default function CommonReport({columns, data}) {
-  return(
-    <>
-      <Box>Some company name</Box>
-      <Box>
-        <ReportTable columns={columns} data={data} />
-      </Box>
-    </>
   )
 }

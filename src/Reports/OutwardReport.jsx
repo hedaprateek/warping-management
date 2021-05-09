@@ -10,7 +10,6 @@ import { parse } from '../utils';
 
 const useStyles = makeStyles((theme)=>({
   reportContainer: {
-    // backgroundColor: theme.palette.grey[100],
     height: '100%',
     overflow: 'auto',
     flexGrow: 1,
@@ -18,9 +17,9 @@ const useStyles = makeStyles((theme)=>({
   }
 }));
 
-const REPORT_NAME = 'INWARD REPORT';
+const REPORT_NAME = 'OUTWARD REPORT';
 
-export default function InwardReport(props) {
+export default function OutwardReport(props) {
   const classes = useStyles();
   const [dateType, setDateType] = useState('custom-date');
   const [filter, setFilter] = useState({
@@ -31,7 +30,6 @@ export default function InwardReport(props) {
   });
   const [data, setData] = useState([]);
   const [partiesOpts, setPartiesOpts] = useState([]);
-  const [qualityOpts, setQualityOpts] = useState([]);
 
   useEffect(()=>{
     let today = new Date();
@@ -102,12 +100,13 @@ export default function InwardReport(props) {
   ]);
 
   const onReportClick = ()=>{
-    axios.get('/api/reports/inward', {
+    axios.get('/api/reports/outward', {
       params: {
         ...filter,
       }
     })
     .then((res)=>{
+      console.log(res.data);
       setData(res.data);
     })
     .catch((err)=>{
@@ -119,14 +118,6 @@ export default function InwardReport(props) {
     axios.get('/api/parties')
       .then((res)=>{
         setPartiesOpts(res.data.map((party)=>({label: party.name, value: party.id})));
-      })
-      .catch((err)=>{
-        console.log(err);
-      });
-
-    axios.get('/api/qualities')
-      .then((res)=>{
-        setQualityOpts(res.data.map((quality)=>({label: quality.name, value: quality.id})));
       })
       .catch((err)=>{
         console.log(err);
@@ -149,23 +140,6 @@ export default function InwardReport(props) {
                 label="Party"
                 isClearable
               />
-          </Grid>
-          <Grid item md={4} xs={12}>
-            <FormField label="Qualities">
-              <Select
-                isMulti
-                value={qualityOpts.filter(
-                  (quality) => filter.qualities.indexOf(quality.value) > -1
-                )}
-                onChange={(values) => {
-                  setFilter((prev) => ({
-                    ...prev,
-                    qualities: values.map((value) => value.value),
-                  }));
-                }}
-                options={qualityOpts}
-              />
-            </FormField>
           </Grid>
         </Grid>
       </Box>
@@ -226,55 +200,107 @@ export default function InwardReport(props) {
 }
 
 function FinalReport({data}) {
+  let programData = data['programData'] || {};
+  let outwardData = data['outwardData'] || {};
+  let inwardData = data['inwardData'] || {};
+
+  let allQualityTotals = {};
+  Object.keys(inwardData).map((qualityId)=>{
+    let qualityTotals = allQualityTotals[qualityId] = allQualityTotals[qualityId] || {
+      netWt: 0,
+      outWt: 0,
+    }
+    let inwards = inwardData[qualityId];
+    inwards.forEach((q)=>{
+      qualityTotals.netWt += q.netWt;
+    });
+
+    Object.keys(programData).map((weaver)=>{
+      let programs = programData[weaver];
+      console.log(programs);
+      programs.forEach((p)=>{
+        p.qualities.forEach((q)=>{
+          console.log(q, qualityId);
+          if(q.qualityId == qualityId) {
+            qualityTotals.outWt += q.usedYarn;
+          }
+        })
+      })
+    });
+  });
   return (
     <>
-      {Object.keys(data).map((partyName)=>{
-        let party = data[partyName];
+      <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Beam details</Typography>
+      {Object.keys(programData).map((weaverName, i)=>{
+        let weaver = programData[weaverName];
         return (
           <>
-          <Box borderTop={1} margin={1}></Box>
-          <Typography>Party: {partyName}</Typography>
-          {Object.keys(party).map((qualityName)=>{
-            let quality = party[qualityName];
-            return (
-              <>
-              <Typography>Quality: {qualityName}</Typography>
-              <ReportTable showFooter data={quality} columns={[
-                {
-                  Header: 'Date',
-                  accessor: 'date',
-                },
-                {
-                  Header: 'Gatepass No.',
-                  accessor: 'gatepass',
-                },
-                {
-                  Header: 'Lot number',
-                  accessor: 'lotNo',
-                  Footer: (info)=>{
-                    return <span style={{fontWeight: 'bold'}}>Total</span>
-                  }
-                },
-                {
-                  Header: 'Net Wt.',
-                  accessor: 'netWt',
-                  Footer: (info)=>{
-                    let total = info.rows.reduce((sum, row) => {
-                        return (row.values[info.column.id] || 0) + sum
-                      }, 0
-                    );
-                    total = parse(total);
-                    return <span style={{fontWeight: 'bold'}}>{total}</span>
-                  }
-                },
-              ]}/>
-              </>
-            )
-          })}
+          <Typography>Weaver: {weaverName}</Typography>
+          <ReportTable data={weaver} columns={[
+            {
+              Header: 'Design',
+              accessor: 'design',
+            },
+            {
+              Header: 'Total Meter',
+              accessor: 'totalMeter',
+            },
+            {
+              Header: 'Total Ends',
+              accessor: 'totalEnds',
+            },
+            {
+              Header: 'Actual Used Ends',
+              accessor: 'actualUsedYarn',
+            },
+          ]}/>
           </>
         )
       })}
-      <ReportTable columns={[]}/>
+      <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Outward</Typography>
+      {Object.keys(outwardData).map((weaverName)=>{
+        let weaver = outwardData[weaverName];
+        return (
+          <>
+          <Typography>Weaver: {weaverName}</Typography>
+          <ReportTable data={weaver} columns={[
+            {
+              Header: 'Quality',
+              accessor: 'qualityId',
+            },
+            {
+              Header: 'Total cones',
+              accessor: (row)=>{
+                let total = 0;
+                row.bags.forEach((b)=>{
+                  total += parse(b.cones);
+                });
+                return total;
+              },
+            },
+            {
+              Header: 'Net Wt.',
+              accessor: 'netWt',
+            },
+          ]}/>
+          </>
+        )
+      })}
+      <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Details</Typography>
+      <ReportTable data={Object.keys(allQualityTotals).map((q)=>({qualityId: q, ...allQualityTotals[q]}))} columns={[
+        {
+          Header: 'qualityId',
+          accessor: 'qualityId',
+        },
+        {
+          Header: 'outWt',
+          accessor: 'outWt',
+        },
+        {
+          Header: 'Net Wt.',
+          accessor: 'netWt',
+        },
+      ]}/>
     </>
   )
 }
