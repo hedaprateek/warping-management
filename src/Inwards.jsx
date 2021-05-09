@@ -248,11 +248,11 @@ class Inwards extends React.Component {
         },
       },
       {
-        Header: 'DATE',
+        Header: 'Date',
         accessor: 'date', // accessor is the "key" in the data
       },
       {
-        Header: 'PARTY NAME',
+        Header: 'Party Name',
         accessor: (row) => {
           let partyName = [];
           if (row.partyId) {
@@ -266,11 +266,11 @@ class Inwards extends React.Component {
         },
       },
       {
-        Header: 'GATEPASS',
+        Header: 'Gatepass No.',
         accessor: 'gatepass', // accessor is the "key" in the data
       },
       {
-        Header: 'QUALITY NAME',
+        Header: 'Quality Name',
         accessor: (row) => {
           let qualityName = [];
           if (row.partyId) {
@@ -284,19 +284,19 @@ class Inwards extends React.Component {
         },
       },
       {
-        Header: 'QUANTITY BAGS',
+        Header: 'No of Bags',
         accessor: 'qtyBags', // accessor is the "key" in the data
       },
       {
-        Header: 'QUANTITY CONES',
+        Header: 'No of Cones',
         accessor: 'qtyCones', // accessor is the "key" in the data
       },
       {
-        Header: 'LOT NUMBER',
+        Header: 'Lot No.',
         accessor: 'lotNo',
       },
       {
-        Header: 'NET WEIGHT',
+        Header: 'Net Weight (Kg)',
         accessor: 'netWt', // accessor is the "key" in the data
       },
     ],

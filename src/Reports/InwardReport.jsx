@@ -172,7 +172,7 @@ export default function InwardReport(props) {
       <Box p={1}>
         <Grid container spacing={2}>
           <Grid item md={4} xs={12}>
-            <FormField label="Date type">
+            <FormField label="Date Type">
               <MUISelect
                 value={dateType}
                 onChange={(e) => setDateType(e.target.value)}
@@ -190,7 +190,7 @@ export default function InwardReport(props) {
           </Grid>
           <Grid item md={2} xs={12}>
             <InputDate
-              label="From date"
+              label="From Date"
               value={filter.from_date}
               onChange={(value) => {
                 setFilter((prev) => ({ ...prev, from_date: value }));
@@ -199,7 +199,7 @@ export default function InwardReport(props) {
           </Grid>
           <Grid item md={2} xs={12}>
             <InputDate
-              label="To date"
+              label="To Date"
               value={filter.to_date}
               onChange={(value) => {
                 setFilter((prev) => ({ ...prev, to_date: value }));

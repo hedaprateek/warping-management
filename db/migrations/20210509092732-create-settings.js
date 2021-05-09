@@ -20,6 +20,9 @@ module.exports = {
       companyContact: {
         type: Sequelize.STRING,
       },
+      emailId: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

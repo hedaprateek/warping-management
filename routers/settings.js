@@ -22,6 +22,7 @@ router.put('/', function (req, res) {
       companyAddress: reqJson.companyAddress,
       companyGst: reqJson.companyGst,
       companyContact: reqJson.companyContact,
+      emailId: reqJson.emailId,
     },
     {
       where: {},

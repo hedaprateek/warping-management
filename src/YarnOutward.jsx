@@ -157,7 +157,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
       Footer: TotalFooter,
     },
     {
-      Header: 'Gross weight (Kg)',
+      Header: 'Gross Weight (Kg)',
       accessor: 'grossWt',
       Cell: getNumberCell(dataDispatch, accessPath.concat('bags')),
       Footer: TotalFooter,
@@ -213,7 +213,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
         <Grid container spacing={1}>
           <Grid item lg={3} md={2} sm={12} xs={12}>
             <InputText
-              label="Empty cone wt. (Kg)"
+              label="Empty Cone Weight (Kg)"
               name="emptyConeWt"
               value={data.emptyConeWt}
               onChange={onChange}
@@ -222,7 +222,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
           </Grid>
           <Grid item lg={3} md={2} sm={12} xs={12}>
             <InputText
-              label="Total empty bag wt. (Kg)"
+              label="Total Empty Bags Weight (Kg)"
               name="emptyBagWt"
               value={data.emptyBagWt}
               onChange={onChange}
@@ -231,7 +231,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
           </Grid>
           <Grid item lg={3} md={2} sm={12} xs={12}>
             <InputText
-              label="Net wt. (Kg)"
+              label="Net Weight (Kg)"
               name="netWt"
               value={data.netWt}
               type="number"
@@ -313,7 +313,7 @@ function YarnOutwardDialog({ open, parties, weavers,...props }) {
 
   return (
     <DraggableDialog
-      sectionTitle="Yarn outward"
+      sectionTitle="Yarn Outward"
       {...props}
       onSave={() => {
         props.onSave(parseOutwardValue(outwardValue));
@@ -373,7 +373,7 @@ function YarnOutwardDialog({ open, parties, weavers,...props }) {
               path: ['outwards'],
               value: defaultOutward,
             });
-          }}>Add outward</Button>
+          }}>Add Outward</Button>
         </Grid>
       </Grid>
     </DraggableDialog>
@@ -464,7 +464,7 @@ class YarnOutward extends React.Component {
         },
       },
       {
-        Header: 'Quality name',
+        Header: 'Quality Name',
         accessor: (row) => {
           let qualityName = [];
           if (row.qualityId) {
@@ -478,7 +478,7 @@ class YarnOutward extends React.Component {
         },
       },
       {
-        Header: 'NetWt',
+        Header: 'Net Weight (Kg)',
         accessor: 'netWt', // accessor is the "key" in the data
       },
     ],
@@ -520,7 +520,7 @@ class YarnOutward extends React.Component {
               onClick={() => this.showDialog(true)}
               style={{ marginLeft: '0.5rem' }}
             >
-              Add yarn outward
+              Add Yarn Outward
             </Button>
           </Box>
         </Box>

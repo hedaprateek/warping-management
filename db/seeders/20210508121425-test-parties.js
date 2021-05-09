@@ -102,7 +102,7 @@ module.exports = {
       qualityId: "1",
       qtyBags: "100",
       qtyCones: "3200",
-      lotNo: "2",
+      lotNo: "1",
       netWt: "3200",
       createdAt: new Date(),
       updatedAt: new Date()
@@ -113,7 +113,7 @@ module.exports = {
       qualityId: "2",
       qtyBags: "100",
       qtyCones: "1000",
-      lotNo: "1",
+      lotNo: "2",
       netWt: "1000",
       createdAt: new Date(),
       updatedAt: new Date()
@@ -124,7 +124,7 @@ module.exports = {
       qualityId: "3",
       qtyBags: "200",
       qtyCones: "2000",
-      lotNo: "1",
+      lotNo: "3",
       netWt: "2000",
       createdAt: new Date(),
       updatedAt: new Date()
@@ -135,7 +135,7 @@ module.exports = {
       qualityId: "4",
       qtyBags: "100",
       qtyCones: "500",
-      lotNo: "2",
+      lotNo: "4",
       netWt: "500",
       createdAt: new Date(),
       updatedAt: new Date()
@@ -146,7 +146,7 @@ module.exports = {
       qualityId: "5",
       qtyBags: "50",
       qtyCones: "250",
-      lotNo: "3",
+      lotNo: "5",
       netWt: "250",
       createdAt: new Date(),
       updatedAt: new Date()
@@ -157,7 +157,7 @@ module.exports = {
       qualityId: "6",
       qtyBags: "40",
       qtyCones: "200",
-      lotNo: "4",
+      lotNo: "6",
       netWt: "200",
       createdAt: new Date(),
       updatedAt: new Date()

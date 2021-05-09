@@ -179,11 +179,11 @@ class Parties extends React.Component {
         },
       },
       {
-        Header: 'NAME',
+        Header: 'Party Name',
         accessor: 'name', // accessor is the "key" in the data
       },
       {
-        Header: 'ADDRESS',
+        Header: 'Address',
         accessor: 'address',
       },
       {
@@ -191,11 +191,11 @@ class Parties extends React.Component {
         accessor: 'gstin', // accessor is the "key" in the data
       },
       {
-        Header: 'CONTACT',
+        Header: 'Contact No.',
         accessor: 'contact',
       },
       {
-        Header: 'WEAVER',
+        Header: 'Party Type',
         accessor: 'isWeaver', // accessor is the "key" in the data
       },
     ],
@@ -296,7 +296,7 @@ class Parties extends React.Component {
               onClick={() => this.showDialog(true)}
               style={{ marginLeft: '0.5rem' }}
             >
-              Add party
+              Add Party
             </Button>
           </Box>
         </Box>

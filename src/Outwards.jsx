@@ -15,8 +15,8 @@ export default function Outwards() {
     <Box display="flex" flexDirection="column" height="100%" style={{minHeight: 0}}>
       <Box>
         <Tabs value={tabvalue} onChange={tabChange}>
-          <Tab label="Warping program" />
-          <Tab label="Yarn outward" />
+          <Tab label="Warping Program" />
+          <Tab label="Yarn Outward" />
         </Tabs>
       </Box>
       <TabPanel value={tabvalue} index={0}>

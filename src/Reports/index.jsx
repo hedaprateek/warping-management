@@ -16,8 +16,8 @@ export default function Reports() {
     <Box display="flex" flexDirection="column" height="100%" style={{minHeight: 0}}>
       <Box>
         <Tabs value={tabvalue} onChange={tabChange} aria-label="simple tabs example">
-          <Tab label="Inward report" />
-          <Tab label="Outward report" />
+          <Tab label="Inward Report" />
+          <Tab label="Outward Report" />
         </Tabs>
       </Box>
       <TabPanel value={tabvalue} index={0}>

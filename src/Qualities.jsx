@@ -135,11 +135,11 @@ class Qualities extends React.Component {
         },
       },
       {
-        Header: 'YARN TYPE',
+        Header: 'Quality Name',
         accessor: 'name', // accessor is the "key" in the data
       },
       {
-        Header: 'COUNT',
+        Header: 'Count',
         accessor: 'desc',
       },
     ],

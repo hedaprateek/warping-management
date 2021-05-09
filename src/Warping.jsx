@@ -161,10 +161,10 @@ function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityO
       Header: 'Count',
       accessor: 'count',
       Cell: getNumberCell(dataDispatch, accessPath.concat('qualities')),
-      Footer: ()=>'Net used yarn',
+      Footer: ()=>'Net Used Yarn (Kg)',
     },
     {
-      Header: 'Used yarn',
+      Header: 'Used Yarn (Kg)',
       accessor: 'usedYarn',
       Cell: getNumberCell(null, accessPath.concat('qualities'), true),
       Footer: (info)=>{
@@ -198,7 +198,7 @@ function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityO
         <Grid container spacing={1}>
           <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputText
-              label="Design"
+              label="Design No."
               name="design"
               value={data.design}
               onChange={onChange}
@@ -262,7 +262,7 @@ function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityO
         <Grid container spacing={1}>
           <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputText
-              label="Filled beam wt."
+              label="Filled Beam Weight (Kg)"
               name="filledBeamWt"
               value={data.filledBeamWt}
               onChange={onChange}
@@ -271,7 +271,7 @@ function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityO
           </Grid>
           <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputText
-              label="Empty beam wt."
+              label="Empty Beam Weight (Kg)"
               name="emptyBeamWt"
               value={data.emptyBeamWt}
               onChange={onChange}
@@ -280,7 +280,7 @@ function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityO
           </Grid>
           <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputText
-              label="Actual used yarn"
+              label="Actual Used Yarn (Kg)"
               name="actualUsedYarn"
               value={data.actualUsedYarn}
               onChange={onChange}
@@ -506,19 +506,19 @@ class Warping extends React.Component {
         },
       },
       {
-        Header: 'Design No',
+        Header: 'Design No.',
         accessor: 'design',
       },
       {
-        Header: 'Total meter',
+        Header: 'Total Meters',
         accessor: 'totalMeter',
       },
       {
-        Header: 'Total ends',
+        Header: 'Total Ends',
         accessor: 'totalEnds',
       },
       {
-        Header: 'Actual used yarn(Kg)',
+        Header: 'Actual Used Yarn (Kg)',
         accessor: 'actualUsedYarn',
       },
     ],
@@ -560,7 +560,7 @@ class Warping extends React.Component {
               onClick={() => this.showDialog(true)}
               style={{ marginLeft: '0.5rem' }}
             >
-              Add program
+              Add Program
             </Button>
           </Box>
         </Box>

@@ -22,6 +22,7 @@ class Settings extends React.Component {
     companyAddress: '',
     companyGst: '',
     companyContact: '',
+    emailId: '',
   };
 
   updateCompanyValues(e) {
@@ -53,7 +54,7 @@ class Settings extends React.Component {
         <Grid container spacing={2}>
           <Grid item lg={6} md={6} sm={12} xs={12}>
             <InputText
-              label="Name"
+              label="Company Name"
               id="companyName"
               value={this.state.companyName}
               onChange={this.updateCompanyValues}
@@ -75,7 +76,6 @@ class Settings extends React.Component {
               onChange={this.updateCompanyValues}
             />
           </Grid>
-
           <Grid item lg={6} md={6} sm={12} xs={12}>
             <InputText
               label="Contact"
@@ -84,8 +84,16 @@ class Settings extends React.Component {
               onChange={this.updateCompanyValues}
             />
           </Grid>
-
-          <Button
+          <Grid item lg={6} md={6} sm={12} xs={12}>
+            <InputText
+              label="Email Id"
+              id="emailId"
+              value={this.state.emailId}
+              onChange={this.updateCompanyValues}
+            />
+          </Grid>
+          </Grid>
+        <Button
             variant="contained"
             color="primary"
             onClick={this.updateCompanyDetails}
@@ -93,7 +101,6 @@ class Settings extends React.Component {
           >
             Update
           </Button>
-        </Grid>
       </div>
     );
   }
