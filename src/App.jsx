@@ -16,6 +16,7 @@ import {
 } from '@material-ui/pickers';
 import Outwards from './Outwards';
 import Settings from './Settings';
+import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 
 
 
@@ -51,7 +52,11 @@ export default function App() {
                 {navItems.map((item) => {
                   return <NavButton to={item.to}>{item.label}</NavButton>;
                 })}
-                <NavButton to={settings.to}>{settings.label}</NavButton>
+                <span style={{ paddingLeft: '70%' }}>
+                  <NavButton to={settings.to}>
+                    <SettingsRoundedIcon></SettingsRoundedIcon>
+                  </NavButton>
+                </span>
               </Toolbar>
             </AppBar>
             <Box>

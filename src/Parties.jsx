@@ -27,7 +27,7 @@ function PartiesDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
   const [isEdit, setIsEdit] = useState(false);
   const editModeParty = props.editModePartyValue;
-const isUniqueName = props.isUniqueName;
+  const isUniqueName = props.isUniqueName;
   const defaults = {
     isWeaver: 'Party',
     name: '',
@@ -115,6 +115,7 @@ const isUniqueName = props.isUniqueName;
               { label: 'Party', value: 'Party' },
               { label: 'Weaver', value: 'Weaver' },
             ]}
+            disabled={isEdit}
           />
         </Grid>
       </Grid>
@@ -155,7 +156,7 @@ class Parties extends React.Component {
     if (row && row.values) this.state.editModePartyValue = row.original;
   }
   state = {
-    isUniqueName: "true",
+    isUniqueName: 'true',
     editModePartyValue: [],
     radioValue: 'Yes',
     parties: [],
@@ -202,6 +203,7 @@ class Parties extends React.Component {
   };
 
   showDialog(show) {
+    this.state.isUniqueName = 'true';
     if (!show) {
       this.state.editModeQualityValue = [];
     }
@@ -209,74 +211,78 @@ class Parties extends React.Component {
   }
 
   saveDetails(partyValue, validator, isEdit) {
-      console.log('qqqqqqqqqqqqqqq');
-      // let isUniqueName = true;
-      let isUniqueName = this.state.parties.filter((party) => party.name === partyValue.name)
-        // if (partyValue.name === party.name) {
-        //   return false;
-        // } 
-      
+    let editPartyName = '';
+    if (isEdit) {
+      editPartyName = partyValue.name;
+    }
+    // if (!isEdit) {
+      this.state.isUniqueName = 'true';
+      let isUniqueNameList = this.state.parties.filter(
+        (party) => party.name === partyValue.name && editPartyName !== party.name
+      );
 
-      console.log("isUni", isUniqueName);
+      console.log('isUni', isUniqueNameList);
 
-      if (isUniqueName && isUniqueName.length >0) {
-        this.state.isUniqueName = "false";
+      if (isUniqueNameList && isUniqueNameList.length > 0) {
+        this.state.isUniqueName = 'false';
       }
-
-      if (validator.allValid() && this.state.isUniqueName === "false") {
-        console.log(partyValue);
-
-        if (isEdit) {
-          axios
-            .put(`/api/parties/` + partyValue.id, partyValue, {
-              headers: {
-                'content-type': 'application/json',
-              },
-            })
-            .then((res) => {
-              let indx = this.setState((prevState) => {
-                let indx = prevState.parties.findIndex(
-                  (i) => i.id === partyValue.id
-                );
-                return {
-                  parties: [
-                    ...prevState.parties.slice(0, indx),
-                    partyValue,
-                    ...prevState.parties.slice(indx + 1),
-                  ],
-                };
-              });
+    // }
+    if (validator.allValid() && this.state.isUniqueName === 'true') {
+      console.log(partyValue);
+      this.state.isUniqueName = 'true';
+      if (isEdit) {
+        axios
+          .put(`/api/parties/` + partyValue.id, partyValue, {
+            headers: {
+              'content-type': 'application/json',
+            },
+          })
+          .then((res) => {
+            let indx = this.setState((prevState) => {
+              let indx = prevState.parties.findIndex(
+                (i) => i.id === partyValue.id
+              );
+              return {
+                parties: [
+                  ...prevState.parties.slice(0, indx),
+                  partyValue,
+                  ...prevState.parties.slice(indx + 1),
+                ],
+              };
             });
-        } else {
-          axios
-            .post(`/api/parties`, partyValue, {
-              headers: {
-                'content-type': 'application/json',
-              },
-            })
-            .then((res) => {
-              const parties = this.state.parties;
-              const latestData = res.data;
-              // this.state.parties.push(latestData);
-              this.setState((prevState) => {
-                return { parties: [...prevState.parties, latestData] };
-              });
-            });
-        }
-        this.showDialog(false);
+          });
       } else {
-        if (validator.allValid()) {
-          validator.message('name', 'aaaaa', 'required')
-          // validator.message(name: "asssas");
-          validator.showMessages();
-          console.log("abc");
-          this.forceUpdate();
-        } 
-        validator.showMessages();
-        // rerender to show messages for the first time
-        // you can use the autoForceUpdate option to do this automatically`
-        this.forceUpdate();
+        axios
+          .post(`/api/parties`, partyValue, {
+            headers: {
+              'content-type': 'application/json',
+            },
+          })
+          .then((res) => {
+            const parties = this.state.parties;
+            const latestData = res.data;
+            // this.state.parties.push(latestData);
+            this.setState((prevState) => {
+              return { parties: [...prevState.parties, latestData] };
+            });
+          });
       }
+      this.showDialog(false);
+    } else {
+      // if (validator.allValid()) {
+      //   // validator.message('name', 'aaaaa', 'required')
+      //   // validator.message(name: "asssas");
+      //   // validator.showMessages();
+      //   console.log("abc");
+      //   // this.forceUpdate();
+      // }
+      //
+      console.log('abc');
+      validator.showMessages();
+      // rerender to show messages for the first time
+      // you can use the autoForceUpdate option to do this automatically`
+      this.forceUpdate();
+    }
   }
 
   render() {
