@@ -17,6 +17,7 @@ import {
 import Outwards from './Outwards';
 import Settings from './Settings';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
+import Billing from './Billing';
 
 
 
@@ -27,6 +28,7 @@ const navItems = [
   { label: 'Qualities', to: '/qualities', component: Qualities },
   { label: 'Parties', to: '/parties', component: Parties },
   { label: 'Reports', to: '/reports', component: Reports },
+  { label: 'Billing', to: '/billing', component: Billing },
 ];
 
 const settings = { label: 'Settings', to: '/settings', component: Settings };
