@@ -1,4 +1,4 @@
-const ROUND_DECIMAL = 5;
+const ROUND_DECIMAL = 3;
 
 export function parse(num) {
   if(!isNaN(num)) {

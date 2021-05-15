@@ -21,7 +21,7 @@ const REPORT_NAME = 'OUTWARD REPORT';
 
 export default function OutwardReport(props) {
   const classes = useStyles();
-  const [dateType, setDateType] = useState('current');
+  const [dateType, setDateType] = useState('custom-date');
   const [filter, setFilter] = useState({
     party_id: null,
     qualities: [],
@@ -262,13 +262,13 @@ function QualityDetails({qualities, getQuality}) {
     <>
     <ReportTable showFooter data={qualities} columns={[
       {
+        Header: 'Date',
+        accessor: 'date',
+      },
+      {
         Header: 'Quality',
         accessor: (row)=>getQuality(row.qualityId),
         width: '50%'
-      },
-      {
-        Header: 'Date',
-        accessor: 'date',
       },
       {
         Header: 'Net Wt.',
@@ -291,7 +291,7 @@ function QualityDetails({qualities, getQuality}) {
 function FinalReport({data, getWeaver, getQuality}) {
   let programData = data['programData'] || {};
   let outwardData = data['outwardData'] || {};
-  let inwardData = data['inwardData'] || {};
+  let inwardOpeningBalance = data['inwardOpeningBalance'] || {};
 
   /* Calculate the beam details summary */
   let beamDetailsSummary = {
@@ -326,29 +326,6 @@ function FinalReport({data, getWeaver, getQuality}) {
       yarnOutwardSummary.qualities[outward.qualityId] += outward.netWt;
     });
   });
-  // let allQualityTotals = {};
-  // Object.keys(inwardData).map((qualityId)=>{
-  //   let qualityTotals = allQualityTotals[qualityId] = allQualityTotals[qualityId] || {
-  //     netWt: 0,
-  //     outWt: 0,
-  //   }
-  //   let inwards = inwardData[qualityId];
-  //   inwards.forEach((q)=>{
-  //     qualityTotals.netWt += q.netWt;
-  //   });
-
-  //   Object.keys(programData).map((weaver)=>{
-  //     let programs = programData[weaver];
-  //     programs.forEach((p)=>{
-  //       p.qualities.forEach((q)=>{
-  //         console.log(q, qualityId);
-  //         if(q.qualityId == qualityId) {
-  //           qualityTotals.outWt += q.usedYarn;
-  //         }
-  //       })
-  //     })
-  //   });
-  // });
 
   return (
     <>
@@ -392,7 +369,7 @@ function FinalReport({data, getWeaver, getQuality}) {
           </Grid>
         </Grid>
       </Box>
-
+      <DashedDivider />
       <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Outward</Typography>
       {Object.keys(outwardData).map((weaverId)=>{
         let qualities = outwardData[weaverId];
@@ -422,49 +399,44 @@ function FinalReport({data, getWeaver, getQuality}) {
             },
         ]}/>
       </Box>
-      {/* {Object.keys(outwardData).map((weaverName)=>{
-        let weaver = outwardData[weaverName];
-        return (
-          <>
-          <Typography>Weaver: {weaverName}</Typography>
-          <ReportTable data={weaver} columns={[
-            {
-              Header: 'Quality',
-              accessor: 'qualityId',
-            },
-            {
-              Header: 'Total cones',
-              accessor: (row)=>{
-                let total = 0;
-                row.bags.forEach((b)=>{
-                  total += parse(b.cones);
-                });
-                return total;
-              },
-            },
-            {
-              Header: 'Net Wt.',
-              accessor: 'netWt',
-            },
-          ]}/>
-          </>
-        )
-      })}
-      <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Details</Typography>
-      <ReportTable data={Object.keys(allQualityTotals).map((q)=>({qualityId: q, ...allQualityTotals[q]}))} columns={[
-        {
-          Header: 'qualityId',
-          accessor: 'qualityId',
-        },
-        {
-          Header: 'outWt',
-          accessor: 'outWt',
-        },
-        {
-          Header: 'Net Wt.',
-          accessor: 'netWt',
-        },
-      ]}/> */}
+      <DashedDivider />
+      <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Summary</Typography>
+      <ReportTable data={
+          Object.keys(inwardOpeningBalance).map(
+            (qualityId)=>({
+              qualityId: qualityId,
+              openBalance: inwardOpeningBalance[qualityId],
+            })
+          )
+        } columns={[
+          {
+            Header: 'Quality',
+            accessor: (row)=>getQuality(row.qualityId),
+          },
+          {
+            Header: 'Inward',
+            accessor: 'openBalance',
+          },
+          {
+            Header: 'Warping',
+            accessor: (row)=>{
+              return beamDetailsSummary.qualities[row.qualityId] || 0;
+            }
+          },
+          {
+            Header: 'Outward',
+            accessor: (row)=>{
+              return yarnOutwardSummary.qualities[row.qualityId] || 0;
+            }
+          },
+          {
+            Header: 'Balance',
+            accessor: (row)=>{
+              return row.openBalance - (beamDetailsSummary.qualities[row.qualityId] || 0)
+                - (yarnOutwardSummary.qualities[row.qualityId] || 0);
+            }
+          },
+      ]}/>
     </>
   )
 }

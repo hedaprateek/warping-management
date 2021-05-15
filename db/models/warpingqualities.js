@@ -12,6 +12,6 @@ module.exports = (sequelize, DataTypes) => {
   WarpingQualities.associate = function(models) {
     // associations can be defined here
   };
-  WarpingQualities.removeAttribute("id");
+  // WarpingQualities.removeAttribute("id");
   return WarpingQualities;
 };

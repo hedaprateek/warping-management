@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 var router = require('express').Router();
 const db = require('../db/models');
 const Op = Sequelize.Op;
+const _ = require('lodash');
 
 router.get('/inward', function(req, res) {
   let where = {
@@ -46,7 +47,57 @@ router.get('/inward', function(req, res) {
   });
 });
 
-router.get('/outward', function(req, res) {
+async function getInwardOpenBalance(partyId, fromDate, toDate) {
+  /* Find the total inward till to date */
+  let where = {
+    partyId: parseInt(partyId),
+    date: {
+      [Op.lte]: toDate,
+    }
+  };
+  let res = await db.Inward.findAll({
+    attributes: ['qualityId', [db.sequelize.fn('sum', db.sequelize.col('netWt')), 'netWt']],
+    raw: true,
+    where: where,
+    group: ['qualityId'],
+  });
+  let inwardQualities = res;
+
+  /* Find the total warping till from date minus 1 day */
+  where = {
+    partyId: parseInt(partyId),
+    date: {
+      [Op.lt]: fromDate,
+    }
+  };
+  res = await db.WarpingProgram.findAll({
+    attributes: [db.sequelize.col('qualities.qualityId'), [db.sequelize.fn('sum', db.sequelize.col('qualities.usedYarn')), 'netWt']],
+    raw: true,
+    where: where,
+    group: [db.sequelize.col('qualities.qualityId')],
+    include: [{model: db.WarpingQualities, as: 'qualities', attributes: ['qualityId', 'usedYarn'], required:false}]
+  });
+  let warpingQualities = res;
+
+  /* Find the total yarn outward till from date minus 1 day */
+  res = await db.Outward.findAll({
+    attributes: [db.sequelize.col('qualityId'), [db.sequelize.fn('sum', db.sequelize.col('netWt')), 'netWt']],
+    raw: true,
+    where: where,
+    group: [db.sequelize.col('qualityId')],
+  });
+  let outwardQualities = res;
+
+  let finalBalance = {};
+  inwardQualities.forEach((entry)=>{
+    finalBalance[entry.qualityId] = entry.netWt;
+    finalBalance[entry.qualityId] -= (_.find(warpingQualities, (w)=>w.qualityId==entry.qualityId)||{netWt: 0}).netWt;
+    finalBalance[entry.qualityId] -= (_.find(outwardQualities, (w)=>w.qualityId==entry.qualityId)||{netWt: 0}).netWt;
+  });
+  return finalBalance;
+}
+
+router.get('/outward', async function(req, res) {
   let where = {
     date: {
       [Op.gte]: req.query.from_date,
@@ -57,22 +108,25 @@ router.get('/outward', function(req, res) {
     where.partyId = parseInt(req.query.party_id);
   }
 
-  let programReport = db.WarpingProgram.findAll({
+  let inwardOpeningBalance = await getInwardOpenBalance(req.query.party_id, req.query.from_date, req.query.to_date);
+
+  let programReport = await db.WarpingProgram.findAll({
     attributes: [
       'weaverId', 'lassa', 'cuts', 'totalMeter'],
     raw: false,
     where: where,
-    include: [{model: db.WarpingQualities, as: 'qualities', required: false}],
+    nest: true,
+    include: [{model: db.WarpingQualities, as: 'qualities'}],
   });
 
-  let outwardReport = db.Outward.findAll({
+  let outwardReport = await db.Outward.findAll({
     attributes: ['weaverId', 'qualityId', 'netWt', 'date'],
     raw: false,
     where: where,
     include: [{model: db.OutwardBags, as: 'bags'}],
   });
 
-  let inwardReport = db.Inward.findAll({
+  let inwardReport = await db.Inward.findAll({
     attributes: [
       'gatepass', 'qualityId', 'lotNo', 'netWt'],
     order: [['gatepass', 'DESC']],
@@ -81,8 +135,11 @@ router.get('/outward', function(req, res) {
   });
 
   Promise.all([programReport, outwardReport, inwardReport]).then((reports)=>{
-    let retVal = {};
+    let retVal = {'inwardOpeningBalance': inwardOpeningBalance};
     let programData = retVal['programData'] = {};
+
+    console.log('----programData----');
+    console.log(reports[0]);
     reports[0].forEach((row)=>{
       let weaver = programData[row.weaverId] = programData[row.weaverId] || [];
       weaver.push({
@@ -101,17 +158,6 @@ router.get('/outward', function(req, res) {
         netWt: row.netWt,
         date: row.date,
         bags: row.bags,
-      });
-    });
-
-    let inwardData = retVal['inwardData'] = {};
-    reports[2].forEach((row)=>{
-      let quality = inwardData[row.qualityId] = inwardData[row.qualityId] || [];
-      quality.push({
-        date: row.date,
-        gatepass: row.gatepass,
-        lotNo: row.lotNo,
-        netWt: row.netWt
       });
     });
     res.status(200).json(retVal);

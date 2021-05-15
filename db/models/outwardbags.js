@@ -23,6 +23,6 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'OutwardBags',
     timestamps: false,
   });
-  OutwardBags.removeAttribute("id");
+  // OutwardBags.removeAttribute("id");
   return OutwardBags;
 };
