@@ -37,11 +37,10 @@ function ReportHeader({reportName, settings}) {
       <Typography style={{fontWeight: 'bold'}}>{settings.companyName}</Typography>
       <Typography variant="subtitle2">{settings.companyAddress}</Typography>
       <Typography style={{fontWeight: 'bold'}} variant="subtitle2">GSTIN: {settings.companyGst}</Typography>
-      <Typography variant="body2">{settings.companyContact}</Typography>
-      <Typography variant="body2">{settings.emailId}</Typography>
+      <Typography variant="body2">{settings.companyContact}, {settings.emailId}</Typography>
       <Box borderBottom={1} />
     </Box>
-  )
+  );
 }
 
 export default function ReportViewer({reportName, children}) {

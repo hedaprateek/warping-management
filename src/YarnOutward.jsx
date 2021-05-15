@@ -337,7 +337,7 @@ function YarnOutwardDialog({ open, parties, weavers,...props }) {
               </FormField>
             </Grid>
             <Grid item md={6} xs={12}>
-              <FormField label="Weaver">
+              <FormField label="Weaver/Party">
                 <Select
                   value={weaverOpts.filter((party)=>party.value===outwardValue.weaverId)}
                   onChange={(value)=>{
@@ -383,25 +383,19 @@ function YarnOutwardDialog({ open, parties, weavers,...props }) {
 
 class YarnOutward extends React.Component {
   componentDidMount() {
-    let p1 = axios
-      .get(`/api/parties`)
-      .then((res) => {
-        const parties = res.data.filter((p) => p.isWeaver === 'Party');
-        const weavers = res.data.filter((p) => p.isWeaver === 'Weaver');
-        this.setState({ parties, weavers });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-    let p2 = axios
-      .get('/api/qualities')
-      .then((res) => {
-        const qualities = res.data;
-        this.setState({ qualities });
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    let p1 = axios.get(`/api/parties`).then((res) => {
+      const parties = res.data.filter((p)=>p.isWeaver==='Party');
+      const weavers = res.data;
+      this.setState({ parties, weavers });
+    }).catch((err)=>{
+      console.log(err);
+    });
+    let p2 = axios.get('/api/qualities').then((res)=>{
+      const qualities = res.data;
+      this.setState({ qualities });
+    }).catch((err)=>{
+      console.log(err);
+    });
 
     Promise.all([p1, p2]).then(() => {
       axios

@@ -2,7 +2,7 @@ import { Box, Divider, makeStyles } from "@material-ui/core"
 import { useTable } from "react-table"
 import clsx from 'clsx';
 
-const useStyles = makeStyles(()=>({
+const useStyles = makeStyles((theme)=>({
   table: {
     borderSpacing: 0,
     border: '1px solid black',
@@ -22,6 +22,10 @@ const useStyles = makeStyles(()=>({
   },
   reportStyles: {
     backgroundColor: '#fff',
+  },
+  dashedDivier: {
+    borderTop: '1px dashed',
+    margin: theme.spacing(1),
   }
 }));
 
@@ -47,7 +51,7 @@ export function ReportTable({ columns, data, showFooter }) {
         {headerGroups.map(headerGroup => (
           <tr {...headerGroup.getHeaderGroupProps()}>
             {headerGroup.headers.map((column,i)=> (
-              <th {...column.getHeaderProps()}
+              <th {...column.getHeaderProps()}  width={column.width}
                 className={clsx(classes.td, i==headerGroup.headers.length-1 ? classes.noBorderRight : null)}>
                   {column.render('Header')}
               </th>
@@ -84,5 +88,12 @@ export function ReportTable({ columns, data, showFooter }) {
         ))}
       </tfoot>}
     </table>
+  )
+}
+
+export function DashedDivider() {
+  const classes = useStyles();
+  return (
+    <Box className={classes.dashedDivier}></Box>
   )
 }

@@ -1,11 +1,11 @@
 import { Box, Button, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect, Typography } from '@material-ui/core';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ReportTable } from './CommonReport';
+import { DashedDivider, ReportTable } from './CommonReport';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
-import Select from 'react-select';
 import {FormField, InputDate, InputSelectSearch} from '../FormElements';
 import { parse } from '../utils';
+import { _ } from 'globalthis/implementation';
 
 
 const useStyles = makeStyles((theme)=>({
@@ -21,7 +21,7 @@ const REPORT_NAME = 'OUTWARD REPORT';
 
 export default function OutwardReport(props) {
   const classes = useStyles();
-  const [dateType, setDateType] = useState('custom-date');
+  const [dateType, setDateType] = useState('current');
   const [filter, setFilter] = useState({
     party_id: null,
     qualities: [],
@@ -30,6 +30,10 @@ export default function OutwardReport(props) {
   });
   const [data, setData] = useState([]);
   const [partiesOpts, setPartiesOpts] = useState([]);
+
+  /* Used by report */
+  const [weavers, setWeavers] = useState([]);
+  const [qualities, setQualities] = useState([]);
 
   useEffect(()=>{
     let today = new Date();
@@ -117,12 +121,24 @@ export default function OutwardReport(props) {
   useEffect(()=>{
     axios.get('/api/parties')
       .then((res)=>{
-        setPartiesOpts(res.data.map((party)=>({label: party.name, value: party.id})));
+        setPartiesOpts(res.data.filter((o)=>o.isWeaver==='Party').map((party)=>({label: party.name, value: party.id})));
+        setWeavers(res.data);
+      })
+      .catch((err)=>{
+        console.log(err);
+      });
+
+    axios.get('/api/qualities')
+      .then((res)=>{
+        setQualities(res.data);
       })
       .catch((err)=>{
         console.log(err);
       });
   }, []);
+
+  const getWeaver = (id)=>(_.find(weavers, (w)=>w.id==id)||{}).name;
+  const getQuality = (id)=>(_.find(qualities, (w)=>w.id==id)||{}).name;
 
   return (
     <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -193,72 +209,220 @@ export default function OutwardReport(props) {
         </Grid>
       </Box>
       <ReportViewer reportName={REPORT_NAME}>
-        <FinalReport data={data} />
+        <FinalReport data={data} getWeaver={getWeaver} getQuality={getQuality} />
       </ReportViewer>
     </Box>
   );
 }
 
-function FinalReport({data}) {
+function ReportField({name, value, margin}) {
+  return (
+    <Typography style={margin ? {marginLeft: '0.5rem'} : {}}><span style={{fontWeight: 'bold'}}>{name}: </span>{value}</Typography>
+  )
+}
+
+function BeamDetails({beam, beamNo, getQuality}) {
+  return (
+    <>
+    <Box display="flex">
+      <ReportField name="Beam No" value={beamNo} />
+      <ReportField name="Lassa" value={beam.lassa} margin/>
+      <ReportField name="Cuts" value={beam.cuts} margin/>
+      <ReportField name="Total meters" value={beam.totalMeter} margin/>
+    </Box>
+    <ReportTable showFooter data={beam.qualities} columns={[
+      {
+        Header: 'Quality',
+        accessor: (row)=>getQuality(row.qualityId),
+        width: '50%'
+      },
+      {
+        Header: 'Ends',
+        accessor: 'ends',
+      },
+      {
+        Header: 'Net Wt.',
+        accessor: 'usedYarn',
+        Footer: (info)=>{
+          let total = info.rows.reduce((sum, row) => {
+              return (row.values[info.column.id] || 0) + sum
+            }, 0
+          );
+          total = parse(total);
+          return <span style={{fontWeight: 'bold'}}>{total}</span>
+        }
+      },
+    ]}/>
+    </>
+  );
+}
+
+function QualityDetails({qualities, getQuality}) {
+  return (
+    <>
+    <ReportTable showFooter data={qualities} columns={[
+      {
+        Header: 'Quality',
+        accessor: (row)=>getQuality(row.qualityId),
+        width: '50%'
+      },
+      {
+        Header: 'Date',
+        accessor: 'date',
+      },
+      {
+        Header: 'Net Wt.',
+        accessor: 'netWt',
+        Footer: (info)=>{
+          let total = info.rows.reduce((sum, row) => {
+              return (row.values[info.column.id] || 0) + sum
+            }, 0
+          );
+          total = parse(total);
+          return <span style={{fontWeight: 'bold'}}>{total}</span>
+        }
+      },
+    ]}/>
+    </>
+  );
+}
+
+
+function FinalReport({data, getWeaver, getQuality}) {
   let programData = data['programData'] || {};
   let outwardData = data['outwardData'] || {};
   let inwardData = data['inwardData'] || {};
 
-  let allQualityTotals = {};
-  Object.keys(inwardData).map((qualityId)=>{
-    let qualityTotals = allQualityTotals[qualityId] = allQualityTotals[qualityId] || {
-      netWt: 0,
-      outWt: 0,
+  /* Calculate the beam details summary */
+  let beamDetailsSummary = {
+    qualities: {},
+    overall: {
+      totalMeter: 0,
+      totalCuts: 0,
+      netWeight: 0,
     }
-    let inwards = inwardData[qualityId];
-    inwards.forEach((q)=>{
-      qualityTotals.netWt += q.netWt;
-    });
+  };
+  Object.keys(programData).forEach((weaverId, i)=>{
+    let weaver = programData[weaverId];
+    weaver.forEach((beam)=>{
+      beamDetailsSummary.overall.totalMeter += beam.totalMeter;
+      beamDetailsSummary.overall.totalCuts += beam.cuts;
+      beam.qualities.forEach((q)=>{
+        beamDetailsSummary.qualities[q.qualityId] = beamDetailsSummary.qualities[q.qualityId] || 0;
+        beamDetailsSummary.qualities[q.qualityId] += q.usedYarn;
+        beamDetailsSummary.overall.netWeight += q.usedYarn;
+      });
+    })
+  });
 
-    Object.keys(programData).map((weaver)=>{
-      let programs = programData[weaver];
-      console.log(programs);
-      programs.forEach((p)=>{
-        p.qualities.forEach((q)=>{
-          console.log(q, qualityId);
-          if(q.qualityId == qualityId) {
-            qualityTotals.outWt += q.usedYarn;
-          }
-        })
-      })
+  /* Calculate the yarn outward summary */
+  let yarnOutwardSummary = {
+    qualities: {},
+  }
+  Object.keys(outwardData).forEach((weaverId, i)=>{
+    let weaver = outwardData[weaverId] || {};
+    weaver.forEach((outward)=>{
+      yarnOutwardSummary.qualities[outward.qualityId] = yarnOutwardSummary.qualities[outward.qualityId] || 0;
+      yarnOutwardSummary.qualities[outward.qualityId] += outward.netWt;
     });
   });
+  // let allQualityTotals = {};
+  // Object.keys(inwardData).map((qualityId)=>{
+  //   let qualityTotals = allQualityTotals[qualityId] = allQualityTotals[qualityId] || {
+  //     netWt: 0,
+  //     outWt: 0,
+  //   }
+  //   let inwards = inwardData[qualityId];
+  //   inwards.forEach((q)=>{
+  //     qualityTotals.netWt += q.netWt;
+  //   });
+
+  //   Object.keys(programData).map((weaver)=>{
+  //     let programs = programData[weaver];
+  //     programs.forEach((p)=>{
+  //       p.qualities.forEach((q)=>{
+  //         console.log(q, qualityId);
+  //         if(q.qualityId == qualityId) {
+  //           qualityTotals.outWt += q.usedYarn;
+  //         }
+  //       })
+  //     })
+  //   });
+  // });
+
   return (
     <>
       <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Beam details</Typography>
-      {Object.keys(programData).map((weaverName, i)=>{
-        let weaver = programData[weaverName];
+      {Object.keys(programData).map((weaverId, wi)=>{
+        let weaver = programData[weaverId];
         return (
           <>
-          <Typography>Weaver: {weaverName}</Typography>
-          <ReportTable data={weaver} columns={[
-            {
-              Header: 'Design',
-              accessor: 'design',
-            },
-            {
-              Header: 'Total Meter',
-              accessor: 'totalMeter',
-            },
-            {
-              Header: 'Total Ends',
-              accessor: 'totalEnds',
-            },
-            {
-              Header: 'Actual Used Ends',
-              accessor: 'actualUsedYarn',
-            },
-          ]}/>
+          <ReportField name="Weaver" value={getWeaver(weaverId)} />
+          {weaver.map((beam, i)=>{
+            return <BeamDetails beam={beam} beamNo={i+1} getQuality={getQuality}/>
+          })}
+          <DashedDivider />
           </>
         )
       })}
+      <Box marginTop="0.5rem">
+        <Grid container spacing={2}>
+          <Grid item xs>
+            <ReportTable data={
+              Object.keys(beamDetailsSummary.qualities).map(
+                (qualityId)=>({
+                  qualityId: qualityId, netWt: beamDetailsSummary.qualities[qualityId]
+                })
+              )
+            } columns={[
+              {
+                Header: 'Quality',
+                accessor: (row)=>getQuality(row.qualityId),
+              },
+              {
+                Header: 'Net Wt.',
+                accessor: 'netWt',
+              },
+            ]}/>
+          </Grid>
+          <Grid item xs>
+            <ReportField name="Overall Total Meter" value={beamDetailsSummary.overall.totalMeter} />
+            <ReportField name="Overall Total Cuts" value={beamDetailsSummary.overall.totalCuts} />
+            <ReportField name="Overall Net Wt" value={beamDetailsSummary.overall.netWeight} />
+          </Grid>
+        </Grid>
+      </Box>
+
       <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Outward</Typography>
-      {Object.keys(outwardData).map((weaverName)=>{
+      {Object.keys(outwardData).map((weaverId)=>{
+        let qualities = outwardData[weaverId];
+        return (
+          <>
+          <ReportField name="Party/Weaver" value={getWeaver(weaverId)} />
+          <QualityDetails qualities={qualities} getQuality={getQuality}/>
+          <DashedDivider />
+          </>
+        )
+      })}
+      <Box>
+        <ReportTable data={
+            Object.keys(yarnOutwardSummary.qualities).map(
+              (qualityId)=>({
+                qualityId: qualityId, netWt: yarnOutwardSummary.qualities[qualityId]
+              })
+            )
+          } columns={[
+            {
+              Header: 'Quality',
+              accessor: (row)=>getQuality(row.qualityId),
+            },
+            {
+              Header: 'Net Wt.',
+              accessor: 'netWt',
+            },
+        ]}/>
+      </Box>
+      {/* {Object.keys(outwardData).map((weaverName)=>{
         let weaver = outwardData[weaverName];
         return (
           <>
@@ -300,7 +464,7 @@ function FinalReport({data}) {
           Header: 'Net Wt.',
           accessor: 'netWt',
         },
-      ]}/>
+      ]}/> */}
     </>
   )
 }

@@ -59,14 +59,14 @@ router.get('/outward', function(req, res) {
 
   let programReport = db.WarpingProgram.findAll({
     attributes: [
-      'weaverId', 'design', 'totalMeter', 'totalEnds', 'actualUsedYarn'],
+      'weaverId', 'lassa', 'cuts', 'totalMeter'],
     raw: false,
     where: where,
-    include: [{model: db.WarpingQualities, as: 'qualities'}],
+    include: [{model: db.WarpingQualities, as: 'qualities', required: false}],
   });
 
   let outwardReport = db.Outward.findAll({
-    attributes: ['weaverId', 'qualityId', 'netWt'],
+    attributes: ['weaverId', 'qualityId', 'netWt', 'date'],
     raw: false,
     where: where,
     include: [{model: db.OutwardBags, as: 'bags'}],
@@ -85,12 +85,10 @@ router.get('/outward', function(req, res) {
     let programData = retVal['programData'] = {};
     reports[0].forEach((row)=>{
       let weaver = programData[row.weaverId] = programData[row.weaverId] || [];
-      console.log(row.qualities);
       weaver.push({
-        design: row.design,
+        lassa: row.lassa,
         totalMeter: row.totalMeter,
-        totalEnds: row.totalEnds,
-        actualUsedYarn: row.actualUsedYarn,
+        cuts: row.cuts,
         qualities: row.qualities,
       });
     });
@@ -101,6 +99,7 @@ router.get('/outward', function(req, res) {
       weaver.push({
         qualityId: row.qualityId,
         netWt: row.netWt,
+        date: row.date,
         bags: row.bags,
       });
     });
