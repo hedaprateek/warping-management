@@ -29,6 +29,7 @@ function QualitiesDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
   const [isEdit, setIsEdit] = useState(false);
   const editModeQuality = props.editModeQualityValue;
+  const isUniqueName = props.isUniqueName;
 
   const [qualityValue, setQualityValue] = useState(defaults);
 
@@ -61,10 +62,11 @@ function QualitiesDialog({ open, ...props }) {
         props.onSave(qualityValue, validator, isEdit);
       }}
     >
+      {isUniqueName == 'false' && <h4>Quality name should be unique</h4>}
       <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
           <InputText
-            label="Yarn Type"
+            label="Quality Name"
             variant="outlined"
             fullWidth
             id="name"
@@ -146,6 +148,8 @@ class Qualities extends React.Component {
   };
 
   showDialog(show) {
+    this.state.isUniqueName = 'true';
+
     if (!show) {
       this.state.editModeQualityValue = [];
     }
@@ -153,7 +157,25 @@ class Qualities extends React.Component {
   }
 
   saveDetails(qualityValue, validator, isEdit) {
-    if (validator.allValid()) {
+    let editQualityName = '';
+    if (isEdit) {
+      editQualityName = qualityValue.name;
+    }
+    this.state.isUniqueName = 'true';
+    let isUniqueNameList = this.state.qualities.filter((quality) => {
+      if (editQualityName) {
+        return quality?.name?.toUpperCase() === editQualityName.toUpperCase();
+      } else {
+        return (
+          quality?.name?.toUpperCase() === qualityValue?.name?.toUpperCase()
+        );
+      }
+    });
+
+    if (isUniqueNameList && isUniqueNameList.length > 0) {
+      this.state.isUniqueName = 'false';
+    }
+    if (validator.allValid() && this.state.isUniqueName === 'true') {
       console.log(qualityValue);
 
       if (isEdit) {
@@ -239,6 +261,7 @@ class Qualities extends React.Component {
           onSave={(qualityValue, validator, isEdit) =>
             this.saveDetails(qualityValue, validator, isEdit)
           }
+          isUniqueName={this.state.isUniqueName}
           editModeQualityValue={this.state.editModeQualityValue}
         />
       </Box>

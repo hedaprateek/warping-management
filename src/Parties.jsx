@@ -205,7 +205,7 @@ class Parties extends React.Component {
   showDialog(show) {
     this.state.isUniqueName = 'true';
     if (!show) {
-      this.state.editModeQualityValue = [];
+      this.state.editModePartyValue = [];
     }
     this.setState({ dialogOpen: show });
   }
@@ -215,18 +215,18 @@ class Parties extends React.Component {
     if (isEdit) {
       editPartyName = partyValue.name;
     }
-    // if (!isEdit) {
-      this.state.isUniqueName = 'true';
-      let isUniqueNameList = this.state.parties.filter(
-        (party) => party.name === partyValue.name && editPartyName !== party.name
-      );
-
-      console.log('isUni', isUniqueNameList);
-
-      if (isUniqueNameList && isUniqueNameList.length > 0) {
-        this.state.isUniqueName = 'false';
+    this.state.isUniqueName = 'true';
+    let isUniqueNameList = this.state.parties.filter((party) => {
+      if (editPartyName) {
+        return party?.name?.toUpperCase() === editPartyName.toUpperCase();
+      } else {
+        return party?.name?.toUpperCase() === partyValue?.name?.toUpperCase();
       }
-    // }
+    });
+
+    if (isUniqueNameList && isUniqueNameList.length > 0) {
+      this.state.isUniqueName = 'false';
+    }
     if (validator.allValid() && this.state.isUniqueName === 'true') {
       console.log(partyValue);
       this.state.isUniqueName = 'true';
