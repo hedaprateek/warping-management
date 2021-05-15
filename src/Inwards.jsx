@@ -16,6 +16,7 @@ import DraggableDialog from './DraggableDialog';
 import { InputDate, InputSelectSearch, InputText } from './FormElements';
 import TableComponent from './TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
+import Moment from 'moment';
 
 function InwardDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
@@ -132,6 +133,7 @@ function InwardDialog({ open, ...props }) {
             id="gatepass"
             value={inwardValue.gatepass}
             onChange={updateInwardValues}
+            isRequired={true}
           />
         </Grid>
         <Grid item lg={4} md={4} sm={12} xs={12}>
@@ -242,14 +244,16 @@ class Inwards extends React.Component {
                 this.editInward(row);
               }}
             >
-              <EditIcon />
+              <EditIcon style={{ fontSize: '1rem' }} />
             </IconButton>
           );
         },
       },
       {
         Header: 'Date',
-        accessor: 'date', // accessor is the "key" in the data
+        accessor: (row) => {
+          return Moment(row.date).format('DD-MM-YYYY');
+        },
       },
       {
         Header: 'Party Name',
@@ -273,9 +277,9 @@ class Inwards extends React.Component {
         Header: 'Quality Name',
         accessor: (row) => {
           let qualityName = [];
-          if (row.partyId) {
+          if (row.qualityId) {
             qualityName = this.state.qualities.filter((quality) => {
-              if (quality.id === row.partyId) {
+              if (quality.id === row.qualityId) {
                 return quality;
               }
             });

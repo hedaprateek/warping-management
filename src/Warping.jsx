@@ -20,6 +20,7 @@ import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
 import { parse } from './utils';
 import EditIcon from '@material-ui/icons/Edit';
+import Moment from 'moment';
 
 const warpingReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
@@ -436,12 +437,12 @@ function WarpingDialog({ open, parties, weavers, ...props }) {
 class Warping extends React.Component {
   componentDidMount() {
     const p1 = axios.get(`/api/parties`).then((res) => {
-      const parties = res.data.filter((p)=>p.isWeaver==='Party');
-      const weavers = res.data.filter((p)=>p.isWeaver==='Weaver');
+      const parties = res.data.filter((p) => p.isWeaver === 'Party');
+      const weavers = res.data.filter((p) => p.isWeaver === 'Weaver');
       this.setState({ parties, weavers });
     });
 
-    Promise.all([p1]).then(()=>{
+    Promise.all([p1]).then(() => {
       axios.get(`/api/warping`).then((res) => {
         const warpings = res.data;
         this.setState({ warpings });
@@ -464,9 +465,9 @@ class Warping extends React.Component {
         Cell: ({ row }) => {
           return (
             <IconButton
-              // onClick={() => {
-              //   this.editInward(row);
-              // }}
+            // onClick={() => {
+            //   this.editInward(row);
+            // }}
             >
               <EditIcon />
             </IconButton>
@@ -475,7 +476,9 @@ class Warping extends React.Component {
       },
       {
         Header: 'Date',
-        accessor: 'date', // accessor is the "key" in the data
+        accessor: (row) => {
+          return Moment(row.date).format('DD-MM-YYYY');
+        },
       },
       {
         Header: 'Party Name',
@@ -529,17 +532,18 @@ class Warping extends React.Component {
   }
 
   saveDetails(warpingValue) {
-    warpingValue.forEach((singleWarp)=>{
-      axios.post('/api/warping', singleWarp)
-      .then((res)=>{
-        this.setState((prevState) => {
-          return { warpings: [...prevState.warpings, res.data] };
+    warpingValue.forEach((singleWarp) => {
+      axios
+        .post('/api/warping', singleWarp)
+        .then((res) => {
+          this.setState((prevState) => {
+            return { warpings: [...prevState.warpings, res.data] };
+          });
+        })
+        .catch((err) => {
+          console.log(err);
         });
-      })
-      .catch((err)=>{
-        console.log(err)
-      });
-    })
+    });
     this.showDialog(false);
   }
 

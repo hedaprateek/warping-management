@@ -10,7 +10,7 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
   return matchSorter(rows, filterValue, { keys: [row => row.values[id]] })
 }
 
-const useStyles = makeStyles((theme)=>({
+const useStyles = makeStyles((theme) => ({
   table: {
     width: '100%',
     borderSpacing: 0,
@@ -18,17 +18,17 @@ const useStyles = makeStyles((theme)=>({
   },
   cell: {
     margin: 0,
-    padding: '0.5rem',
+    padding: '0 10px',
     borderBottom: '1px solid ' + theme.palette.grey[400],
     borderRight: '1px solid ' + theme.palette.grey[400],
     '&:last-child': {
-      borderRight: 0
+      borderRight: 0,
     },
     textAlign: 'left',
   },
   actionBtn: {
     width: '30px',
-  }
+  },
 }));
 
 // Let the table remove the filter if the string is empty

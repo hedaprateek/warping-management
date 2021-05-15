@@ -15,13 +15,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function FormField({ label, children }) {
+export function FormField({ label, isRequired, children }) {
   const classes = useStyles();
   return (
     <Box>
       {label && (
         <Box p={0.5} className={classes.formLabel}>
-          {label}
+          {label} {isRequired && <span style={{ color: 'red' }}>*</span>}
         </Box>
       )}
       <Box>{children}</Box>
@@ -29,9 +29,9 @@ export function FormField({ label, children }) {
   );
 }
 
-export function InputText({ label, errorMsg, ...props }) {
+export function InputText({ label, errorMsg, isRequired, ...props }) {
   return (
-    <FormField label={label}>
+    <FormField label={label} isRequired={isRequired}>
       <OutlinedInput
         margin="dense"
         {...props}

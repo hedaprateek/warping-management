@@ -19,6 +19,7 @@ import DataGrid from './DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
 import EditIcon from '@material-ui/icons/Edit';
+import Moment from 'moment';
 
 const ROUND_DECIMAL = 5;
 
@@ -382,27 +383,36 @@ function YarnOutwardDialog({ open, parties, weavers,...props }) {
 
 class YarnOutward extends React.Component {
   componentDidMount() {
-    let p1 = axios.get(`/api/parties`).then((res) => {
-      const parties = res.data.filter((p)=>p.isWeaver==='Party');
-      const weavers = res.data.filter((p)=>p.isWeaver==='Weaver');
-      this.setState({ parties, weavers });
-    }).catch((err)=>{
-      console.log(err);
-    });
-    let p2 = axios.get('/api/qualities').then((res)=>{
-      const qualities = res.data;
-      this.setState({ qualities });
-    }).catch((err)=>{
-      console.log(err);
-    });
-
-    Promise.all([p1, p2]).then(()=>{
-      axios.get(`/api/outward`).then((res) => {
-        const outwards = res.data;
-        this.setState({ outwards });
-      }).catch((err)=>{
+    let p1 = axios
+      .get(`/api/parties`)
+      .then((res) => {
+        const parties = res.data.filter((p) => p.isWeaver === 'Party');
+        const weavers = res.data.filter((p) => p.isWeaver === 'Weaver');
+        this.setState({ parties, weavers });
+      })
+      .catch((err) => {
         console.log(err);
       });
+    let p2 = axios
+      .get('/api/qualities')
+      .then((res) => {
+        const qualities = res.data;
+        this.setState({ qualities });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    Promise.all([p1, p2]).then(() => {
+      axios
+        .get(`/api/outward`)
+        .then((res) => {
+          const outwards = res.data;
+          this.setState({ outwards });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     });
   }
 
@@ -422,9 +432,9 @@ class YarnOutward extends React.Component {
         Cell: ({ row }) => {
           return (
             <IconButton
-              // onClick={() => {
-              //   this.editInward(row);
-              // }}
+            // onClick={() => {
+            //   this.editInward(row);
+            // }}
             >
               <EditIcon />
             </IconButton>
@@ -433,7 +443,9 @@ class YarnOutward extends React.Component {
       },
       {
         Header: 'Date',
-        accessor: 'date', // accessor is the "key" in the data
+        accessor: (row) => {
+          return Moment(row.date).format('DD-MM-YYYY');
+        },
       },
       {
         Header: 'Party Name',
@@ -489,17 +501,18 @@ class YarnOutward extends React.Component {
   }
 
   saveDetails(outwardValue) {
-    outwardValue.forEach((singleOut)=>{
-      axios.post('/api/outward', singleOut)
-      .then((res)=>{
-        this.setState((prevState) => {
-          return { outwards: [...prevState.outwards, res.data] };
+    outwardValue.forEach((singleOut) => {
+      axios
+        .post('/api/outward', singleOut)
+        .then((res) => {
+          this.setState((prevState) => {
+            return { outwards: [...prevState.outwards, res.data] };
+          });
+        })
+        .catch((err) => {
+          console.log(err);
         });
-      })
-      .catch((err)=>{
-        console.log(err)
-      });
-    })
+    });
     this.showDialog(false);
   }
 
