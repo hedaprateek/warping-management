@@ -1,8 +1,8 @@
-import { Box, Button, Divider, makeStyles, Typography } from '@material-ui/core';
+import { Box, Button, Divider, Grid, makeStyles, Typography } from '@material-ui/core';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import ReactToPrint from 'react-to-print';
-import CommonReport from './CommonReport';
+import CommonReport, { ReportField } from './CommonReportComponents';
 
 const useStyles = makeStyles((theme)=>({
   viewerRoot: {
@@ -29,21 +29,26 @@ const useStyles = makeStyles((theme)=>({
   }
 }));
 
-function ReportHeader({reportName, settings}) {
+function ReportHeader({reportName, reportDetails, settings}) {
   return (
-    <Box textAlign="center">
-      <Typography>{reportName}</Typography>
-      <Box borderBottom={1} />
-      <Typography style={{fontWeight: 'bold'}}>{settings.companyName}</Typography>
-      <Typography variant="subtitle2">{settings.companyAddress}</Typography>
-      <Typography style={{fontWeight: 'bold'}} variant="subtitle2">GSTIN: {settings.companyGst}</Typography>
-      <Typography variant="body2">{settings.companyContact}, {settings.emailId}</Typography>
-      <Box borderBottom={1} />
+    <Box borderBottom={1} borderTop={1}>
+    <Grid container borderBottom={1} spacing={1}>
+      <Grid item xs>
+        <Typography style={{fontWeight: 'bold'}}>{settings.companyName}</Typography>
+        <Typography variant="subtitle2">{settings.companyAddress}</Typography>
+        <Typography style={{fontWeight: 'bold'}} variant="subtitle2">GSTIN: {settings.companyGst}</Typography>
+        <Typography variant="body2">{settings.companyContact}, {settings.emailId}</Typography>
+      </Grid>
+      <Grid item xs>
+        <ReportField name="Report" value={reportName} />
+        {reportDetails}
+      </Grid>
+    </Grid>
     </Box>
   );
 }
 
-export default function ReportViewer({reportName, children}) {
+export default function ReportViewer({reportName, reportDetails, children}) {
   const classes = useStyles();
   const reportRef = useRef();
   const [settings, setSettings] = useState({});
@@ -76,7 +81,7 @@ export default function ReportViewer({reportName, children}) {
       </Box>
       <Box className={classes.viewerReport}>
         <Box ref={reportRef} className={classes.pages}>
-          <ReportHeader reportName={reportName} settings={settings} />
+          <ReportHeader reportName={reportName} reportDetails={reportDetails} settings={settings} />
           {children}
         </Box>
       </Box>

@@ -1,11 +1,12 @@
 import { Box, Button, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect, Typography } from '@material-ui/core';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { DashedDivider, ReportTable } from './CommonReport';
+import { DashedDivider, NoData, ReportField, ReportTable } from './CommonReportComponents';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import {FormField, InputDate, InputSelectSearch} from '../FormElements';
 import { parse } from '../utils';
 import { _ } from 'globalthis/implementation';
+import Moment from 'moment';
 
 
 const useStyles = makeStyles((theme)=>({
@@ -19,12 +20,10 @@ const useStyles = makeStyles((theme)=>({
 
 const REPORT_NAME = 'OUTWARD REPORT';
 
-export default function OutwardReport(props) {
-  const classes = useStyles();
+export default function OutwardReport() {
   const [dateType, setDateType] = useState('custom-date');
   const [filter, setFilter] = useState({
     party_id: null,
-    qualities: [],
     from_date: new Date(),
     to_date: new Date(),
   });
@@ -67,41 +66,7 @@ export default function OutwardReport(props) {
       from_date: from_date,
       to_date: to_date,
     }));
-  }, [dateType])
-
-  const onChange = (e)=>{
-    setFilter((prev)=>({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  }
-
-  const columns = useMemo(()=>[
-    {
-      Header: 'Date',
-      accessor: 'date',
-    },
-    {
-      Header: 'Party Name',
-      accessor: 'party',
-    },
-    {
-      Header: 'Gatepass No.',
-      accessor: 'gatepass',
-    },
-    {
-      Header: 'Quality',
-      accessor: 'quality',
-    },
-    {
-      Header: 'Lot number',
-      accessor: 'lotNo',
-    },
-    {
-      Header: 'Net Wt.',
-      accessor: 'netWt',
-    },
-  ]);
+  }, [dateType]);
 
   const onReportClick = ()=>{
     axios.get('/api/reports/outward', {
@@ -208,17 +173,16 @@ export default function OutwardReport(props) {
           </Grid>
         </Grid>
       </Box>
-      <ReportViewer reportName={REPORT_NAME}>
+      <ReportViewer reportName={REPORT_NAME} reportDetails={
+        <>
+          <ReportField name="Party" value={(_.find(partiesOpts,(o)=>o.value==filter.party_id)||{label: ''}).label} />
+          <ReportField name="Date" value={Moment(filter.from_date).format('DD-MM-YYYY') + " to " + Moment(filter.to_date).format('DD-MM-YYYY')} />
+        </>
+      }>
         <FinalReport data={data} getWeaver={getWeaver} getQuality={getQuality} />
       </ReportViewer>
     </Box>
   );
-}
-
-function ReportField({name, value, margin}) {
-  return (
-    <Typography style={margin ? {marginLeft: '0.5rem'} : {}}><span style={{fontWeight: 'bold'}}>{name}: </span>{value}</Typography>
-  )
 }
 
 function BeamDetails({beam, beamNo, getQuality}) {
@@ -330,6 +294,9 @@ function FinalReport({data, getWeaver, getQuality}) {
   return (
     <>
       <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Beam details</Typography>
+      {Object.keys(programData).length === 0 && <NoData />}
+      {Object.keys(programData).length > 0 &&
+      <>
       {Object.keys(programData).map((weaverId, wi)=>{
         let weaver = programData[weaverId];
         return (
@@ -369,8 +336,12 @@ function FinalReport({data, getWeaver, getQuality}) {
           </Grid>
         </Grid>
       </Box>
+      </>}
       <DashedDivider />
       <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Outward</Typography>
+      {Object.keys(outwardData).length === 0 && <NoData />}
+      {Object.keys(outwardData).length > 0 &&
+      <>
       {Object.keys(outwardData).map((weaverId)=>{
         let qualities = outwardData[weaverId];
         return (
@@ -399,6 +370,7 @@ function FinalReport({data, getWeaver, getQuality}) {
             },
         ]}/>
       </Box>
+      </>}
       <DashedDivider />
       <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Summary</Typography>
       <ReportTable data={

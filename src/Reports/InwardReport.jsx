@@ -1,6 +1,6 @@
 import { Box, Button, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect, Typography } from '@material-ui/core';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ReportTable } from './CommonReport';
+import { ReportTable } from './CommonReportComponents';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import Select from 'react-select';

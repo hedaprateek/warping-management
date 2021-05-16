@@ -1,4 +1,4 @@
-import { Box, Divider, makeStyles } from "@material-ui/core"
+import { Box, Divider, makeStyles, Typography } from "@material-ui/core"
 import { useTable } from "react-table"
 import clsx from 'clsx';
 
@@ -95,5 +95,19 @@ export function DashedDivider() {
   const classes = useStyles();
   return (
     <Box className={classes.dashedDivier}></Box>
+  )
+}
+
+export function ReportField({name, value, margin}) {
+  return (
+    <Typography style={margin ? {marginLeft: '0.5rem'} : {}}><span style={{fontWeight: 'bold'}}>{name}: </span>{value}</Typography>
+  )
+}
+
+export function NoData() {
+  return (
+    <Box textAlign="center">
+      <Typography>---- No Data ----</Typography>
+    </Box>
   )
 }
