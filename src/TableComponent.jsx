@@ -12,9 +12,11 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 
 const useStyles = makeStyles((theme) => ({
   table: {
-    width: '100%',
+    width: '96%',
+    margin: 'auto',
+    border: '1px solid',
     borderSpacing: 0,
-    borderTop: '1px solid ' + theme.palette.grey[400],
+    // borderTop: '1px solid ' + theme.palette.grey[400],
   },
   cell: {
     margin: 0,
