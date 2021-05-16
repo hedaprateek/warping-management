@@ -138,17 +138,17 @@ export default function InwardReport(props) {
       <Box p={1}>
         <Grid container spacing={2}>
           <Grid item md={4} xs={12}>
-              <InputSelectSearch
-                value={partiesOpts.filter(
-                  (party) => party.value === filter.party_id
-                )}
-                onChange={(op) => {
-                  setFilter((prev) => ({ ...prev, party_id: op?.value }));
-                }}
-                options={partiesOpts}
-                label="Party"
-                isClearable
-              />
+            <InputSelectSearch
+              value={partiesOpts.filter(
+                (party) => party.value === filter.party_id
+              )}
+              onChange={(op) => {
+                setFilter((prev) => ({ ...prev, party_id: op?.value }));
+              }}
+              options={partiesOpts}
+              label="Party"
+              isClearable
+            />
           </Grid>
           <Grid item md={4} xs={12}>
             <FormField label="Qualities">
@@ -164,6 +164,7 @@ export default function InwardReport(props) {
                   }));
                 }}
                 options={qualityOpts}
+                maxMenuHeight={190}
               />
             </FormField>
           </Grid>

@@ -58,7 +58,7 @@ export function InputSelect({ label, options, ...props }) {
 export function InputSelectSearch({ label, errorMsg, ...props }) {
   return (
     <FormField label={label}>
-      <ReactSelect {...props} error={Boolean(errorMsg)} />
+      <ReactSelect {...props} error={Boolean(errorMsg)} maxMenuHeight={190} />
       {errorMsg}
     </FormField>
   );
