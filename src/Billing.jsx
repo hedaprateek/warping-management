@@ -9,7 +9,6 @@ import {
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import ReactToPrint from 'react-to-print';
-import InvoicePage from './BillingComponents/components/InvoicePage';
 import { InputDate, InputText, InputSelectSearch } from './FormElements';
 
 class Billing extends React.Component {
