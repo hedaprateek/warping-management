@@ -27,9 +27,7 @@ export default function DraggableDialog({children, sectionTitle, ...props}) {
         Add New {sectionTitle}
       </DialogTitle>
       <DialogContent dividers={true}>
-        <DialogContentText>
-          {children}
-        </DialogContentText>
+        {children}
       </DialogContent>
       <DialogActions>
         <Button onClick={props.onClose} color="secondary" variant="outlined">

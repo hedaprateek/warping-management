@@ -261,7 +261,7 @@ function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityO
           });
         }}>Add quality</Button>
         <Grid container spacing={1}>
-          <Grid item lg={2} md={2} sm={12} xs={12}>
+          <Grid item lg={3} md={3} sm={12} xs={12}>
             <InputText
               label="Filled Beam Weight (Kg)"
               name="filledBeamWt"
@@ -270,7 +270,7 @@ function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityO
               type="number"
             />
           </Grid>
-          <Grid item lg={2} md={2} sm={12} xs={12}>
+          <Grid item lg={3} md={3} sm={12} xs={12}>
             <InputText
               label="Empty Beam Weight (Kg)"
               name="emptyBeamWt"
@@ -279,7 +279,7 @@ function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityO
               type="number"
             />
           </Grid>
-          <Grid item lg={2} md={2} sm={12} xs={12}>
+          <Grid item lg={3} md={3} sm={12} xs={12}>
             <InputText
               label="Actual Used Yarn (Kg)"
               name="actualUsedYarn"
@@ -379,15 +379,12 @@ function WarpingDialog({ open, parties, weavers, ...props }) {
         <Grid item lg={8} md={12} sm={12} xs={12}>
           <Grid container spacing={2}>
             <Grid item md={6} xs={12}>
-              <FormField label="Party">
-                <Select
-                  value={partiesOpts.filter((party)=>party.value===warpingValue.partyId)}
-                  onChange={(value)=>{
-                    updatewarpingValues(value.value, 'partyId')
-                  }}
-                  options={partiesOpts}
-                />
-              </FormField>
+              <InputSelectSearch label="Party"
+                value={partiesOpts.filter((party)=>party.value===warpingValue.partyId)}
+                onChange={(value)=>{
+                  updatewarpingValues(value.value, 'partyId')
+                }}
+                options={partiesOpts} />
             </Grid>
             <Grid item md={6} xs={12}>
               <FormField label="Weaver">

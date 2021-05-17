@@ -138,7 +138,7 @@ export default function OutwardReport() {
               >
                 <MenuItem value={'current'}>Current financial year</MenuItem>
                 <MenuItem value={'last-m'}>Last month</MenuItem>
-                <MenuItem value={'custom-date'}>Custom data range</MenuItem>
+                <MenuItem value={'custom-date'}>Custom date range</MenuItem>
                 <MenuItem value={'last-f'}>Last financial year</MenuItem>
               </MUISelect>
             </FormField>
@@ -173,11 +173,10 @@ export default function OutwardReport() {
           </Grid>
         </Grid>
       </Box>
-      <ReportViewer reportName={REPORT_NAME} reportDetails={
-        <>
+      <ReportViewer reportName={REPORT_NAME} getReportDetails={()=>(<>
           <ReportField name="Party" value={(_.find(partiesOpts,(o)=>o.value==filter.party_id)||{label: ''}).label} />
           <ReportField name="Date" value={Moment(filter.from_date).format('DD-MM-YYYY') + " to " + Moment(filter.to_date).format('DD-MM-YYYY')} />
-        </>
+        </>)
       }>
         <FinalReport data={data} getWeaver={getWeaver} getQuality={getQuality} />
       </ReportViewer>
@@ -276,8 +275,11 @@ function FinalReport({data, getWeaver, getQuality}) {
         beamDetailsSummary.qualities[q.qualityId] += q.usedYarn;
         beamDetailsSummary.overall.netWeight += q.usedYarn;
       });
-    })
+    });
   });
+  beamDetailsSummary.overall.totalMeter = parse(beamDetailsSummary.overall.totalMeter);
+  beamDetailsSummary.overall.totalCuts = parse(beamDetailsSummary.overall.totalCuts);
+  beamDetailsSummary.overall.netWeight = parse(beamDetailsSummary.overall.netWeight);
 
   /* Calculate the yarn outward summary */
   let yarnOutwardSummary = {

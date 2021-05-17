@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme)=>({
   },
   td: {
     margin: 0,
-    padding: '0.5rem',
+    padding: '0.25rem',
     borderBottom: '1px solid black',
     borderRight: '1px solid black'
   },

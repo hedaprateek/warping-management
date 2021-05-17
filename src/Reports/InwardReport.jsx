@@ -118,7 +118,7 @@ export default function InwardReport(props) {
   useEffect(()=>{
     axios.get('/api/parties')
       .then((res)=>{
-        setPartiesOpts(res.data.map((party)=>({label: party.name, value: party.id})));
+        setPartiesOpts(res.data.filter((p)=>p.isWeaver=='Party').map((party)=>({label: party.name, value: party.id})));
       })
       .catch((err)=>{
         console.log(err);
@@ -184,7 +184,7 @@ export default function InwardReport(props) {
               >
                 <MenuItem value={'current'}>Current financial year</MenuItem>
                 <MenuItem value={'last-m'}>Last month</MenuItem>
-                <MenuItem value={'custom-date'}>Custom data range</MenuItem>
+                <MenuItem value={'custom-date'}>Custom date range</MenuItem>
                 <MenuItem value={'last-f'}>Last financial year</MenuItem>
               </MUISelect>
             </FormField>

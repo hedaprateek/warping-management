@@ -29,7 +29,8 @@ const useStyles = makeStyles((theme)=>({
   }
 }));
 
-function ReportHeader({reportName, reportDetails, settings}) {
+function ReportHeader({reportName, getReportDetails, settings}) {
+  let reportDetails = getReportDetails && getReportDetails();
   return (
     <Box borderBottom={1} borderTop={1}>
     <Grid container borderBottom={1} spacing={1}>
@@ -48,7 +49,7 @@ function ReportHeader({reportName, reportDetails, settings}) {
   );
 }
 
-export default function ReportViewer({reportName, reportDetails, children}) {
+export default function ReportViewer({reportName, getReportDetails, children}) {
   const classes = useStyles();
   const reportRef = useRef();
   const [settings, setSettings] = useState({});
@@ -81,7 +82,7 @@ export default function ReportViewer({reportName, reportDetails, children}) {
       </Box>
       <Box className={classes.viewerReport}>
         <Box ref={reportRef} className={classes.pages}>
-          <ReportHeader reportName={reportName} reportDetails={reportDetails} settings={settings} />
+          <ReportHeader reportName={reportName} getReportDetails={getReportDetails} settings={settings} />
           {children}
         </Box>
       </Box>

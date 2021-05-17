@@ -138,8 +138,6 @@ router.get('/outward', async function(req, res) {
     let retVal = {'inwardOpeningBalance': inwardOpeningBalance};
     let programData = retVal['programData'] = {};
 
-    console.log('----programData----');
-    console.log(reports[0]);
     reports[0].forEach((row)=>{
       let weaver = programData[row.weaverId] = programData[row.weaverId] || [];
       weaver.push({
