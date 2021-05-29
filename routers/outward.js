@@ -54,23 +54,37 @@ router.post('/', function(req, res) {
   });
 });
 
-router.put('/:id', function(req, res) {
+router.put('/:id', async function(req, res) {
   let reqJson = req.body;
-  db.Outward.update({
-    design: reqJson.design,
-    meter: reqJson.meter,
+  await db.Outward.update({
     partyId: reqJson.partyId,
     weaverId: reqJson.weaverId,
+    qualityId: reqJson.qualityId,
     date: reqJson.date,
+    emptyConeWt: reqJson.emptyConeWt,
+    emptyBagWt: reqJson.emptyBagWt,
+    netWt: reqJson.netWt
   },{
     where: {
-      id: req.params.id,
+      id: reqJson.id,
     },
-  }).then((result)=>{
-    res.status(200).json(result);
-  }).catch((error)=>{
-    res.status(500).json({message: error});
   });
+
+  await db.OutwardBags.destroy({
+    where: {
+      outwardId: reqJson.id,
+    }
+  });
+
+  await db.OutwardBags.bulkCreate(reqJson.bags.map((bag)=>({
+    id: bag.id,
+    outwardId: reqJson.id,
+    cones: bag.cones || 0,
+    date: bag.date,
+    grossWt: bag.grossWt || 0,
+  })));
+
+  res.status(200).json({});
 });
 
 module.exports = router;

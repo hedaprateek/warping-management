@@ -191,8 +191,8 @@ function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityO
     <Card variant="outlined" style={{marginBottom: '0.5rem'}}>
       <CardHeader title="Beam details" titleTypographyProps={{variant: 'h6'}} action={
         <Box>
-          <Button color="primary" variant="outlined" onClick={onCopy} style={{marginRight:'0.5rem'}}>Copy</Button>
-          <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>
+          {onCopy && <Button color="primary" variant="outlined" onClick={onCopy} style={{marginRight:'0.5rem'}}>Copy</Button>}
+          {onRemove && <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>}
         </Box>
       } />
       <CardContent>
@@ -307,7 +307,7 @@ function parseWarpingValue(warpingValue) {
   return newVal;
 }
 
-function WarpingDialog({ open, parties, weavers, ...props }) {
+function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
   const defaultBeam = {
     design: '',
     lassa: 0,
@@ -327,8 +327,21 @@ function WarpingDialog({ open, parties, weavers, ...props }) {
   const [weaverOpts, setWeaverOpts] = useState([]);
   const [qualityOpts, setQualityOpts] = useState([]);
 
+  const isEdit = editWarpingValue != null;
+
   useEffect(()=>{
     if(open) {
+      if(isEdit) {
+        warpingDispatch({
+          type: 'init',
+          value: editWarpingValue,
+        });
+      } else {
+        warpingDispatch({
+          type: 'init',
+          value: defaults,
+        });
+      }
       setPartiesOpts(parties.map((party)=>({label: party.name, value: party.id})));
       setWeaverOpts(weavers.map((party)=>({label: party.name, value: party.id})));
     }
@@ -370,7 +383,11 @@ function WarpingDialog({ open, parties, weavers, ...props }) {
       sectionTitle="Program"
       {...props}
       onSave={() => {
-        props.onSave(parseWarpingValue(warpingValue));
+        let saveVal = warpingValue;
+        if(!isEdit) {
+          saveVal = parseWarpingValue(warpingValue);
+        }
+        props.onSave(saveVal, isEdit);
       }}
       open={open}
       fullScreen
@@ -399,7 +416,7 @@ function WarpingDialog({ open, parties, weavers, ...props }) {
             </Grid>
           </Grid>
           <Box p={1}></Box>
-          {warpingValue.beams.map((beam, i)=>{
+          {!isEdit && warpingValue.beams?.map((beam, i)=>{
             return <BeamDetails data={beam} accessPath={['beams', i]} dataDispatch={warpingDispatch}
               onRemove={()=>{
                 warpingDispatch({
@@ -418,13 +435,18 @@ function WarpingDialog({ open, parties, weavers, ...props }) {
               qualityOpts={qualityOpts}
             />
           })}
-          <Button color="primary" variant="outlined" onClick={()=>{
+          {isEdit &&
+            <BeamDetails data={warpingValue} accessPath={[]} dataDispatch={warpingDispatch}
+              qualityOpts={qualityOpts}
+            />
+          }
+          {!isEdit && <Button color="primary" variant="outlined" onClick={()=>{
             warpingDispatch({
               type: 'add_grid_row',
               path: ['beams'],
               value: defaultBeam,
             });
-          }}>Add beam</Button>
+          }}>Add Beam</Button>}
         </Grid>
       </Grid>
     </DraggableDialog>
@@ -447,6 +469,11 @@ class Warping extends React.Component {
     });
   }
 
+  editWarping(row) {
+    this.setState({editWarpingValue: row.original});
+    this.showDialog(true);
+  }
+
   state = {
     radioValue: 'Yes',
     warpings: [],
@@ -462,9 +489,9 @@ class Warping extends React.Component {
         Cell: ({ row }) => {
           return (
             <IconButton
-            // onClick={() => {
-            //   this.editInward(row);
-            // }}
+              onClick={() => {
+                this.editWarping(row);
+              }}
             >
               <EditIcon />
             </IconButton>
@@ -522,25 +549,48 @@ class Warping extends React.Component {
         accessor: 'actualUsedYarn',
       },
     ],
+    editWarpingValue: null,
   };
 
   showDialog(show) {
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails(warpingValue) {
-    warpingValue.forEach((singleWarp) => {
+  saveDetails(warpingValue, isEdit) {
+    if(isEdit) {
       axios
-        .post('/api/warping', singleWarp)
-        .then((res) => {
+        .put('/api/warping/'+warpingValue.id, warpingValue)
+        .then(() => {
           this.setState((prevState) => {
-            return { warpings: [...prevState.warpings, res.data] };
+            let indx = prevState.warpings.findIndex(
+              (i) => i.id === warpingValue.id
+            );
+            return {
+              warpings: [
+                ...prevState.warpings.slice(0, indx),
+                warpingValue,
+                ...prevState.warpings.slice(indx + 1),
+              ],
+            };
           });
         })
         .catch((err) => {
           console.log(err);
         });
-    });
+    } else {
+      warpingValue.forEach((singleWarp) => {
+        axios
+          .post('/api/warping', singleWarp)
+          .then((res) => {
+            this.setState((prevState) => {
+              return { warpings: [...prevState.warpings, res.data] };
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+    }
     this.showDialog(false);
   }
 
@@ -558,7 +608,10 @@ class Warping extends React.Component {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => this.showDialog(true)}
+              onClick={() => {
+                this.setState({editWarpingValue: null});
+                this.showDialog(true);
+              }}
               style={{ marginLeft: '0.5rem' }}
             >
               Add Program
@@ -575,9 +628,10 @@ class Warping extends React.Component {
         <WarpingDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(warpingValue) => this.saveDetails(warpingValue)}
+          onSave={(warpingValue, isEdit) => this.saveDetails(warpingValue, isEdit)}
           parties={this.state.parties}
           weavers={this.state.weavers}
+          editWarpingValue={this.state.editWarpingValue}
         />
       </Box>
     );

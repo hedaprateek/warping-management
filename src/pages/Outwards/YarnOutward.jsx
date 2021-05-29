@@ -212,7 +212,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
           });
         }}>Add bag</Button>
         <Grid container spacing={1}>
-          <Grid item lg={3} md={2} sm={12} xs={12}>
+          <Grid item lg={4} md={4} sm={12} xs={12}>
             <InputText
               label="Empty Cone Weight (Kg)"
               name="emptyConeWt"
@@ -221,7 +221,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
               type="number"
             />
           </Grid>
-          <Grid item lg={3} md={2} sm={12} xs={12}>
+          <Grid item lg={4} md={4} sm={12} xs={12}>
             <InputText
               label="Total Empty Bags Weight (Kg)"
               name="emptyBagWt"
@@ -230,7 +230,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
               type="number"
             />
           </Grid>
-          <Grid item lg={3} md={2} sm={12} xs={12}>
+          <Grid item lg={4} md={4} sm={12} xs={12}>
             <InputText
               label="Net Weight (Kg)"
               name="netWt"
@@ -258,7 +258,7 @@ function parseOutwardValue(outwardValue) {
   return newVal;
 }
 
-function YarnOutwardDialog({ open, parties, weavers,...props }) {
+function YarnOutwardDialog({ open, parties, weavers, editOutwardValue, ...props }) {
   const defaultOutward = {
     design: '',
     meter: '',
@@ -274,8 +274,21 @@ function YarnOutwardDialog({ open, parties, weavers,...props }) {
   const [weaverOpts, setWeaverOpts] = useState([]);
   const [qualityOpts, setQualityOpts] = useState([]);
 
+  const isEdit = editOutwardValue != null;
+
   useEffect(()=>{
     if(open) {
+      if(isEdit) {
+        outwardDispatch({
+          type: 'init',
+          value: editOutwardValue,
+        });
+      } else {
+        outwardDispatch({
+          type: 'init',
+          value: defaults,
+        });
+      }
       setPartiesOpts(parties.map((party)=>({label: party.name, value: party.id})));
       setWeaverOpts(weavers.map((party)=>({label: party.name, value: party.id})));
     }
@@ -317,7 +330,11 @@ function YarnOutwardDialog({ open, parties, weavers,...props }) {
       sectionTitle="Yarn Outward"
       {...props}
       onSave={() => {
-        props.onSave(parseOutwardValue(outwardValue));
+        let saveVal = outwardValue;
+        if(!isEdit) {
+          saveVal = parseOutwardValue(outwardValue);
+        }
+        props.onSave(saveVal, isEdit);
       }}
       open={open}
       fullScreen
@@ -349,7 +366,7 @@ function YarnOutwardDialog({ open, parties, weavers,...props }) {
             </Grid>
           </Grid>
           <Box p={1}></Box>
-          {outwardValue.outwards.map((design, i)=>{
+          {!isEdit && outwardValue.outwards?.map((design, i)=>{
             return <QualityDetails data={design} accessPath={['outwards', i]} dataDispatch={outwardDispatch}
               onRemove={()=>{
                 outwardDispatch({
@@ -368,13 +385,18 @@ function YarnOutwardDialog({ open, parties, weavers,...props }) {
               qualityOpts={qualityOpts}
             />
           })}
-          <Button color="primary" variant="outlined" onClick={()=>{
+          {isEdit &&
+            <QualityDetails data={outwardValue} accessPath={[]} dataDispatch={outwardDispatch}
+              qualityOpts={qualityOpts}
+            />
+          }
+          {!isEdit && <Button color="primary" variant="outlined" onClick={()=>{
             outwardDispatch({
               type: 'add_grid_row',
               path: ['outwards'],
               value: defaultOutward,
             });
-          }}>Add Outward</Button>
+          }}>Add Outward</Button>}
         </Grid>
       </Grid>
     </DraggableDialog>
@@ -410,6 +432,11 @@ class YarnOutward extends React.Component {
     });
   }
 
+  editOutward(row) {
+    this.setState({editOutwardValue: row.original});
+    this.showDialog(true);
+  }
+
   state = {
     radioValue: 'Yes',
     outwards: [],
@@ -426,9 +453,9 @@ class YarnOutward extends React.Component {
         Cell: ({ row }) => {
           return (
             <IconButton
-            // onClick={() => {
-            //   this.editInward(row);
-            // }}
+            onClick={() => {
+              this.editOutward(row);
+            }}
             >
               <EditIcon />
             </IconButton>
@@ -488,25 +515,48 @@ class YarnOutward extends React.Component {
         accessor: 'netWt', // accessor is the "key" in the data
       },
     ],
+    editOutwardValue: null,
   };
 
   showDialog(show) {
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails(outwardValue) {
-    outwardValue.forEach((singleOut) => {
+  saveDetails(outwardValue, isEdit) {
+    if(isEdit) {
       axios
-        .post('/api/outward', singleOut)
-        .then((res) => {
+        .put('/api/outward/'+outwardValue.id, outwardValue)
+        .then(() => {
           this.setState((prevState) => {
-            return { outwards: [...prevState.outwards, res.data] };
+            let indx = prevState.outwards.findIndex(
+              (i) => i.id === outwardValue.id
+            );
+            return {
+              outwards: [
+                ...prevState.outwards.slice(0, indx),
+                outwardValue,
+                ...prevState.outwards.slice(indx + 1),
+              ],
+            };
           });
         })
         .catch((err) => {
           console.log(err);
         });
-    });
+    } else {
+      outwardValue.forEach((singleOut) => {
+        axios
+          .post('/api/outward', singleOut)
+          .then((res) => {
+            this.setState((prevState) => {
+              return { outwards: [...prevState.outwards, res.data] };
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      });
+    }
     this.showDialog(false);
   }
 
@@ -524,7 +574,10 @@ class YarnOutward extends React.Component {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => this.showDialog(true)}
+              onClick={() => {
+                this.setState({editOutwardValue: null});
+                this.showDialog(true);
+              }}
               style={{ marginLeft: '0.5rem' }}
             >
               Add Yarn Outward
@@ -541,9 +594,10 @@ class YarnOutward extends React.Component {
         <YarnOutwardDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(outwardValue) => this.saveDetails(outwardValue)}
+          onSave={(outwardValue, isEdit) => this.saveDetails(outwardValue, isEdit)}
           parties={this.state.parties}
           weavers={this.state.weavers}
+          editOutwardValue={this.state.editOutwardValue}
         />
       </Box>
     );

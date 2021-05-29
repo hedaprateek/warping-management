@@ -100,15 +100,13 @@ function QualitiesDialog({ open, ...props }) {
 }
 class Qualities extends React.Component {
   componentDidMount() {
-    axios.get(`http://localhost:7227/api/qualities`).then((res) => {
+    axios.get(`/api/qualities`).then((res) => {
       const qualities = res.data;
       this.setState({ qualities });
-      console.log('qualities', qualities);
     });
   }
 
   editQuality(row) {
-    console.log('Prateek', row);
     this.showDialog(true);
     if (row && row.values) this.state.editModeQualityValue = row.original;
   }

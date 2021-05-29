@@ -59,23 +59,42 @@ router.post('/', function(req, res) {
   });
 });
 
-router.put('/:id', function(req, res) {
+router.put('/:id', async function(req, res) {
   let reqJson = req.body;
-  db.WarpingProgram.update({
+  await db.WarpingProgram.update({
     design: reqJson.design,
-    meter: reqJson.meter,
+    lassa: reqJson.lassa,
+    cuts: reqJson.cuts,
+    totalMeter: reqJson.totalMeter,
+    totalEnds: reqJson.totalEnds,
     partyId: reqJson.partyId,
     weaverId: reqJson.weaverId,
     date: reqJson.date,
+    filledBeamWt: reqJson.filledBeamWt,
+    emptyBeamWt: reqJson.emptyBeamWt,
+    actualUsedYarn: reqJson.actualUsedYarn
   },{
     where: {
-      id: req.params.id,
+      id: reqJson.id,
     },
-  }).then((result)=>{
-    res.status(200).json(result);
-  }).catch((error)=>{
-    res.status(500).json({message: error});
   });
+
+  await db.WarpingQualities.destroy({
+    where: {
+      warpId: reqJson.id,
+    }
+  });
+
+  await db.WarpingQualities.bulkCreate(reqJson.qualities.map((quality)=>({
+    id: quality.id,
+    warpId: reqJson.id,
+    qualityId: quality.qualityId,
+    ends: quality.ends || 0,
+    count: quality.count || 0,
+    usedYarn: quality.usedYarn || 0,
+  })));
+
+  res.status(200).json({});
 });
 
 module.exports = router;

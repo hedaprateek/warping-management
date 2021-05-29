@@ -99,7 +99,9 @@ export const theme = createMuiTheme({
                 }
             },
             inputMarginDense: {
-                padding: defaultTheme.spacing(1, 1.5),
+                padding: defaultTheme.spacing(1, 1),
+                paddingTop: defaultTheme.spacing(1),
+                paddingBottom: defaultTheme.spacing(1),
             },
             adornedEnd: {
                 paddingRight: defaultTheme.spacing(0.5),

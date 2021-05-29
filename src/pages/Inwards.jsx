@@ -60,7 +60,6 @@ function InwardDialog({ open, ...props }) {
   };
 
   useEffect(() => {
-    console.log('editModeInward', editModeInward);
     if (editModeInward && editModeInward.id) {
       setIsEdit(true);
       setInwardValue(editModeInward);
@@ -199,22 +198,18 @@ class Inwards extends React.Component {
     axios.get(`/api/parties`).then((res) => {
       const parties = res.data;
       this.setState({ parties });
-      console.log('parties', parties);
     });
     axios.get(`/api/qualities`).then((res) => {
       const qualities = res.data;
       this.setState({ qualities });
-      console.log('qualities', qualities);
     });
     axios.get(`/api/inward`).then((res) => {
       const inward = res.data;
       this.setState({ inward });
-      console.log('Inward', inward);
     });
   }
 
   editInward(row) {
-    console.log('Prateek', row);
     this.showDialog(true);
     if (row && row.values) this.state.editModeInwardValue = row.original;
   }
