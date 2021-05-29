@@ -56,9 +56,20 @@ export function InputSelect({ label, options, ...props }) {
 }
 
 export function InputSelectSearch({ label, errorMsg, ...props }) {
+  const classes = useStyles();
   return (
     <FormField label={label}>
-      <ReactSelect {...props} error={Boolean(errorMsg)} maxMenuHeight={200} />
+      <ReactSelect
+        menuPortalTarget={document.body}
+        {...props}
+        error={Boolean(errorMsg)}
+        styles={{
+          menuPortal: (provided) => ({
+            ...provided,
+            zIndex: '1400',
+          }),
+        }}
+      />
       {errorMsg}
     </FormField>
   );

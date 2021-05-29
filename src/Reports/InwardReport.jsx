@@ -164,7 +164,6 @@ export default function InwardReport(props) {
                   }));
                 }}
                 options={qualityOpts}
-                maxMenuHeight={190}
               />
             </FormField>
           </Grid>
