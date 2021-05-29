@@ -1,14 +1,13 @@
-import {
-  Box,
-  Button,
-  Grid,
-  IconButton,
-} from '@material-ui/core';
+import { Box, Button, Grid, IconButton } from '@material-ui/core';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import SimpleReactValidator from 'simple-react-validator';
 import DraggableDialog from '../helpers/DraggableDialog';
-import { InputDate, InputSelectSearch, InputText } from '../components/FormElements'
+import {
+  InputDate,
+  InputSelectSearch,
+  InputText,
+} from '../components/FormElements';
 import TableComponent from '../components/TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
@@ -195,17 +194,35 @@ function InwardDialog({ open, ...props }) {
 }
 class Inwards extends React.Component {
   componentDidMount() {
-    axios.get(`/api/parties`).then((res) => {
-      const parties = res.data;
-      this.setState({ parties });
-    });
-    axios.get(`/api/qualities`).then((res) => {
-      const qualities = res.data;
-      this.setState({ qualities });
-    });
-    axios.get(`/api/inward`).then((res) => {
-      const inward = res.data;
-      this.setState({ inward });
+    let p1 = axios
+      .get(`/api/parties`)
+      .then((res) => {
+        const parties = res.data;
+        this.setState({ parties });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    let p2 = axios
+      .get(`/api/qualities`)
+      .then((res) => {
+        const qualities = res.data;
+        this.setState({ qualities });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+    Promise.all([p1, p2]).then(() => {
+      axios
+        .get(`/api/inward`)
+        .then((res) => {
+          const inward = res.data;
+          this.setState({ inward });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     });
   }
 
