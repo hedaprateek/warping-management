@@ -288,7 +288,7 @@ class Parties extends React.Component {
   render() {
     return (
       <Box>
-        <Box p={1} style={{ paddingLeft: '2%' }}>
+        <Box p={1}>
           <Box display="flex">
             <InputText
               placeholder="Search..."

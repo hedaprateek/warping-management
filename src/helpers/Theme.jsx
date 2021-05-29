@@ -4,21 +4,22 @@ import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 const defaultTheme = createMuiTheme();
 
 const globalTheme = createMuiTheme({
-    palette: {
-        primary: {
-            main: '#0089ef',
-        },
-        secondary: {
-            main: '#e53935',
-        },
-        info: {
-            main: '#fde74c'
-        },
-
+  palette: {
+    primary: {
+      main: '#0089ef',
+      light: '#cbe3f5',
+      dark: '#064879',
     },
-    typography: {
-        fontSize: 14,
-    }
+    secondary: {
+      main: '#e53935',
+    },
+    info: {
+      main: '#fde74c',
+    },
+  },
+  typography: {
+    fontSize: 14,
+  },
 });
 
 export const theme = createMuiTheme({

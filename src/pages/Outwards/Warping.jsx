@@ -597,7 +597,7 @@ class Warping extends React.Component {
   render() {
     return (
       <Box>
-        <Box p={1} style={{ paddingLeft: '2%' }}>
+        <Box p={1}>
           <Box display="flex">
             <InputText
               placeholder="Search..."
@@ -609,7 +609,7 @@ class Warping extends React.Component {
               variant="contained"
               color="primary"
               onClick={() => {
-                this.setState({editWarpingValue: null});
+                this.setState({ editWarpingValue: null });
                 this.showDialog(true);
               }}
               style={{ marginLeft: '0.5rem' }}
@@ -628,7 +628,9 @@ class Warping extends React.Component {
         <WarpingDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(warpingValue, isEdit) => this.saveDetails(warpingValue, isEdit)}
+          onSave={(warpingValue, isEdit) =>
+            this.saveDetails(warpingValue, isEdit)
+          }
           parties={this.state.parties}
           weavers={this.state.weavers}
           editWarpingValue={this.state.editWarpingValue}

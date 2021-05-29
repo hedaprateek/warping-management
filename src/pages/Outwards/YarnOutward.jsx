@@ -563,7 +563,7 @@ class YarnOutward extends React.Component {
   render() {
     return (
       <Box>
-        <Box p={1} style={{ paddingLeft: '2%' }}>
+        <Box p={1}>
           <Box display="flex">
             <InputText
               placeholder="Search..."
@@ -575,7 +575,7 @@ class YarnOutward extends React.Component {
               variant="contained"
               color="primary"
               onClick={() => {
-                this.setState({editOutwardValue: null});
+                this.setState({ editOutwardValue: null });
                 this.showDialog(true);
               }}
               style={{ marginLeft: '0.5rem' }}
@@ -594,7 +594,9 @@ class YarnOutward extends React.Component {
         <YarnOutwardDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(outwardValue, isEdit) => this.saveDetails(outwardValue, isEdit)}
+          onSave={(outwardValue, isEdit) =>
+            this.saveDetails(outwardValue, isEdit)
+          }
           parties={this.state.parties}
           weavers={this.state.weavers}
           editOutwardValue={this.state.editOutwardValue}

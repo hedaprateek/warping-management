@@ -11,10 +11,26 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 }
 
 const useStyles = makeStyles((theme) => ({
+  th: {
+    backgroundColor: theme.palette.primary.main,
+     color: theme.palette.primary.contrastText,
+    '& th': {
+      fontWeight: 'normal',
+      borderBottom: '2px solid ' + theme.palette.primary.main,
+      borderTop: '2px solid ' + theme.palette.primary.main,
+    },
+  },
+  tr: {
+    // '&:nth-of-type(odd)': {
+    //   backgroundColor: theme.palette.primary.,
+    // },
+    '&:nth-of-type(even)': {
+      backgroundColor: theme.palette.primary.light,
+    },
+  },
   table: {
-    width: '96%',
-    margin: 'auto',
-    border: '1px solid',
+    width: '100%',
+    // border: '1px solid',
     borderSpacing: 0,
     // borderTop: '1px solid ' + theme.palette.grey[400],
   },
@@ -69,49 +85,61 @@ function TableComponent(props) {
     <div>
       <table {...getTableProps()} className={classes.table}>
         <thead>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => {
+          {headerGroups.map((headerGroup) => (
+            <tr {...headerGroup.getHeaderGroupProps()} className={classes.th}>
+              {headerGroup.headers.map((column) => {
                 let actionBtn = column?.id.startsWith('btn-');
-                return (<th
-                  {...column.getHeaderProps(actionBtn ? {} : column.getSortByToggleProps())}
-                  className={clsx(classes.cell, actionBtn ? classes.actionBtn : null)}
-                >
-                  <div style={{display: 'flex', alignItems: 'center'}}>
-                    <div>{column.render('Header')}</div>
-                    <div>{column.isSorted
-                      ? column.isSortedDesc
-                        ? <KeyboardArrowDownIcon />
-                        : <KeyboardArrowUpIcon />
-                      : <KeyboardArrowDownIcon style={{visibility: 'hidden'}} />}</div>
-                  </div>
-                </th>)
+                return (
+                  <th
+                    {...column.getHeaderProps(
+                      actionBtn ? {} : column.getSortByToggleProps()
+                    )}
+                    className={clsx(
+                      classes.cell,
+                      actionBtn ? classes.actionBtn : null
+                    )}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <div>{column.render('Header')}</div>
+                      <div>
+                        {column.isSorted ? (
+                          column.isSortedDesc ? (
+                            <KeyboardArrowDownIcon />
+                          ) : (
+                            <KeyboardArrowUpIcon />
+                          )
+                        ) : (
+                          <KeyboardArrowDownIcon
+                            style={{ visibility: 'hidden' }}
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </th>
+                );
               })}
             </tr>
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {rows.map(row => {
-            prepareRow(row)
+          {rows.map((row) => {
+            prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map(cell => {
+              <tr {...row.getRowProps()} className={classes.tr}>
+                {row.cells.map((cell) => {
                   return (
-                    <td
-                      {...cell.getCellProps()}
-                      className={classes.cell}
-                    >
+                    <td {...cell.getCellProps()} className={classes.cell}>
                       {cell.render('Cell')}
                     </td>
-                  )
+                  );
                 })}
               </tr>
-            )
+            );
           })}
         </tbody>
       </table>
     </div>
-  )
+  );
 }
 
 export default TableComponent;

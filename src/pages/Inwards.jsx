@@ -376,7 +376,7 @@ class Inwards extends React.Component {
   render() {
     return (
       <div>
-        <Box p={1} style={{ paddingLeft: '2%' }}>
+        <Box p={1}>
           <Box display="flex">
             <InputText
               placeholder="Search..."
