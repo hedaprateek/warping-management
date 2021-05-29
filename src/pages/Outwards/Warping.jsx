@@ -39,7 +39,9 @@ const warpingReducer = (state, action)=>{
       break;
     case 'add_grid_row':
       rows = _.get(newState, action.path, []);
-      rows.push(action.value);
+      rows.push({
+        ...action.value,
+      });
       _.set(newState, action.path, rows);
       break;
     case 'remove_grid_row':
@@ -51,6 +53,8 @@ const warpingReducer = (state, action)=>{
         newState = beamReducer(newState, _.slice(action.path, 0, action.path.indexOf('beams')+2));
       }
       break;
+    case 'set_beam_no':
+      newState.startBeamNo = action.value;
   }
   return newState;
 }
@@ -106,7 +110,7 @@ function getSelectCell(dataDispatch, basePath, options, readOnly=false) {
 }
 
 
-function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityOpts}) {
+function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, qualityOpts}) {
   const onChange = (e, name)=>{
     if (e?.target) {
       dataDispatch({
@@ -191,7 +195,7 @@ function BeamDetails({data, accessPath, dataDispatch, onRemove, onCopy, qualityO
 
   return (
     <Card variant="outlined" style={{marginBottom: '0.5rem'}}>
-      <CardHeader title="Beam details" titleTypographyProps={{variant: 'h6'}} action={
+      <CardHeader title={`Beam No: ${beamNo}`} titleTypographyProps={{variant: 'h6'}} action={
         <Box>
           {onCopy && <Button color="primary" variant="outlined" onClick={onCopy} style={{marginRight:'0.5rem'}}>Copy</Button>}
           {onRemove && <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>}
@@ -309,6 +313,15 @@ function parseWarpingValue(warpingValue) {
   return newVal;
 }
 
+async function getBeamNo(setNo) {
+  if(!setNo) {
+    return 1;
+  }
+  let res = await axios.get('/api/warping/beamno/'+setNo);
+  console.log(res.data);
+  return res.data.beamNo;
+}
+
 function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
   const defaultBeam = {
     design: '',
@@ -320,9 +333,12 @@ function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
     date: new Date(),
   };
   const defaults = {
+    setNo: null,
     partyId: null,
     weaverId: null,
-    beams: [defaultBeam]
+    beams: [defaultBeam],
+    /* No need to pass to BE */
+    startBeamNo: 1,
   };
   const [warpingValue, warpingDispatch] = useReducer(warpingReducer, defaults);
   const [partiesOpts, setPartiesOpts] = useState([]);
@@ -397,7 +413,23 @@ function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
       <Grid container>
         <Grid item lg={8} md={12} sm={12} xs={12}>
           <Grid container spacing={2}>
-            <Grid item md={6} xs={12}>
+            <Grid item md={4} xs={12}>
+              <InputText
+                label="Set No."
+                name="setNo"
+                type="number"
+                value={warpingValue.setNo}
+                onChange={updatewarpingValues}
+                onBlur={async (e)=>{
+                  let no = await getBeamNo(e.target.value);
+                  warpingDispatch({
+                    type: 'set_beam_no',
+                    value: no,
+                  });
+                }}
+              />
+            </Grid>
+            <Grid item md={4} xs={12}>
               <InputSelectSearch label="Party"
                 value={partiesOpts.filter((party)=>party.value===warpingValue.partyId)}
                 onChange={(value)=>{
@@ -405,7 +437,7 @@ function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
                 }}
                 options={partiesOpts} />
             </Grid>
-            <Grid item md={6} xs={12}>
+            <Grid item md={4} xs={12}>
               <FormField label="Weaver/Party">
                 <Select
                   value={weaverOpts.filter((party)=>party.value===warpingValue.weaverId)}
@@ -435,11 +467,12 @@ function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
                 });
               }}
               qualityOpts={qualityOpts}
+              beamNo={warpingValue.startBeamNo+i}
             />
           })}
           {isEdit &&
             <BeamDetails data={warpingValue} accessPath={[]} dataDispatch={warpingDispatch}
-              qualityOpts={qualityOpts}
+              qualityOpts={qualityOpts} beamNo={warpingValue.beamNo}
             />
           }
           {!isEdit && <Button color="primary" variant="outlined" onClick={()=>{
@@ -499,6 +532,14 @@ class Warping extends React.Component {
             </IconButton>
           );
         },
+      },
+      {
+        Header: 'Set No',
+        accessor: 'setNo',
+      },
+      {
+        Header: 'Beam No',
+        accessor: 'beamNo',
       },
       {
         Header: 'Date',

@@ -2,10 +2,35 @@ const Sequelize = require('sequelize');
 var router = require('express').Router();
 const db = require('../db/models');
 
+router.get('/beamno/:id', async function(req, res) {
+  let result = await db.WarpingProgram.findOne({
+    attributes: ['setNo', [db.sequelize.fn('count', db.sequelize.col('id')), 'beamCount']],
+    raw: true,
+    where: {
+      setNo: req.params.id,
+    },
+    group: ['setNo'],
+  });
+  let beamNo = 1;
+  if(result) {
+    beamNo = result.beamCount+1;
+  }
+  res.status(200).json({beamNo: beamNo});
+});
+
 router.get('/', function(req, res) {
   db.WarpingProgram.findAll({
     raw: false,
-    include: [ {model: db.WarpingQualities, as: 'qualities'} ],
+    include: [
+      {model: db.WarpingQualities, as: 'qualities'},
+
+    ],
+    attributes: {
+      include: [
+        [Sequelize.literal("DENSE_RANK() OVER (PARTITION BY `WarpingProgram`.`setNo` ORDER BY `WarpingProgram`.`date`, `WarpingProgram`.`id`)"), 'beamNo']
+      ]
+    },
+    order: [['setNo', 'ASC']]
   }).then((data)=>{
     res.status(200).json(data);
   })
@@ -40,7 +65,8 @@ router.post('/', function(req, res) {
     date: reqJson.date,
     filledBeamWt: reqJson.filledBeamWt,
     emptyBeamWt: reqJson.emptyBeamWt,
-    actualUsedYarn: reqJson.actualUsedYarn
+    actualUsedYarn: reqJson.actualUsedYarn,
+    setNo: reqJson.setNo,
   }).then((result)=>{
     db.WarpingQualities.bulkCreate(reqJson.qualities.map((quality)=>({
       warpId: result.id,
@@ -72,7 +98,8 @@ router.put('/:id', async function(req, res) {
     date: reqJson.date,
     filledBeamWt: reqJson.filledBeamWt,
     emptyBeamWt: reqJson.emptyBeamWt,
-    actualUsedYarn: reqJson.actualUsedYarn
+    actualUsedYarn: reqJson.actualUsedYarn,
+    setNo: reqJson.setNo,
   },{
     where: {
       id: reqJson.id,
