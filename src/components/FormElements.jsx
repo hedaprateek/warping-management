@@ -30,6 +30,12 @@ export function FormField({ label, isRequired, children }) {
 }
 
 export function InputText({ label, errorMsg, isRequired, ...props }) {
+  let extraProps = {};
+  if(props.type == 'number') {
+    extraProps = {
+      onWheel: (e) => e.target.blur(),
+    }
+  }
   return (
     <FormField label={label} isRequired={isRequired}>
       <OutlinedInput
@@ -37,6 +43,8 @@ export function InputText({ label, errorMsg, isRequired, ...props }) {
         {...props}
         fullWidth
         error={Boolean(errorMsg)}
+        /* Needed for type number */
+        {...extraProps}
       />
       {errorMsg}
     </FormField>

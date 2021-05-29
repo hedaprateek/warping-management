@@ -33,6 +33,8 @@ const warpingReducer = (state, action)=>{
       _.set(newState, action.path, action.value);
       if(action.path.indexOf('beams') > -1) {
         newState = beamReducer(newState, _.slice(action.path, 0, action.path.indexOf('beams')+2));
+      } else {
+        newState = beamReducer(newState, []);
       }
       break;
     case 'add_grid_row':
@@ -54,7 +56,7 @@ const warpingReducer = (state, action)=>{
 }
 
 function beamReducer(state, path) {
-  let beamData = _.get(state, path);
+  let beamData = _.get(state, path, state);
   beamData.totalMeter = parse(beamData.lassa)*parse(beamData.cuts);
 
   beamData.totalEnds = 0;
@@ -314,7 +316,7 @@ function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
     cuts: 0,
     totalMeter: 0,
     totalEnds: 0,
-    qualities: [],
+    qualities: [{}],
     date: new Date(),
   };
   const defaults = {
@@ -404,7 +406,7 @@ function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
                 options={partiesOpts} />
             </Grid>
             <Grid item md={6} xs={12}>
-              <FormField label="Weaver">
+              <FormField label="Weaver/Party">
                 <Select
                   value={weaverOpts.filter((party)=>party.value===warpingValue.weaverId)}
                   onChange={(value)=>{
@@ -457,7 +459,7 @@ class Warping extends React.Component {
   componentDidMount() {
     const p1 = axios.get(`/api/parties`).then((res) => {
       const parties = res.data.filter((p) => p.isWeaver === 'Party');
-      const weavers = res.data.filter((p) => p.isWeaver === 'Weaver');
+      const weavers = res.data;
       this.setState({ parties, weavers });
     });
 

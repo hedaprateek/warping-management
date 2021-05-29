@@ -44,7 +44,10 @@ const outwardValueReducer = (state, action)=>{
       _.set(newState, action.path, action.value);
       if(action.path.indexOf('outwards') > -1) {
         newState = outwardReducer(newState, _.slice(action.path, 0, action.path.indexOf('outwards')+2));
+      } else {
+        newState = outwardReducer(newState, []);
       }
+
       break;
     case 'add_grid_row':
       rows = _.get(newState, action.path, []);
@@ -65,7 +68,7 @@ const outwardValueReducer = (state, action)=>{
 }
 
 function outwardReducer(state, path) {
-  let qualityData = _.get(state, path);
+  let qualityData = _.get(state, path, state);
   let totalGrossWt = 0;
   let totalCones = 0;
   (qualityData.bags || []).forEach((q)=>{
@@ -263,7 +266,7 @@ function YarnOutwardDialog({ open, parties, weavers, editOutwardValue, ...props 
     design: '',
     meter: '',
     totalEnds: '',
-    bags: [],
+    bags: [{}],
     date: new Date(),
   };
   const defaults = {
