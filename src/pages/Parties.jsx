@@ -18,9 +18,9 @@ import {
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import SimpleReactValidator from 'simple-react-validator';
-import DraggableDialog from './DraggableDialog';
-import { FormField, InputSelect, InputText } from './FormElements';
-import TableComponent from './TableComponent';
+import DraggableDialog from '../helpers/DraggableDialog';
+import { FormField, InputSelect, InputText } from '../components/FormElements'
+import TableComponent from '../components/TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
 
 function PartiesDialog({ open, ...props }) {

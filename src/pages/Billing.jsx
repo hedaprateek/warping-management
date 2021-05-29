@@ -9,7 +9,7 @@ import {
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import ReactToPrint from 'react-to-print';
-import { InputDate, InputText, InputSelectSearch } from './FormElements';
+import { InputDate, InputText, InputSelectSearch } from '../components/FormElements'
 
 class Billing extends React.Component {
   componentDidMount() {}

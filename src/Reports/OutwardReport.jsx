@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { DashedDivider, NoData, ReportField, ReportTable } from './CommonReportComponents';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
-import {FormField, InputDate, InputSelectSearch} from '../FormElements';
+import {FormField, InputDate, InputSelectSearch} from '../components/FormElements';
 import { parse } from '../utils';
 import { _ } from 'globalthis/implementation';
 import Moment from 'moment';

@@ -1,7 +1,7 @@
 import { Box, Tab, Tabs } from '@material-ui/core';
 import React from 'react';
 import YarnOutward from './YarnOutward';
-import TabPanel from './TabPanel';
+import TabPanel from '../../components/TabPanel';
 import Warping from './Warping';
 
 export default function Outwards() {

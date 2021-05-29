@@ -1,23 +1,25 @@
 import { AppBar, Box, Button, IconButton, Toolbar, useTheme } from '@material-ui/core';
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Link as RouterLink, useRouteMatch } from 'react-router-dom';
-import About from './About';
-import Theme from './helpers/Theme';
-import Home from './Home.jsx';
-import Inwards from './Inwards';
-import Users from './Inwards';
-import Parties from './Parties';
-import Qualities from './Qualities';
-import Reports from './Reports';
-import Warping from './Warping';
 import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
-import Outwards from './Outwards';
-import Settings from './Settings';
 import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
-import Billing from './Billing';
+
+import Theme from './helpers/Theme';
+
+import Home from './pages/Home';
+import Inwards from './pages/Inwards';
+import Users from './pages/Inwards';
+import Parties from './pages/Parties';
+import Qualities from './pages/Qualities';
+import Outwards from './pages/Outwards';
+import Settings from './pages/Settings';
+import About from './pages/About';
+import Billing from './pages/Billing';
+
+import Reports from './Reports';
 
 
 
@@ -54,7 +56,7 @@ export default function App() {
                 {navItems.map((item) => {
                   return <NavButton to={item.to}>{item.label}</NavButton>;
                 })}
-                <span style={{ paddingLeft: '70%' }}>
+                <span style={{ marginLeft: 'auto' }}>
                   <NavButton to={settings.to}>
                     <SettingsRoundedIcon></SettingsRoundedIcon>
                   </NavButton>

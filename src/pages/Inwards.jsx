@@ -4,13 +4,12 @@ import {
   Grid,
   IconButton,
 } from '@material-ui/core';
-import { KeyboardDatePicker } from '@material-ui/pickers';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import SimpleReactValidator from 'simple-react-validator';
-import DraggableDialog from './DraggableDialog';
-import { InputDate, InputSelectSearch, InputText } from './FormElements';
-import TableComponent from './TableComponent';
+import DraggableDialog from '../helpers/DraggableDialog';
+import { InputDate, InputSelectSearch, InputText } from '../components/FormElements'
+import TableComponent from '../components/TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 

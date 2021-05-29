@@ -4,7 +4,7 @@ import { ReportTable } from './CommonReportComponents';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import Select from 'react-select';
-import {FormField, InputDate, InputSelectSearch} from '../FormElements';
+import {FormField, InputDate, InputSelectSearch} from '../components/FormElements';
 import { parse } from '../utils';
 
 

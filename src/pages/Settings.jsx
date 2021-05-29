@@ -1,7 +1,7 @@
 import { Button, Grid } from '@material-ui/core';
 import axios from 'axios';
 import React from 'react';
-import { InputText } from './FormElements';
+import { InputText } from '../components/FormElements';
 
 class Settings extends React.Component {
   constructor() {

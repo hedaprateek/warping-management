@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Tab, Tabs, Typography } from "@material-ui/core";
 import InwardReport from './InwardReport';
-import TabPanel from '../TabPanel';
+import TabPanel from '../components/TabPanel';
 import OutwardReport from './OutwardReport';
 
 export default function Reports() {

@@ -11,11 +11,11 @@ import {
 } from '@material-ui/core';
 import axios from 'axios';
 import React, { useEffect, useMemo, useReducer, useState } from 'react';
-import DraggableDialog from './DraggableDialog';
-import { FormField, InputDate, InputSelect, InputSelectSearch, InputText } from './FormElements';
-import TableComponent from './TableComponent';
+import DraggableDialog from '../../helpers/DraggableDialog';
+import { FormField, InputDate, InputSelect, InputSelectSearch, InputText } from '../../components/FormElements'
+import TableComponent from '../../components/TableComponent';
 import Select from 'react-select';
-import DataGrid from './DataGrid';
+import DataGrid from '../../components/DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
 import EditIcon from '@material-ui/icons/Edit';
