@@ -251,7 +251,7 @@ class Inwards extends React.Component {
                 this.editInward(row);
               }}
             >
-              <EditIcon style={{ fontSize: '1rem' }} />
+              <EditIcon />
             </IconButton>
           );
         },

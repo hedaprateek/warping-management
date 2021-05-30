@@ -14,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     overflowY: 'scroll',
-    margin: theme.spacing(0.5),
+    margin: theme.spacing(1),
     borderRadius: theme.spacing(0.5),
   },
   th: {
@@ -42,8 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
   cell: {
     margin: 0,
-    padding: '0 10px',
-    borderBottom: '1px solid ' + theme.palette.grey[400],
+    padding: '2px 10px',
     borderRight: '1px solid ' + theme.palette.grey[400],
     '&:last-child': {
       borderRight: 0,

@@ -123,6 +123,11 @@ export const theme = createMuiTheme({
             dividers: {
                 padding: defaultTheme.spacing(1, 2),
             }
+        },
+        MuiIconButton: {
+            sizeSmall: {
+                padding: 0,
+            }
         }
     }
 }, globalTheme);
