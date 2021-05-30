@@ -375,7 +375,7 @@ class Inwards extends React.Component {
 
   render() {
     return (
-      <div>
+      <Box display="flex" flexDirection="column" height="100%">
         <Box p={1}>
           <Box display="flex">
             <InputText
@@ -410,7 +410,7 @@ class Inwards extends React.Component {
           qualities={this.state.qualities}
           editModeInwardValue={this.state.editModeInwardValue}
         />
-      </div>
+      </Box>
     );
   }
 }

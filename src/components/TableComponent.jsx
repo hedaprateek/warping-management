@@ -11,6 +11,12 @@ function fuzzyTextFilterFn(rows, id, filterValue) {
 }
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+    overflowY: 'scroll',
+    margin: theme.spacing(0.5),
+    borderRadius: theme.spacing(0.5),
+  },
   th: {
     backgroundColor: theme.palette.primary.main,
      color: theme.palette.primary.contrastText,
@@ -82,7 +88,7 @@ function TableComponent(props) {
   }, [props.filterText])
 
   return (
-    <div>
+    <div className={classes.root}>
       <table {...getTableProps()} className={classes.table}>
         <thead>
           {headerGroups.map((headerGroup) => (
