@@ -2,7 +2,8 @@ import { Box, Button, Divider, Grid, makeStyles, Typography } from '@material-ui
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import ReactToPrint from 'react-to-print';
-import CommonReport, { ReportField } from './CommonReportComponents';
+import { ReportField } from './CommonReportComponents';
+import Moment from 'moment';
 
 const useStyles = makeStyles((theme)=>({
   viewerRoot: {
@@ -42,6 +43,7 @@ function ReportHeader({reportName, getReportDetails, settings}) {
       </Grid>
       <Grid item xs>
         <ReportField name="Report" value={reportName} />
+        <ReportField name="Generated On" value={Moment(new Date()).format('DD-MM-YYYY')} />
         {reportDetails}
       </Grid>
     </Grid>
