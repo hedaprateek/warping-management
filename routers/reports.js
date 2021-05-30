@@ -107,6 +107,9 @@ router.get('/outward', async function(req, res) {
   if(req.query.party_id) {
     where.partyId = parseInt(req.query.party_id);
   }
+  if(req.query.set_no) {
+    where.setNo = parseInt(req.query.set_no);
+  }
 
   let inwardOpeningBalance = await getInwardOpenBalance(req.query.party_id, req.query.from_date, req.query.to_date);
 
@@ -118,6 +121,8 @@ router.get('/outward', async function(req, res) {
     nest: true,
     include: [{model: db.WarpingQualities, as: 'qualities'}],
   });
+
+  delete where.setNo;
 
   let outwardReport = await db.Outward.findAll({
     attributes: ['weaverId', 'qualityId', 'netWt', 'date'],

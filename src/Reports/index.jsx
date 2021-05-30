@@ -16,15 +16,15 @@ export default function Reports() {
     <Box display="flex" flexDirection="column" height="100%" style={{minHeight: 0}}>
       <Box>
         <Tabs value={tabvalue} onChange={tabChange} aria-label="simple tabs example">
-          <Tab label="Inward Report" />
           <Tab label="Outward Report" />
+          <Tab label="Inward Report" />
         </Tabs>
       </Box>
       <TabPanel value={tabvalue} index={0}>
-        <InwardReport />
+        <OutwardReport />
       </TabPanel>
       <TabPanel value={tabvalue} index={1}>
-        <OutwardReport />
+        <InwardReport />
       </TabPanel>
     </Box>
   )

@@ -18,7 +18,7 @@ import Select from 'react-select';
 import DataGrid from '../../components/DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
-import { parse } from '../../utils';
+import { parse, round } from '../../utils';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 
@@ -31,10 +31,11 @@ const warpingReducer = (state, action)=>{
       break;
     case 'set_value':
       _.set(newState, action.path, action.value);
+      let changedKey = action.path[action.path.length-1];
       if(action.path.indexOf('beams') > -1) {
-        newState = beamReducer(newState, _.slice(action.path, 0, action.path.indexOf('beams')+2));
+        newState = beamReducer(newState, _.slice(action.path, 0, action.path.indexOf('beams')+2), changedKey);
       } else {
-        newState = beamReducer(newState, []);
+        newState = beamReducer(newState, [], changedKey);
       }
       break;
     case 'add_grid_row':
@@ -54,19 +55,31 @@ const warpingReducer = (state, action)=>{
       }
       break;
     case 'set_beam_no':
-      newState.startBeamNo = action.value;
+      newState.startBeamNo = action.value.beamNo;
+      if(!action.value.isEdit) {
+        newState.partyId = action.value.partyId;
+      }
   }
   return newState;
 }
 
-function beamReducer(state, path) {
+function beamReducer(state, path, changedKey) {
   let beamData = _.get(state, path, state);
-  beamData.totalMeter = parse(beamData.lassa)*parse(beamData.cuts);
+
+  if(changedKey === 'totalMeter') {
+    beamData.cuts = round(parse(beamData.totalMeter) / parse(beamData.lassa));
+  } else {
+    beamData.totalMeter = round(parse(beamData.lassa)*parse(beamData.cuts));
+  }
 
   beamData.totalEnds = 0;
   (beamData.qualities || []).forEach((q)=>{
     beamData.totalEnds += parse(q.ends);
-    q.usedYarn = parse(beamData.totalMeter*parse(q.ends)/1693.333/parse(q.count));
+    if(changedKey == 'usedYarn') {
+      q.count = round(parse(beamData.totalMeter)*parse(q.ends)/1693.333/parse(q.usedYarn));
+    } else {
+      q.usedYarn = round(parse(beamData.totalMeter)*parse(q.ends)/1693.333/parse(q.count));
+    }
   });
 
   beamData.actualUsedYarn = parse(beamData.filledBeamWt) - parse(beamData.emptyBeamWt);
@@ -173,7 +186,7 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
     {
       Header: 'Used Yarn (Kg)',
       accessor: 'usedYarn',
-      Cell: getNumberCell(null, accessPath.concat('qualities'), true),
+      Cell: getNumberCell(dataDispatch, accessPath.concat('qualities')),
       Footer: (info)=>{
         let total = info.rows.reduce((sum, row) => {
             return (row.values[info.column.id] || 0) + sum
@@ -236,7 +249,6 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
               value={data.totalMeter}
               onChange={onChange}
               type="number"
-              readOnly
             />
           </Grid>
           <Grid item lg={2} md={2} sm={12} xs={12}>
@@ -313,13 +325,12 @@ function parseWarpingValue(warpingValue) {
   return newVal;
 }
 
-async function getBeamNo(setNo) {
+async function getBeamNoDetails(setNo) {
   if(!setNo) {
     return 1;
   }
   let res = await axios.get('/api/warping/beamno/'+setNo);
-  console.log(res.data);
-  return res.data.beamNo;
+  return res.data;
 }
 
 function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
@@ -421,10 +432,11 @@ function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
                 value={warpingValue.setNo}
                 onChange={updatewarpingValues}
                 onBlur={async (e)=>{
-                  let no = await getBeamNo(e.target.value);
+                  let result = await getBeamNoDetails(e.target.value);
                   warpingDispatch({
                     type: 'set_beam_no',
-                    value: no,
+                    value: result,
+                    isEdit: isEdit,
                   });
                 }}
               />

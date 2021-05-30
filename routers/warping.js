@@ -4,18 +4,22 @@ const db = require('../db/models');
 
 router.get('/beamno/:id', async function(req, res) {
   let result = await db.WarpingProgram.findOne({
-    attributes: ['setNo', [db.sequelize.fn('count', db.sequelize.col('id')), 'beamCount']],
+    attributes: ['setNo', 'partyId', [db.sequelize.fn('count', db.sequelize.col('id')), 'beamCount']],
     raw: true,
     where: {
       setNo: req.params.id,
     },
-    group: ['setNo'],
+    group: ['setNo', 'partyId'],
   });
-  let beamNo = 1;
+  let retVal = {
+    partyId: null,
+    beamNo: 1
+  };
   if(result) {
-    beamNo = result.beamCount+1;
+    retVal.beamNo = result.beamCount+1;
+    retVal.partyId = result.partyId;
   }
-  res.status(200).json({beamNo: beamNo});
+  res.status(200).json(retVal);
 });
 
 router.get('/', function(req, res) {
@@ -23,7 +27,6 @@ router.get('/', function(req, res) {
     raw: false,
     include: [
       {model: db.WarpingQualities, as: 'qualities'},
-
     ],
     attributes: {
       include: [

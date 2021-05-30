@@ -1,4 +1,4 @@
-import { AppBar, Box, Button, IconButton, Toolbar, useTheme } from '@material-ui/core';
+import { AppBar, Box, Button, IconButton, Toolbar, Typography, useTheme } from '@material-ui/core';
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Link as RouterLink, useRouteMatch } from 'react-router-dom';
 import DateFnsUtils from '@date-io/date-fns';

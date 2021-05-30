@@ -11,9 +11,7 @@ router.get('/', function(req, res) {
         'partyId': req.query.partyId,
       },
     }).then((data)=>{
-      console.log(data);
       let qualityIn = data.map((q)=>q.qualityId);
-      console.log(qualityIn);
       db.Qualities.findAll({
         order: [['name', 'ASC']],
         raw: true,
