@@ -27,12 +27,12 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   tr: {
-    // '&:nth-of-type(odd)': {
-    //   backgroundColor: theme.palette.primary.,
-    // },
     '&:nth-of-type(even)': {
       backgroundColor: theme.palette.primary.light,
     },
+    '&:hover': {
+      backgroundColor: theme.palette.secondary.light,
+    }
   },
   table: {
     width: '100%',

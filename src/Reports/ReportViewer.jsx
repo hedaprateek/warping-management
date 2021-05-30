@@ -57,7 +57,7 @@ export default function ReportViewer({reportName, getReportDetails, children}) {
   const pageStyle = `
     @page {
       size: A4;
-      margin: 0mm;
+      margin: 10mm;
     }
   `;
 

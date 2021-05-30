@@ -13,6 +13,7 @@ const globalTheme = createMuiTheme({
     },
     secondary: {
       main: '#B0413E',
+      light: '#eb9694',
     },
     info: {
       main: '#fde74c',

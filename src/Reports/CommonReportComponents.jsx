@@ -5,14 +5,24 @@ import clsx from 'clsx';
 const useStyles = makeStyles((theme)=>({
   table: {
     borderSpacing: 0,
-    border: '1px solid black',
-    width: '100%'
+    border: '1px solid '+theme.palette.grey[400],
+    width: '100%',
+    // pageBreakInside: 'avoid'
   },
   td: {
     margin: 0,
     padding: '0.25rem',
-    borderBottom: '1px solid black',
-    borderRight: '1px solid black'
+    borderBottom: '1px solid '+theme.palette.grey[400],
+    borderRight: '1px solid '+theme.palette.grey[400],
+    // pageBreakInside: 'avoid',
+    pageBreakAfter: 'auto'
+  },
+  tr: {
+    // pageBreakInside: 'avoid',
+    pageBreakAfter: 'auto'
+  },
+  thead: {
+    display: 'table-row-group',
   },
   noBorderBottom: {
     borderBottom: 0,
@@ -47,9 +57,9 @@ export function ReportTable({ columns, data, showFooter }) {
   // Render the UI for your table
   return (
     <table {...getTableProps()} className={classes.table}>
-      <thead>
+      <thead className={classes.thead}>
         {headerGroups.map(headerGroup => (
-          <tr {...headerGroup.getHeaderGroupProps()}>
+          <tr {...headerGroup.getHeaderGroupProps()} className={classes.tr}>
             {headerGroup.headers.map((column,i)=> (
               <th {...column.getHeaderProps()}  width={column.width}
                 className={clsx(classes.td, i==headerGroup.headers.length-1 ? classes.noBorderRight : null)}>
@@ -63,7 +73,7 @@ export function ReportTable({ columns, data, showFooter }) {
         {rows.map((row, i) => {
           prepareRow(row)
           return (
-            <tr {...row.getRowProps()}>
+            <tr {...row.getRowProps()} className={classes.tr}>
               {row.cells.map((cell, j) => {
                 let finalClasses = [classes.td];
                 (j===row.cells.length-1) && finalClasses.push(classes.noBorderRight);
@@ -75,9 +85,9 @@ export function ReportTable({ columns, data, showFooter }) {
         })}
       </tbody>
       {showFooter &&
-        <tfoot>
+        <tfoot className={classes.thead}>
         {footerGroups.map(group => (
-          <tr {...group.getFooterGroupProps()}>
+          <tr {...group.getFooterGroupProps()} className={classes.tr}>
             {group.headers.map((column, i) => {
               return <td {...column.getFooterProps()}
                 className={clsx(classes.td, classes.noBorderBottom, i==group.headers.length-1 ? classes.noBorderRight : null)}>
@@ -98,9 +108,9 @@ export function DashedDivider() {
   )
 }
 
-export function ReportField({name, value, margin}) {
+export function ReportField({name, value, margin, style}) {
   return (
-    <Typography style={margin ? {marginLeft: '0.5rem'} : {}}><span style={{fontWeight: 'bold'}}>{name}: </span>{value}</Typography>
+    <Typography style={margin ? {marginLeft: '0.5rem', ...style} : style}><span style={{fontWeight: 'bold'}}>{name}: </span>{value}</Typography>
   )
 }
 

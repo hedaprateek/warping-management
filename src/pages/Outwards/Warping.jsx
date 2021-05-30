@@ -600,8 +600,10 @@ class Warping extends React.Component {
         accessor: 'totalEnds',
       },
       {
-        Header: 'Actual Used Yarn (Kg)',
-        accessor: 'actualUsedYarn',
+        Header: 'Net Used Yarn (Kg)',
+        accessor: (row)=>{
+          return round(_.sum(row.qualities.map((q)=>q.usedYarn||0)));
+        }
       },
     ],
     editWarpingValue: null,
