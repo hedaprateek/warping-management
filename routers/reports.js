@@ -173,4 +173,70 @@ router.get('/outward', async function(req, res) {
   });
 });
 
+router.get('/set', async function(req, res) {
+  if(!req.query.set_no) {
+    res.status(400).json({});
+    return;
+  }
+  let where = {
+    setNo: parseInt(req.query.set_no),
+  };
+
+  try {
+    let programReport = await db.WarpingProgram.findAll({
+      attributes: [
+        'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter'],
+      raw: false,
+      where: where,
+      nest: true,
+      include: [{model: db.WarpingQualities, as: 'qualities'}],
+    });
+
+    let partyId = null;
+    let programData = retVal['programData'] = {};
+    for(let row of programReport) {
+      if(!partyId) {
+        partyId = row.partyId;
+      }
+      let weaver = programData[row.weaverId] = programData[row.weaverId] || [];
+      weaver.push({
+        lassa: row.lassa,
+        totalMeter: row.totalMeter,
+        cuts: row.cuts,
+        qualities: row.qualities,
+      });
+    }
+
+    if(partyId) {
+      where.partyId = partyId;
+    }
+
+    let outwardReport = await db.Outward.findAll({
+      attributes: ['partyId', 'weaverId', 'qualityId', 'netWt', 'date'],
+      raw: false,
+      where: where,
+      include: [{model: db.OutwardBags, as: 'bags'}],
+    });
+
+    let outwardData = retVal['outwardData'] = {};
+    for(let row of outwardReport) {
+      if(!partyId) {
+        partyId = row.partyId;
+      }
+      let weaver = outwardData[row.weaverId] = outwardData[row.weaverId] || [];
+      weaver.push({
+        qualityId: row.qualityId,
+        netWt: row.netWt,
+        date: row.date,
+        bags: row.bags,
+      });
+    }
+    retVal.partyId = partyId;
+    res.status(200).json(retVal);
+  } catch (error) {
+    console.error('DB execute error:', err);
+    res.status(500).json({message: err});
+  }
+});
+
 module.exports = router;

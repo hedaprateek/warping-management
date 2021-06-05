@@ -3,6 +3,7 @@ import { Box, Tab, Tabs, Typography } from "@material-ui/core";
 import InwardReport from './InwardReport';
 import TabPanel from '../components/TabPanel';
 import OutwardReport from './OutwardReport';
+import SetReport from './SetReport';
 
 export default function Reports() {
 
@@ -18,6 +19,7 @@ export default function Reports() {
         <Tabs value={tabvalue} onChange={tabChange} aria-label="simple tabs example">
           <Tab label="Outward Report" />
           <Tab label="Inward Report" />
+          <Tab label="Set Report" />
         </Tabs>
       </Box>
       <TabPanel value={tabvalue} index={0}>
@@ -25,6 +27,9 @@ export default function Reports() {
       </TabPanel>
       <TabPanel value={tabvalue} index={1}>
         <InwardReport />
+      </TabPanel>
+      <TabPanel value={tabvalue} index={2}>
+        <SetReport />
       </TabPanel>
     </Box>
   )
