@@ -95,3 +95,4 @@ npx sequelize-cli seed:generate --name default-settings
 npx sequelize-cli model:generate --name OutwardBags --attributes outwardId:integer,cones:integer,date:dateonly,grossWt:real
 
 npx sequelize-cli migration:create --name add-new-columns
+npx sequelize-cli migration:create --name add-new-columns2

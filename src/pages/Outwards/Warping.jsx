@@ -189,10 +189,10 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
       Cell: getNumberCell(dataDispatch, accessPath.concat('qualities')),
       Footer: (info)=>{
         let total = info.rows.reduce((sum, row) => {
-            return (row.values[info.column.id] || 0) + sum
+            return (parse(row.values[info.column.id]) || 0) + sum
           }, 0
         );
-        total = parse(total);
+        total = round(total);
         return (
           <OutlinedInput
             fullWidth type="number" value={total} readOnly
@@ -602,7 +602,7 @@ class Warping extends React.Component {
       {
         Header: 'Net Used Yarn (Kg)',
         accessor: (row)=>{
-          return round(_.sum(row.qualities.map((q)=>q.usedYarn||0)));
+          return round(_.sum(row.qualities.map((q)=>parse(q.usedYarn)||0)));
         }
       },
     ],

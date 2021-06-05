@@ -5,7 +5,7 @@ import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import Select from 'react-select';
 import {FormField, InputDate, InputSelectSearch} from '../components/FormElements';
-import { parse } from '../utils';
+import { parse, round } from '../utils';
 
 
 const useStyles = makeStyles((theme)=>({
@@ -260,10 +260,10 @@ function FinalReport({data}) {
                   accessor: 'netWt',
                   Footer: (info)=>{
                     let total = info.rows.reduce((sum, row) => {
-                        return (row.values[info.column.id] || 0) + sum
+                        return (parse(row.values[info.column.id]) || 0) + sum
                       }, 0
                     );
-                    total = parse(total);
+                    total = round(total);
                     return <span style={{fontWeight: 'bold'}}>{total}</span>
                   }
                 },

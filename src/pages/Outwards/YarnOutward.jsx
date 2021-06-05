@@ -7,7 +7,6 @@ import {
   Grid,
   IconButton,
   OutlinedInput,
-  Paper,
 } from '@material-ui/core';
 import axios from 'axios';
 import React, { useEffect, useMemo, useReducer, useState } from 'react';
@@ -20,18 +19,7 @@ import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
-
-const ROUND_DECIMAL = 5;
-
-function parse(num) {
-  if(!isNaN(num)) {
-    num = Math.round(num + "e" + ROUND_DECIMAL);
-    return Number(num + "e" + -ROUND_DECIMAL);
-  } else {
-    return Number(0.0);
-  }
-}
-
+import {parse, round} from './../../utils';
 
 const outwardValueReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
@@ -101,7 +89,7 @@ function TotalFooter(info) {
       return (parse(row.values[info.column.id]) || 0) + sum
     }, 0
   );
-  total = parse(total);
+  total = round(total);
   return (
     <OutlinedInput
       fullWidth type="number" value={total} readOnly
@@ -186,13 +174,6 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
                 (op) => op.value === data.qualityId
               )}
               onChange={(op)=>onChange(op.value, 'qualityId')}
-              // onChange={(value) => {
-              //   dataDispatch({
-              //     type: 'set_value',
-              //     path: basePath.concat([row.index, column.id]),
-              //     value: value.value,
-              //   })
-              // }}
               options={qualityOpts}
             />
           </Grid>
@@ -270,6 +251,9 @@ function YarnOutwardDialog({ open, parties, weavers, editOutwardValue, ...props 
     date: new Date(),
   };
   const defaults = {
+    setNo: null,
+    partyId: null,
+    weaverId: null,
     outwards: [defaultOutward],
   };
   const [outwardValue, outwardDispatch] = useReducer(outwardValueReducer, defaults);
@@ -345,7 +329,16 @@ function YarnOutwardDialog({ open, parties, weavers, editOutwardValue, ...props 
       <Grid container>
         <Grid item lg={6} md={12} sm={12} xs={12}>
           <Grid container spacing={2}>
-            <Grid item md={6} xs={12}>
+            <Grid item md={4} xs={12}>
+              <InputText
+                label="Set No."
+                name="setNo"
+                type="number"
+                value={outwardValue.setNo}
+                onChange={updateoutwardValues}
+              />
+            </Grid>
+            <Grid item md={4} xs={12}>
               <FormField label="Party">
                 <Select
                   value={partiesOpts.filter((party)=>party.value===outwardValue.partyId)}
@@ -356,7 +349,7 @@ function YarnOutwardDialog({ open, parties, weavers, editOutwardValue, ...props 
                 />
               </FormField>
             </Grid>
-            <Grid item md={6} xs={12}>
+            <Grid item md={4} xs={12}>
               <FormField label="Weaver/Party">
                 <Select
                   value={weaverOpts.filter((party)=>party.value===outwardValue.weaverId)}
@@ -464,6 +457,10 @@ class YarnOutward extends React.Component {
             </IconButton>
           );
         },
+      },
+      {
+        Header: 'Set No',
+        accessor: 'setNo',
       },
       {
         Header: 'Date',

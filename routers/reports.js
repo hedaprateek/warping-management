@@ -104,9 +104,11 @@ router.get('/outward', async function(req, res) {
       [Op.lte]: req.query.to_date,
     }
   };
-  if(req.query.party_id) {
-    where.partyId = parseInt(req.query.party_id);
+  if(!req.query.party_id) {
+    res.status(400).json({});
+    return;
   }
+  where.partyId = parseInt(req.query.party_id);
   if(req.query.set_no) {
     where.setNo = parseInt(req.query.set_no);
   }

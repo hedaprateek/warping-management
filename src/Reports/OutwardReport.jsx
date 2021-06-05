@@ -4,7 +4,7 @@ import { DashedDivider, NoData, ReportField, ReportTable } from './CommonReportC
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import {FormField, InputDate, InputSelectSearch, InputText} from '../components/FormElements';
-import { parse } from '../utils';
+import { parse, round } from '../utils';
 import { _ } from 'globalthis/implementation';
 import Moment from 'moment';
 
@@ -218,10 +218,10 @@ function BeamDetails({beam, beamNo, getQuality}) {
         accessor: 'usedYarn',
         Footer: (info)=>{
           let total = info.rows.reduce((sum, row) => {
-              return (row.values[info.column.id] || 0) + sum
+              return (parse(row.values[info.column.id]) || 0) + sum
             }, 0
           );
-          total = parse(total);
+          total = round(total);
           return <span style={{fontWeight: 'bold'}}>{total}</span>
         }
       },
@@ -248,10 +248,10 @@ function QualityDetails({qualities, getQuality}) {
         accessor: 'netWt',
         Footer: (info)=>{
           let total = info.rows.reduce((sum, row) => {
-              return (row.values[info.column.id] || 0) + sum
+              return (parse(row.values[info.column.id]) || 0) + sum
             }, 0
           );
-          total = parse(total);
+          total = round(total);
           return <span style={{fontWeight: 'bold'}}>{total}</span>
         }
       },

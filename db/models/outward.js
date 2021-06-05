@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   };
   Outward.init({
+    setNo: DataTypes.INTEGER,
     partyId: DataTypes.INTEGER,
     weaverId: DataTypes.INTEGER,
     qualityId: DataTypes.INTEGER,

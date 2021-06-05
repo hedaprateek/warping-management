@@ -30,6 +30,7 @@ router.delete('/:id', function(req, res) {
 router.post('/', function(req, res) {
   let reqJson = req.body;
   db.Outward.create({
+    setNo: reqJson.setNo,
     partyId: reqJson.partyId,
     weaverId: reqJson.weaverId,
     qualityId: reqJson.qualityId,
@@ -56,7 +57,9 @@ router.post('/', function(req, res) {
 
 router.put('/:id', async function(req, res) {
   let reqJson = req.body;
+  console.log(reqJson);
   await db.Outward.update({
+    setNo: reqJson.setNo,
     partyId: reqJson.partyId,
     weaverId: reqJson.weaverId,
     qualityId: reqJson.qualityId,
