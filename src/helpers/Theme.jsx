@@ -46,8 +46,11 @@ export const theme = createMuiTheme({
             variant: 'outlined',
         },
         MuiButton: {
-            size: 'medium',
+            size: 'small',
             disableTouchRipple: true,
+        },
+        MuiTab: {
+            size: 'small',
         },
         MuiIconButton: {
             size: 'small',
@@ -65,7 +68,7 @@ export const theme = createMuiTheme({
         },
         MuiTab: {
             root: {
-                minHeight: '40px',
+                minHeight: 0,
                 [defaultTheme.breakpoints.up('sm')]: {
                     minWidth: '80px',
                 },
@@ -91,7 +94,7 @@ export const theme = createMuiTheme({
         },
         MuiToolbar: {
             dense: {
-                minHeight: '42px',
+                minHeight: '34px',
             }
         },
         MuiOutlinedInput: {

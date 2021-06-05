@@ -1,26 +1,15 @@
 import {
   Box,
   Button,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
   Grid,
   IconButton,
-  InputLabel,
-  MenuItem,
-  OutlinedInput,
-  Radio,
-  RadioGroup,
-  Select,
-  TextField,
-  Typography,
 } from '@material-ui/core';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import SimpleReactValidator from 'simple-react-validator';
-import DraggableDialog from '../helpers/DraggableDialog';
-import { FormField, InputSelect, InputText } from '../components/FormElements'
-import TableComponent from '../components/TableComponent';
+import DraggableDialog from '../../helpers/DraggableDialog';
+import { FormField, InputSelect, InputText } from '../../components/FormElements'
+import TableComponent from '../../components/TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
 
 function PartiesDialog({ open, ...props }) {
@@ -61,7 +50,7 @@ function PartiesDialog({ open, ...props }) {
   return (
     <DraggableDialog
       open={open}
-      sectionTitle="Party"
+      sectionTitle="Account"
       {...props}
       onSave={() => {
         props.onSave(partyValue, validator, isEdit);
@@ -302,7 +291,7 @@ class Parties extends React.Component {
               onClick={() => this.showDialog(true)}
               style={{ marginLeft: '0.5rem' }}
             >
-              Add Party
+              Add Account
             </Button>
           </Box>
         </Box>

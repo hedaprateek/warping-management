@@ -11,15 +11,12 @@ import Theme from './helpers/Theme';
 
 import Home from './pages/Home';
 import Inwards from './pages/Inwards';
-import Users from './pages/Inwards';
-import Parties from './pages/Parties';
-import Qualities from './pages/Qualities';
 import Outwards from './pages/Outwards';
 import Settings from './pages/Settings';
-import About from './pages/About';
 import Billing from './pages/Billing';
 
 import Reports from './Reports';
+import Masters from './pages/Masters';
 
 
 
@@ -27,10 +24,9 @@ const navItems = [
   { label: 'Home', to: '/', component: Home },
   { label: 'Inwards', to: '/inwards', component: Inwards },
   { label: 'Outwards', to: '/outwards', component: Outwards },
-  { label: 'Qualities', to: '/qualities', component: Qualities },
-  { label: 'Parties', to: '/parties', component: Parties },
   { label: 'Reports', to: '/reports', component: Reports },
   { label: 'Billing', to: '/billing', component: Billing },
+  { label: 'Masters', to: '/masters', component: Masters },
 ];
 
 const settings = { label: 'Settings', to: '/settings', component: Settings };
@@ -41,7 +37,9 @@ function NavButton({to, children}) {
     exact: true,
   });
   return (
-    <Button color={urlMatch ? "secondary" : "primary"} variant="contained" component={RouterLink} to={to} disableElevation>{children}</Button>
+    <Button color={urlMatch ? "secondary" : "primary"} variant="contained" component={RouterLink}
+      to={to} //style={{paddingTop: '2px', paddingBottom: '2px'}}
+      disableElevation>{children}</Button>
   )
 }
 
