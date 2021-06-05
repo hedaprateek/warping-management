@@ -26,7 +26,6 @@ export default function OutwardReport() {
     party_id: null,
     from_date: new Date(),
     to_date: new Date(),
-    set_no: null,
   });
   const [data, setData] = useState([]);
   const [partiesOpts, setPartiesOpts] = useState([]);
@@ -121,15 +120,6 @@ export default function OutwardReport() {
                 options={partiesOpts}
                 label="Party"
                 isClearable
-              />
-          </Grid>
-          <Grid item md={4} xs={12}>
-              <InputText
-                value={filter.set_no}
-                onChange={(e) => {
-                  setFilter((prev) => ({ ...prev, set_no: e.target.value }));
-                }}
-                label="Set No."
               />
           </Grid>
         </Grid>
