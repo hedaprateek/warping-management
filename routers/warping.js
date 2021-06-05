@@ -23,8 +23,13 @@ router.get('/beamno/:id', async function(req, res) {
 });
 
 router.get('/', function(req, res) {
+  let where = {
+    ...req.query,
+  };
+  console.log(where);
   db.WarpingProgram.findAll({
     raw: false,
+    where: where,
     include: [
       {model: db.WarpingQualities, as: 'qualities'},
     ],

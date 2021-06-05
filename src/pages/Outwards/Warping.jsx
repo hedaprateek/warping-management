@@ -333,7 +333,7 @@ async function getBeamNoDetails(setNo) {
   return res.data;
 }
 
-function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
+function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
   const defaultBeam = {
     design: '',
     lassa: 0,
@@ -371,8 +371,8 @@ function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
           value: defaults,
         });
       }
-      setPartiesOpts(parties.map((party)=>({label: party.name, value: party.id})));
-      setWeaverOpts(weavers.map((party)=>({label: party.name, value: party.id})));
+      setPartiesOpts(accounts.filter((acc)=>acc.isWeaver=='Party').map((party)=>({label: party.name, value: party.id})));
+      setWeaverOpts(accounts.map((party)=>({label: party.name, value: party.id})));
     }
   }, [open]);
 
@@ -501,17 +501,16 @@ function WarpingDialog({ open, parties, weavers, editWarpingValue, ...props }) {
 }
 
 class Warping extends React.Component {
+  constructor() {
+    super();
+    this.getWarpings = this.getWarpings.bind(this);
+  }
   componentDidMount() {
-    const p1 = axios.get(`/api/parties`).then((res) => {
-      const parties = res.data.filter((p) => p.isWeaver === 'Party');
-      const weavers = res.data;
-      this.setState({ parties, weavers });
-    });
-
-    Promise.all([p1]).then(() => {
-      axios.get(`/api/warping`).then((res) => {
-        const warpings = res.data;
-        this.setState({ warpings });
+    axios.get(`/api/parties`).then((res) => {
+      const accounts = res.data;
+      this.setState({
+        accounts,
+        partiesOpts: accounts.filter((a)=>a.isWeaver=='Party').map((p)=>({label: p.name, value: p.id})),
       });
     });
   }
@@ -524,7 +523,10 @@ class Warping extends React.Component {
   state = {
     radioValue: 'Yes',
     warpings: [],
-    parties: [],
+    accounts: [],
+    partiesOpts: [],
+    partyId: null,
+    setNo: null,
     weavers: [],
     filter: '',
     dialogOpen: false,
@@ -564,7 +566,7 @@ class Warping extends React.Component {
         accessor: (row) => {
           let partyName = [];
           if (row.partyId) {
-            partyName = this.state.parties.filter((party) => {
+            partyName = this.state.accounts.filter((party) => {
               if (party.id === row.partyId) {
                 return party;
               }
@@ -578,7 +580,7 @@ class Warping extends React.Component {
         accessor: (row) => {
           let weaverName = [];
           if (row.weaverId) {
-            weaverName = this.state.weavers.filter((party) => {
+            weaverName = this.state.accounts.filter((party) => {
               if (party.id === row.weaverId) {
                 return party;
               }
@@ -608,6 +610,18 @@ class Warping extends React.Component {
     ],
     editWarpingValue: null,
   };
+
+  getWarpings() {
+    axios.get(`/api/warping`, {
+      params: {
+        partyId: this.state.partyId,
+        setNo: this.state.setNo,
+      }
+    }).then((res) => {
+      const warpings = res.data;
+      this.setState({ warpings });
+    });
+  }
 
   showDialog(show) {
     this.setState({ dialogOpen: show });
@@ -655,13 +669,37 @@ class Warping extends React.Component {
     return (
       <Box>
         <Box p={1}>
+          <Grid container spacing={2}>
+            <Grid item md={3} xs={12}>
+              <InputSelectSearch
+                value={this.state.partiesOpts.filter(
+                  (party) => party.value === this.state.partyId
+                )}
+                onChange={(op) => this.setState({ partyId: op?.value })}
+                options={this.state.partiesOpts}
+                label="Party"
+                isClearable
+              />
+            </Grid>
+            <Grid item md={3} xs={12}>
+              <InputText
+                value={this.state.setNo}
+                onChange={(e) => this.setState({ setNo: e.target.value })}
+                label="Set No."
+              />
+            </Grid>
+          </Grid>
+        </Box>
+        <Box p={1}>
           <Box display="flex">
-            <InputText
-              placeholder="Search..."
-              value={this.state.filter}
-              style={{ minWidth: '250px' }}
-              onChange={(e) => this.setState({ filter: e.target.value })}
-            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={this.getWarpings}
+              disabled={!this.state.partyId && !this.state.setNo}
+            >
+              Get data
+            </Button>
             <Button
               variant="contained"
               color="primary"
@@ -688,8 +726,7 @@ class Warping extends React.Component {
           onSave={(warpingValue, isEdit) =>
             this.saveDetails(warpingValue, isEdit)
           }
-          parties={this.state.parties}
-          weavers={this.state.weavers}
+          accounts={this.state.accounts}
           editWarpingValue={this.state.editWarpingValue}
         />
       </Box>
