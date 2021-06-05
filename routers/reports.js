@@ -183,6 +183,7 @@ router.get('/set', async function(req, res) {
   };
 
   try {
+    let retVal = {};
     let programReport = await db.WarpingProgram.findAll({
       attributes: [
         'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter'],
@@ -233,7 +234,7 @@ router.get('/set', async function(req, res) {
     }
     retVal.partyId = partyId;
     res.status(200).json(retVal);
-  } catch (error) {
+  } catch (err) {
     console.error('DB execute error:', err);
     res.status(500).json({message: err});
   }
