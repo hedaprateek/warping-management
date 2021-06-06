@@ -667,7 +667,7 @@ class Warping extends React.Component {
 
   render() {
     return (
-      <Box display="flex" flexDirection="column" height="100%">
+      <>
         <Box p={1}>
           <Grid container spacing={2}>
             <Grid item md={3} xs={12}>
@@ -729,7 +729,7 @@ class Warping extends React.Component {
           accounts={this.state.accounts}
           editWarpingValue={this.state.editWarpingValue}
         />
-      </Box>
+      </>
     );
   }
 }

@@ -23,10 +23,13 @@ router.get('/beamno/:id', async function(req, res) {
 });
 
 router.get('/', function(req, res) {
-  let where = {
-    ...req.query,
-  };
-  console.log(where);
+  let where = {};
+  if(req.query.partyId) {
+    where.partyId = req.query.partyId;
+  }
+  if(req.query.setNo) {
+    where.setNo = req.query.setNo;
+  }
   db.WarpingProgram.findAll({
     raw: false,
     where: where,

@@ -1,18 +1,11 @@
-export default function TabPanel(props) {
-  const { children, value, index, ...other } = props;
+import { Box } from '@material-ui/core';
+import React from 'react';
 
+export default function TabPanel({children, classNameRoot, className, value, index}) {
+  const active = value === index;
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-      style={{flexGrow: 1, minHeight: 0}}
-    >
-      {value === index && (
-        <>{children}</>
-      )}
-    </div>
+    <Box component="div" minHeight="0" flexGrow="1" hidden={!active}>
+      <Box style={{height: '100%', display: 'flex', flexDirection: 'column'}} className={className}>{children}</Box>
+    </Box>
   );
 }

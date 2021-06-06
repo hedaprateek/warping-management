@@ -575,7 +575,7 @@ class YarnOutward extends React.Component {
 
   render() {
     return (
-      <Box display="flex" flexDirection="column" height="100%">
+      <>
         <Box p={1}>
           <Grid container spacing={2}>
             <Grid item md={3} xs={12}>
@@ -637,7 +637,7 @@ class YarnOutward extends React.Component {
           accounts={this.state.accounts}
           editOutwardValue={this.state.editOutwardValue}
         />
-      </Box>
+      </>
     );
   }
 }

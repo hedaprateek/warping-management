@@ -3,9 +3,13 @@ var router = require('express').Router();
 const db = require('../db/models');
 
 router.get('/', function(req, res) {
-  let where = {
-    ...req.query,
-  };
+  let where = {};
+  if(req.query.partyId) {
+    where.partyId = req.query.partyId;
+  }
+  if(req.query.setNo) {
+    where.setNo = req.query.setNo;
+  }
   db.Outward.findAll({
     raw: false,
     include: [ {model: db.OutwardBags, as: 'bags'} ],
