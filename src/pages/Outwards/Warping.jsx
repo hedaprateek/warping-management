@@ -667,7 +667,7 @@ class Warping extends React.Component {
 
   render() {
     return (
-      <Box>
+      <Box display="flex" flexDirection="column" height="100%">
         <Box p={1}>
           <Grid container spacing={2}>
             <Grid item md={3} xs={12}>
@@ -693,7 +693,7 @@ class Warping extends React.Component {
         <Box p={1}>
           <Box display="flex">
             <Button
-              variant="contained"
+              variant="outlined"
               color="primary"
               onClick={this.getWarpings}
               disabled={!this.state.partyId && !this.state.setNo}
@@ -701,7 +701,7 @@ class Warping extends React.Component {
               Get data
             </Button>
             <Button
-              variant="contained"
+              variant="outlined"
               color="primary"
               onClick={() => {
                 this.setState({ editWarpingValue: null });
@@ -713,7 +713,7 @@ class Warping extends React.Component {
             </Button>
           </Box>
         </Box>
-        <Box>
+        <Box flexGrow="1" overflow="auto">
           <TableComponent
             columns={this.state.columns}
             data={this.state.warpings}

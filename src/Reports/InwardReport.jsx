@@ -151,21 +151,21 @@ export default function InwardReport(props) {
             />
           </Grid>
           <Grid item md={4} xs={12}>
-            <FormField label="Qualities">
-              <Select
-                isMulti
-                value={qualityOpts.filter(
-                  (quality) => filter.qualities.indexOf(quality.value) > -1
-                )}
-                onChange={(values) => {
-                  setFilter((prev) => ({
-                    ...prev,
-                    qualities: values.map((value) => value.value),
-                  }));
-                }}
-                options={qualityOpts}
-              />
-            </FormField>
+            <InputSelectSearch
+              isMulti
+              value={qualityOpts.filter(
+                (quality) => filter.qualities.indexOf(quality.value) > -1
+              )}
+              onChange={(values) => {
+                setFilter((prev) => ({
+                  ...prev,
+                  qualities: values.map((value) => value.value),
+                }));
+              }}
+              options={qualityOpts}
+              label="Qualities"
+              isClearable
+            />
           </Grid>
         </Grid>
       </Box>

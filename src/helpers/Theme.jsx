@@ -13,7 +13,7 @@ const globalTheme = createMuiTheme({
     },
     secondary: {
       main: '#B0413E',
-      light: '#eb9694',
+      light: '#ffd8d7',
     },
     info: {
       main: '#fde74c',
@@ -106,8 +106,8 @@ export const theme = createMuiTheme({
             },
             inputMarginDense: {
                 padding: defaultTheme.spacing(1, 1),
-                paddingTop: defaultTheme.spacing(1),
-                paddingBottom: defaultTheme.spacing(1),
+                paddingTop: defaultTheme.spacing(0.75),
+                paddingBottom: defaultTheme.spacing(0.75),
             },
             adornedEnd: {
                 paddingRight: defaultTheme.spacing(0.5),
@@ -132,6 +132,11 @@ export const theme = createMuiTheme({
             sizeSmall: {
                 padding: 0,
             }
+        }
+    },
+    otherVars: {
+        reactSelect: {
+            padding: '5px 8px',
         }
     }
 }, globalTheme);

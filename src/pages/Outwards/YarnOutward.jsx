@@ -242,7 +242,7 @@ function parseOutwardValue(outwardValue) {
   return newVal;
 }
 
-function YarnOutwardDialog({ open, parties, weavers, editOutwardValue, ...props }) {
+function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
   const defaultOutward = {
     design: '',
     meter: '',
@@ -276,8 +276,8 @@ function YarnOutwardDialog({ open, parties, weavers, editOutwardValue, ...props 
           value: defaults,
         });
       }
-      setPartiesOpts(parties.map((party)=>({label: party.name, value: party.id})));
-      setWeaverOpts(weavers.map((party)=>({label: party.name, value: party.id})));
+      setPartiesOpts(accounts.filter((a)=>a.isWeaver=="Party").map((party)=>({label: party.name, value: party.id})));
+      setWeaverOpts(accounts.map((party)=>({label: party.name, value: party.id})));
     }
   }, [open]);
 
@@ -400,11 +400,17 @@ function YarnOutwardDialog({ open, parties, weavers, editOutwardValue, ...props 
 }
 
 class YarnOutward extends React.Component {
+  constructor() {
+    super();
+    this.getOutwards = this.getOutwards.bind(this);
+  }
   componentDidMount() {
     let p1 = axios.get(`/api/parties`).then((res) => {
-      const parties = res.data.filter((p)=>p.isWeaver==='Party');
-      const weavers = res.data;
-      this.setState({ parties, weavers });
+      const accounts = res.data;
+      this.setState({
+        accounts,
+        partiesOpts: accounts.filter((a)=>a.isWeaver=='Party').map((p)=>({label: p.name, value: p.id}))
+      });
     }).catch((err)=>{
       console.log(err);
     });
@@ -414,18 +420,23 @@ class YarnOutward extends React.Component {
     }).catch((err)=>{
       console.log(err);
     });
+  }
 
-    Promise.all([p1, p2]).then(() => {
-      axios
-        .get(`/api/outward`)
-        .then((res) => {
-          const outwards = res.data;
-          this.setState({ outwards });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    });
+  getOutwards() {
+    axios
+      .get(`/api/outward`, {
+        params: {
+          partyId: this.state.partyId,
+          setNo: this.state.setNo,
+        }
+      })
+      .then((res) => {
+        const outwards = res.data;
+        this.setState({ outwards });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   editOutward(row) {
@@ -436,8 +447,10 @@ class YarnOutward extends React.Component {
   state = {
     radioValue: 'Yes',
     outwards: [],
-    parties: [],
-    weavers: [],
+    accounts: [],
+    partiesOpts: [],
+    partyId: null,
+    setNo: null,
     qualities: [],
     filter: '',
     dialogOpen: false,
@@ -473,7 +486,7 @@ class YarnOutward extends React.Component {
         accessor: (row) => {
           let partyName = [];
           if (row.partyId) {
-            partyName = this.state.parties.filter((party) => {
+            partyName = this.state.accounts.filter((party) => {
               if (party.id === row.partyId) {
                 return party;
               }
@@ -487,7 +500,7 @@ class YarnOutward extends React.Component {
         accessor: (row) => {
           let weaverName = [];
           if (row.weaverId) {
-            weaverName = this.state.weavers.filter((party) => {
+            weaverName = this.state.accounts.filter((party) => {
               if (party.id === row.weaverId) {
                 return party;
               }
@@ -562,17 +575,41 @@ class YarnOutward extends React.Component {
 
   render() {
     return (
-      <Box>
+      <Box display="flex" flexDirection="column" height="100%">
+        <Box p={1}>
+          <Grid container spacing={2}>
+            <Grid item md={3} xs={12}>
+              <InputSelectSearch
+                value={this.state.partiesOpts.filter(
+                  (party) => party.value === this.state.partyId
+                )}
+                onChange={(op) => this.setState({ partyId: op?.value })}
+                options={this.state.partiesOpts}
+                label="Party"
+                isClearable
+              />
+            </Grid>
+            <Grid item md={3} xs={12}>
+              <InputText
+                value={this.state.setNo}
+                onChange={(e) => this.setState({ setNo: e.target.value })}
+                label="Set No."
+              />
+            </Grid>
+          </Grid>
+        </Box>
         <Box p={1}>
           <Box display="flex">
-            <InputText
-              placeholder="Search..."
-              value={this.state.filter}
-              style={{ minWidth: '250px' }}
-              onChange={(e) => this.setState({ filter: e.target.value })}
-            />
             <Button
-              variant="contained"
+              variant="outlined"
+              color="primary"
+              onClick={this.getOutwards}
+              disabled={!this.state.partyId && !this.state.setNo}
+            >
+              Get data
+            </Button>
+            <Button
+              variant="outlined"
               color="primary"
               onClick={() => {
                 this.setState({ editOutwardValue: null });
@@ -584,7 +621,7 @@ class YarnOutward extends React.Component {
             </Button>
           </Box>
         </Box>
-        <Box>
+        <Box flexGrow="1" overflow="auto">
           <TableComponent
             columns={this.state.columns}
             data={this.state.outwards}
@@ -597,8 +634,7 @@ class YarnOutward extends React.Component {
           onSave={(outwardValue, isEdit) =>
             this.saveDetails(outwardValue, isEdit)
           }
-          parties={this.state.parties}
-          weavers={this.state.weavers}
+          accounts={this.state.accounts}
           editOutwardValue={this.state.editOutwardValue}
         />
       </Box>

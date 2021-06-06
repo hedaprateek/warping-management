@@ -5,6 +5,7 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
+  useTheme,
 } from '@material-ui/core';
 import ReactSelect from 'react-select';
 import { KeyboardDatePicker } from '@material-ui/pickers';
@@ -63,20 +64,76 @@ export function InputSelect({ label, options, ...props }) {
   );
 }
 
+const customReactSelectStyles = (theme, readonly)=>({
+  input: (provided) => {
+    return {...provided, padding: 0, margin: 0};
+  },
+  control: (provided, state) => ({
+    ...provided,
+    minHeight: '32px',
+    backgroundColor: readonly ? theme.otherVars.inputDisabledBg : theme.palette.background.default,
+    ...(state.isFocused ? {
+      borderColor: theme.palette.primary.main,
+      boxShadow: 'inset 0 0 0 1px '+theme.palette.primary.main,
+      '&:hover': {
+        borderColor: theme.palette.primary.main,
+      }
+    } : {}),
+  }),
+  dropdownIndicator: (provided)=>({
+    ...provided,
+    padding: '0rem 0.25rem',
+  }),
+  indicatorsContainer: (provided)=>({
+    ...provided,
+    ...(readonly ? {display: 'none'} : {})
+  }),
+  clearIndicator: (provided)=>({
+    ...provided,
+    padding: '0rem 0.25rem',
+  }),
+  valueContainer: (provided, state)=>({
+    ...provided,
+    padding: state.isMulti ? '2px' : theme.otherVars.reactSelect.padding,
+  }),
+  menuPortal: (provided)=>({ ...provided, zIndex: 9999 }),
+  option: (provided)=>({
+    ...provided,
+    padding: '0.5rem',
+  }),
+  multiValue: (provided)=>({
+    ...provided,
+    padding: '2px'
+  }),
+  multiValueLabel: (provided)=>({
+    ...provided,
+    fontSize: '1em',
+    padding: 0,
+    // zIndex: 9999
+  }),
+  multiValueRemove: (provided)=>({
+    ...provided,
+    '&:hover': {
+      backgroundColor: 'unset',
+      color: theme.palette.error.main,
+    },
+    ...(readonly ? {display: 'none'} : {})
+  }),
+  menuPortal: (provided) => ({
+    ...provided,
+    zIndex: '1400',
+  }),
+});
+
 export function InputSelectSearch({ label, errorMsg, ...props }) {
-  const classes = useStyles();
+  const theme = useTheme();
   return (
     <FormField label={label}>
       <ReactSelect
         menuPortalTarget={document.body}
         {...props}
         error={Boolean(errorMsg)}
-        styles={{
-          menuPortal: (provided) => ({
-            ...provided,
-            zIndex: '1400',
-          }),
-        }}
+        styles={customReactSelectStyles(theme, props.readonly)}
       />
       {errorMsg}
     </FormField>

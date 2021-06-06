@@ -3,9 +3,13 @@ var router = require('express').Router();
 const db = require('../db/models');
 
 router.get('/', function(req, res) {
+  let where = {
+    ...req.query,
+  };
   db.Outward.findAll({
     raw: false,
     include: [ {model: db.OutwardBags, as: 'bags'} ],
+    where: where,
   }).then((data)=>{
     res.status(200).json(data);
   })
