@@ -324,10 +324,10 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
         props.onSave(saveVal, isEdit);
       }}
       open={open}
-      fullScreen
+      maxWidth="md"
     >
       <Grid container>
-        <Grid item lg={6} md={12} sm={12} xs={12}>
+        <Grid item lg={12} md={12} sm={12} xs={12}>
           <Grid container spacing={2}>
             <Grid item md={4} xs={12}>
               <InputText
