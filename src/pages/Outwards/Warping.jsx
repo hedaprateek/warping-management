@@ -73,7 +73,7 @@ function beamReducer(state, path, changedKey) {
 
   if(changedKey === 'totalMeter') {
     beamData.cuts = round(parse(beamData.totalMeter) / parse(beamData.lassa));
-  } else {
+  } else if(changedKey === 'cuts') {
     beamData.totalMeter = round(parse(beamData.lassa)*parse(beamData.cuts));
   }
 
@@ -82,7 +82,7 @@ function beamReducer(state, path, changedKey) {
     beamData.totalEnds += parse(q.ends);
     if(changedKey == 'usedYarn') {
       q.count = round(parse(beamData.totalMeter)*parse(q.ends)/1693.333/parse(q.usedYarn));
-    } else {
+    } else if(changedKey === 'count') {
       q.usedYarn = round(parse(beamData.totalMeter)*parse(q.ends)/1693.333/parse(q.count));
     }
   });
