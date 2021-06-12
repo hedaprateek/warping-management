@@ -1,6 +1,7 @@
 {
   "name": "warping-management",
   "version": "0.1.0",
+  "main": "main.js",
   "private": true,
   "productName": "WarpingManagement",
   "proxy": "http://localhost:7227",
@@ -20,6 +21,7 @@
     "electron-rebuild": "^2.3.5",
     "express": "^4.17.1",
     "express-handlebars": "^5.3.0",
+    "get-port": "^5.1.1",
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",
     "moment": "^2.29.1",
@@ -42,7 +44,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "app": "npm run build && npm run electron ."
   },
   "eslintConfig": {
     "extends": [

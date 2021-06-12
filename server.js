@@ -1,4 +1,4 @@
-module.exports = () => {
+module.exports = (port) => {
   var express = require('express');
   var indexRouter = require('./routers/index');
   var cors = require("cors");
@@ -8,7 +8,6 @@ module.exports = () => {
 
   app = express();
 
-  app.set('views', path.resolve(__dirname, 'views', 'pages'));
   app.engine('html', exphbs());
   app.set('view engine', 'html');
 
@@ -20,7 +19,8 @@ module.exports = () => {
   app.use(cors({ origin: true, credentials: true }));
 
   /* Routes */
-  app.use(express.static(path.resolve(__dirname, 'views','dist')));
+  app.use(express.static(path.resolve(__dirname, 'build')));
+  // app.use(express.static(path.resolve(__dirname, 'views','dist')));
   app.use('/', indexRouter);
   app.use('/api/parties', require('./routers/parties'));
   app.use('/api/qualities', require('./routers/qualities'));
@@ -30,6 +30,5 @@ module.exports = () => {
   app.use('/api/reports', require('./routers/reports'));
   app.use('/api/settings', require('./routers/settings'));
 
-  var port = 7227;
-  app.listen(port, console.log(`App listening at http://localhost:${port}`));
+  app.listen(port || 7227, console.log(`App listening at http://localhost:${port}`));
 };
