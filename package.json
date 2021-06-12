@@ -45,7 +45,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "app": "npm run build && npm run electron ."
+    "app": "yarn run build && yarn run electron ."
   },
   "eslintConfig": {
     "extends": [
