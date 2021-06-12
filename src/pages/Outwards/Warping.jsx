@@ -58,6 +58,11 @@ const warpingReducer = (state, action)=>{
       newState.startBeamNo = action.value.beamNo;
       if(!action.value.isEdit) {
         newState.partyId = action.value.partyId;
+        if(action.value.partyId) {
+          newState.setNoHasParty = true;
+        } else {
+          newState.setNoHasParty = false;
+        }
       }
   }
   return newState;
@@ -350,6 +355,7 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
     beams: [defaultBeam],
     /* No need to pass to BE */
     startBeamNo: 1,
+    setNoHasParty: false,
   };
   const [warpingValue, warpingDispatch] = useReducer(warpingReducer, defaults);
   const [partiesOpts, setPartiesOpts] = useState([]);
@@ -439,6 +445,7 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
                     isEdit: isEdit,
                   });
                 }}
+                autoFocus
               />
             </Grid>
             <Grid item md={4} xs={12}>
@@ -447,18 +454,16 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
                 onChange={(value)=>{
                   updatewarpingValues(value.value, 'partyId')
                 }}
-                options={partiesOpts} />
+                options={partiesOpts}
+                readonly={warpingValue.setNoHasParty} />
             </Grid>
             <Grid item md={4} xs={12}>
-              <FormField label="Weaver/Party">
-                <Select
-                  value={weaverOpts.filter((party)=>party.value===warpingValue.weaverId)}
-                  onChange={(value)=>{
-                    updatewarpingValues(value.value, 'weaverId')
-                  }}
-                  options={weaverOpts}
-                />
-              </FormField>
+              <InputSelectSearch label="Weaver/Party"
+                value={weaverOpts.filter((party)=>party.value===warpingValue.weaverId)}
+                onChange={(value)=>{
+                  updatewarpingValues(value.value, 'weaverId')
+                }}
+                options={weaverOpts} />
             </Grid>
           </Grid>
           <Box p={1}></Box>

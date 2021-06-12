@@ -125,15 +125,18 @@ const customReactSelectStyles = (theme, readonly)=>({
   }),
 });
 
-export function InputSelectSearch({ label, errorMsg, ...props }) {
+export function InputSelectSearch({ label, errorMsg, readonly, ...props }) {
   const theme = useTheme();
   return (
     <FormField label={label}>
       <ReactSelect
         menuPortalTarget={document.body}
         {...props}
+        isSearchable={!readonly}
+        isClearable={!readonly}
+        openMenuOnClick={!readonly}
         error={Boolean(errorMsg)}
-        styles={customReactSelectStyles(theme, props.readonly)}
+        styles={customReactSelectStyles(theme, readonly)}
       />
       {errorMsg}
     </FormField>

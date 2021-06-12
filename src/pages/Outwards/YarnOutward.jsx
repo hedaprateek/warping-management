@@ -336,29 +336,24 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
                 type="number"
                 value={outwardValue.setNo}
                 onChange={updateoutwardValues}
+                autoFocus
               />
             </Grid>
             <Grid item md={4} xs={12}>
-              <FormField label="Party">
-                <Select
-                  value={partiesOpts.filter((party)=>party.value===outwardValue.partyId)}
-                  onChange={(value)=>{
-                    updateoutwardValues(value.value, 'partyId')
-                  }}
-                  options={partiesOpts}
-                />
-              </FormField>
+              <InputSelectSearch label="Party"
+                value={partiesOpts.filter((party)=>party.value===outwardValue.partyId)}
+                onChange={(value)=>{
+                  updateoutwardValues(value.value, 'partyId')
+                }}
+                options={partiesOpts} />
             </Grid>
             <Grid item md={4} xs={12}>
-              <FormField label="Weaver/Party">
-                <Select
-                  value={weaverOpts.filter((party)=>party.value===outwardValue.weaverId)}
-                  onChange={(value)=>{
-                    updateoutwardValues(value.value, 'weaverId')
-                  }}
-                  options={weaverOpts}
-                />
-              </FormField>
+              <InputSelectSearch label="Weaver/Party"
+                value={weaverOpts.filter((party)=>party.value===outwardValue.weaverId)}
+                onChange={(value)=>{
+                  updateoutwardValues(value.value, 'weaverId')
+                }}
+                options={weaverOpts} />
             </Grid>
           </Grid>
           <Box p={1}></Box>

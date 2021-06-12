@@ -88,6 +88,7 @@ function InwardDialog({ open, ...props }) {
           .map((party) => ({ label: party.name, value: party.id }))}
         label="Party"
         errorMsg={validator.message('Party', inwardValue.partyId, 'required')}
+        autoFocus
       />
       <br />
       <InputSelectSearch
@@ -385,7 +386,7 @@ class Inwards extends React.Component {
               onChange={(e) => this.setState({ filter: e.target.value })}
             />
             <Button
-              variant="contained"
+              variant="outlined"
               color="primary"
               onClick={() => this.showDialog(true)}
               style={{ marginLeft: '0.5rem' }}

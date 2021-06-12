@@ -18,6 +18,9 @@ const globalTheme = createMuiTheme({
     info: {
       main: '#fde74c',
     },
+    background: {
+        default: '#fff',
+    }
   },
   typography: {
     fontSize: 14,
