@@ -81,7 +81,7 @@ function InwardDialog({ open, ...props }) {
       <InputSelectSearch
         value={getSelectValue(props.parties, inwardValue.partyId)}
         onChange={(value) => {
-          updateInwardValues(value.value, 'partyId');
+          updateInwardValues(value?.value, 'partyId');
         }}
         options={props.parties
           .filter((p) => p.isWeaver === 'Party')
