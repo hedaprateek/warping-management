@@ -321,6 +321,7 @@ function parseWarpingValue(warpingValue) {
   let newVal = [];
   warpingValue.beams.forEach((beam)=>{
     newVal.push({
+      setNo: warpingValue.setNo,
       partyId: warpingValue.partyId,
       weaverId: warpingValue.weaverId,
       ...beam,

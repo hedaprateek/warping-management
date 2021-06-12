@@ -233,6 +233,7 @@ function parseOutwardValue(outwardValue) {
   let newVal = [];
   outwardValue.outwards.forEach((bag)=>{
     newVal.push({
+      setNo: outwardValue.setNo,
       partyId: outwardValue.partyId,
       weaverId: outwardValue.weaverId,
       ...bag,

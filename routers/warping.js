@@ -65,6 +65,7 @@ router.delete('/:id', function(req, res) {
 
 router.post('/', function(req, res) {
   let reqJson = req.body;
+  let retVal = {};
   db.WarpingProgram.create({
     design: reqJson.design,
     lassa: reqJson.lassa,
@@ -79,6 +80,7 @@ router.post('/', function(req, res) {
     actualUsedYarn: reqJson.actualUsedYarn,
     setNo: reqJson.setNo,
   }).then((result)=>{
+    retVal = result.toJSON();
     db.WarpingQualities.bulkCreate(reqJson.qualities.map((quality)=>({
       warpId: result.id,
       qualityId: quality.qualityId,
@@ -86,8 +88,8 @@ router.post('/', function(req, res) {
       count: quality.count,
       usedYarn: quality.usedYarn,
     }))).then(()=>{
-      result.qualities = reqJson.qualities;
-      res.status(200).json(result);
+      retVal.qualities = reqJson.qualities;
+      res.status(200).json(retVal);
     }).catch((error)=>{
       res.status(500).json({message: error});
     });
