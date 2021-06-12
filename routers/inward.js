@@ -39,6 +39,8 @@ router.post('/', function(req, res) {
     qtyCones: reqJson.qtyCones,
     lotNo: reqJson.lotNo,
     netWt: reqJson.netWt,
+    qualityComp: reqJson.qualityComp,
+    notes: reqJson.notes,
   }).then((result)=>{
     res.status(200).json(result);
   }).catch((error)=>{
@@ -57,6 +59,8 @@ router.put('/:id', function(req, res) {
     qtyCones: reqJson.qtyCones,
     lotNo: reqJson.lotNo,
     netWt: reqJson.netWt,
+    qualityComp: reqJson.qualityComp,
+    notes: reqJson.notes,
   },{
     where: {
       id: req.params.id,

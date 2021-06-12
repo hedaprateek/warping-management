@@ -8,7 +8,9 @@ module.exports = (sequelize, DataTypes) => {
     qtyBags: DataTypes.INTEGER,
     qtyCones: DataTypes.INTEGER,
     lotNo: DataTypes.STRING,
-    netWt: DataTypes.REAL
+    netWt: DataTypes.REAL,
+    qualityComp: DataTypes.STRING,
+    notes: DataTypes.STRING,
   }, {});
   Inward.associate = function(models) {
     Inward.hasOne(models.Parties, {

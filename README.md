@@ -96,3 +96,4 @@ npx sequelize-cli model:generate --name OutwardBags --attributes outwardId:integ
 
 npx sequelize-cli migration:create --name add-new-columns
 npx sequelize-cli migration:create --name add-new-columns2
+npx sequelize-cli migration:create --name add-new-columns-inward

@@ -78,38 +78,52 @@ function InwardDialog({ open, ...props }) {
         props.onSave(inwardValue, validator, isEdit);
       }}
     >
-      <InputSelectSearch
-        value={getSelectValue(props.parties, inwardValue.partyId)}
-        onChange={(value) => {
-          updateInwardValues(value?.value, 'partyId');
-        }}
-        options={props.parties
-          .filter((p) => p.isWeaver === 'Party')
-          .map((party) => ({ label: party.name, value: party.id }))}
-        label="Party"
-        errorMsg={validator.message('Party', inwardValue.partyId, 'required')}
-        autoFocus
-      />
-      <br />
-      <InputSelectSearch
-        value={getSelectValue(props.qualities, inwardValue.qualityId)}
-        onChange={(value) => {
-          updateInwardValues(value.value, 'qualityId');
-        }}
-        options={props.qualities.map((quality) => ({
-          label: quality.name,
-          value: quality.id,
-        }))}
-        label="Quality"
-        errorMsg={validator.message(
-          'Quality',
-          inwardValue.qualityId,
-          'required'
-        )}
-      />
-
-      <br />
-
+      <Grid container spacing={2}>
+        <Grid item lg={12} md={12} sm={12} xs={12}>
+          <InputSelectSearch
+            value={getSelectValue(props.parties, inwardValue.partyId)}
+            onChange={(value) => {
+              updateInwardValues(value?.value, 'partyId');
+            }}
+            options={props.parties
+              .filter((p) => p.isWeaver === 'Party')
+              .map((party) => ({ label: party.name, value: party.id }))}
+            label="Party"
+            errorMsg={validator.message('Party', inwardValue.partyId, 'required')}
+            autoFocus
+          />
+        </Grid>
+      </Grid>
+      <Grid container spacing={2}>
+        <Grid item lg={6} md={6} sm={12} xs={12}>
+          <InputSelectSearch
+            value={getSelectValue(props.qualities, inwardValue.qualityId)}
+            onChange={(value) => {
+              updateInwardValues(value.value, 'qualityId');
+            }}
+            options={props.qualities.map((quality) => ({
+              label: quality.name,
+              value: quality.id,
+            }))}
+            label="Quality"
+            errorMsg={validator.message(
+              'Quality',
+              inwardValue.qualityId,
+              'required'
+            )}
+          />
+        </Grid>
+        <Grid item lg={6} md={6} sm={12} xs={12}>
+          <InputText
+            label="Quality Company"
+            variant="outlined"
+            fullWidth
+            id="qualityComp"
+            value={inwardValue.qualityComp}
+            onChange={updateInwardValues}
+          />
+        </Grid>
+      </Grid>
       <Grid container spacing={2}>
         <Grid item lg={4} md={4} sm={12} xs={12}>
           <InputDate
@@ -172,7 +186,6 @@ function InwardDialog({ open, ...props }) {
             )}
           />
         </Grid>
-
         <Grid item lg={4} md={4} sm={12} xs={12}>
           <InputText
             type="number"
@@ -187,6 +200,18 @@ function InwardDialog({ open, ...props }) {
               inwardValue.netWt,
               'required|numeric'
             )}
+          />
+        </Grid>
+      </Grid>
+      <Grid container spacing={2}>
+        <Grid item lg={12} md={12} sm={12} xs={12}>
+          <InputText
+            label="Notes"
+            variant="outlined"
+            fullWidth
+            id="notes"
+            value={inwardValue.notes}
+            onChange={updateInwardValues}
           />
         </Grid>
       </Grid>
@@ -294,6 +319,10 @@ class Inwards extends React.Component {
           }
           return qualityName[0] ? qualityName[0].name : '-';
         },
+      },
+      {
+        Header: 'Quality Company',
+        accessor: 'qualityComp',
       },
       {
         Header: 'No of Bags',
