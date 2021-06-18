@@ -8,16 +8,6 @@ import { parse, round } from '../utils';
 import { _ } from 'globalthis/implementation';
 import Moment from 'moment';
 
-
-const useStyles = makeStyles((theme)=>({
-  reportContainer: {
-    height: '100%',
-    overflow: 'auto',
-    flexGrow: 1,
-    minHeight: 0,
-  }
-}));
-
 const REPORT_NAME = 'OUTWARD REPORT';
 
 export default function OutwardReport() {
@@ -285,14 +275,17 @@ function FinalReport({data, getWeaver, getQuality}) {
       beamDetailsSummary.overall.totalCuts += beam.cuts;
       beam.qualities.forEach((q)=>{
         beamDetailsSummary.qualities[q.qualityId] = beamDetailsSummary.qualities[q.qualityId] || 0;
-        beamDetailsSummary.qualities[q.qualityId] += q.usedYarn;
-        beamDetailsSummary.overall.netWeight += q.usedYarn;
+        beamDetailsSummary.qualities[q.qualityId] += parse(q.usedYarn);
+        beamDetailsSummary.overall.netWeight += parse(q.usedYarn);
       });
     });
   });
-  beamDetailsSummary.overall.totalMeter = parse(beamDetailsSummary.overall.totalMeter);
-  beamDetailsSummary.overall.totalCuts = parse(beamDetailsSummary.overall.totalCuts);
-  beamDetailsSummary.overall.netWeight = parse(beamDetailsSummary.overall.netWeight);
+  Object.keys(beamDetailsSummary.qualities).map((qualityId)=>{
+    beamDetailsSummary.qualities[qualityId] = round(beamDetailsSummary.qualities[qualityId]);
+  });
+  beamDetailsSummary.overall.totalMeter = round(beamDetailsSummary.overall.totalMeter);
+  beamDetailsSummary.overall.totalCuts = round(beamDetailsSummary.overall.totalCuts);
+  beamDetailsSummary.overall.netWeight = round(beamDetailsSummary.overall.netWeight);
 
   /* Calculate the yarn outward summary */
   let yarnOutwardSummary = {
@@ -304,6 +297,9 @@ function FinalReport({data, getWeaver, getQuality}) {
       yarnOutwardSummary.qualities[outward.qualityId] = yarnOutwardSummary.qualities[outward.qualityId] || 0;
       yarnOutwardSummary.qualities[outward.qualityId] += outward.netWt;
     });
+  });
+  Object.keys(yarnOutwardSummary.qualities).map((qualityId)=>{
+    yarnOutwardSummary.qualities[qualityId] = round(yarnOutwardSummary.qualities[qualityId]);
   });
 
   return (
@@ -371,7 +367,7 @@ function FinalReport({data, getWeaver, getQuality}) {
         <ReportTable data={
             Object.keys(yarnOutwardSummary.qualities).map(
               (qualityId)=>({
-                qualityId: qualityId, netWt: yarnOutwardSummary.qualities[qualityId]
+                qualityId: qualityId, netWt: round(yarnOutwardSummary.qualities[qualityId])
               })
             )
           } columns={[
@@ -392,7 +388,7 @@ function FinalReport({data, getWeaver, getQuality}) {
           Object.keys(inwardOpeningBalance).map(
             (qualityId)=>({
               qualityId: qualityId,
-              openBalance: inwardOpeningBalance[qualityId],
+              openBalance: round(inwardOpeningBalance[qualityId]),
             })
           )
         } columns={[
@@ -419,8 +415,8 @@ function FinalReport({data, getWeaver, getQuality}) {
           {
             Header: 'Balance',
             accessor: (row)=>{
-              return row.openBalance - (beamDetailsSummary.qualities[row.qualityId] || 0)
-                - (yarnOutwardSummary.qualities[row.qualityId] || 0);
+              return round(row.openBalance - (beamDetailsSummary.qualities[row.qualityId] || 0)
+                - (yarnOutwardSummary.qualities[row.qualityId] || 0));
             }
           },
       ]}/>
