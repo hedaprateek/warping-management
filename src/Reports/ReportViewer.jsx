@@ -2,7 +2,7 @@ import { Box, Button, Divider, Grid, makeStyles, Typography } from '@material-ui
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 import ReactToPrint from 'react-to-print';
-import { ReportField } from './CommonReportComponents';
+import { ReportField } from './ReportComponents';
 import Moment from 'moment';
 
 const useStyles = makeStyles((theme)=>({

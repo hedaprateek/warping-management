@@ -1,6 +1,6 @@
 import { Box, Button, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect, Typography } from '@material-ui/core';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ReportTable } from './CommonReportComponents';
+import { ReportTable } from './ReportComponents';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import Select from 'react-select';
@@ -135,8 +135,8 @@ export default function InwardReport(props) {
 
   return (
     <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Box p={1}>
-        <Grid container spacing={2}>
+      <Box p={1} paddingTop={0.5}>
+        <Grid container spacing={1}>
           <Grid item md={4} xs={12}>
             <InputSelectSearch
               value={partiesOpts.filter(
@@ -169,8 +169,8 @@ export default function InwardReport(props) {
           </Grid>
         </Grid>
       </Box>
-      <Box p={1}>
-        <Grid container spacing={2}>
+      <Box p={1} paddingTop={0.5}>
+        <Grid container spacing={1}>
           <Grid item md={4} xs={12}>
             <FormField label="Date Type">
               <MUISelect
@@ -206,17 +206,17 @@ export default function InwardReport(props) {
               }}
             />
           </Grid>
-          <Grid item md={4} xs={12} style={{ display: 'flex' }}>
-            <Button
-              color="primary"
-              variant="contained"
-              style={{ marginTop: 'auto' }}
-              onClick={onReportClick}
-            >
-              Get report
-            </Button>
-          </Grid>
         </Grid>
+      </Box>
+      <Box p={1} paddingTop={0.5}>
+        <Button
+          color="primary"
+          variant="contained"
+          style={{ marginTop: 'auto' }}
+          onClick={onReportClick}
+        >
+          Get report
+        </Button>
       </Box>
       <ReportViewer reportName={REPORT_NAME}>
         <FinalReport data={data} />

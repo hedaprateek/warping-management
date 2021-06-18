@@ -1,6 +1,6 @@
-import { Box, Button, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect, Typography } from '@material-ui/core';
+import { Box, Button, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect, Typography, Table } from '@material-ui/core';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { DashedDivider, NoData, ReportField, ReportTable } from './CommonReportComponents';
+import { DashedDivider, NoData, ReportField, ReportTable, ReportTableSection, ReportTableData, ReportTableRow } from './ReportComponents';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import {FormField, InputDate, InputSelectSearch, InputText} from '../components/FormElements';
@@ -107,8 +107,8 @@ export default function OutwardReport() {
 
   return (
     <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Box p={1}>
-        <Grid container spacing={2}>
+      <Box p={1} paddingBottom={0.5}>
+        <Grid container spacing={1}>
           <Grid item md={4} xs={12}>
               <InputSelectSearch
                 value={partiesOpts.filter(
@@ -124,8 +124,8 @@ export default function OutwardReport() {
           </Grid>
         </Grid>
       </Box>
-      <Box p={1}>
-        <Grid container spacing={2}>
+      <Box p={1} paddingTop={0.5}>
+        <Grid container spacing={1}>
           <Grid item md={4} xs={12}>
             <FormField label="Date type">
               <MUISelect
@@ -161,17 +161,17 @@ export default function OutwardReport() {
               }}
             />
           </Grid>
-          <Grid item md={4} xs={12} style={{ display: 'flex' }}>
-            <Button
-              color="primary"
-              variant="contained"
-              style={{ marginTop: 'auto' }}
-              onClick={onReportClick}
-            >
-              Get report
-            </Button>
-          </Grid>
         </Grid>
+      </Box>
+      <Box p={1} paddingTop={0.5}>
+        <Button
+          color="primary"
+          variant="contained"
+          style={{ marginTop: 'auto' }}
+          onClick={onReportClick}
+        >
+          Get report
+        </Button>
       </Box>
       <ReportViewer reportName={REPORT_NAME} getReportDetails={()=>(<>
           <ReportField name="Party" value={(_.find(partiesOpts,(o)=>o.value==filter.party_id)||{label: ''}).label} />
@@ -187,35 +187,48 @@ export default function OutwardReport() {
 function BeamDetails({beam, beamNo, getQuality}) {
   return (
     <>
-    <Box display="flex">
-      <ReportField name="Beam No" value={beamNo} />
-      <ReportField name="Lassa" value={beam.lassa} margin/>
-      <ReportField name="Cuts" value={beam.cuts} margin/>
-      <ReportField name="Total meters" value={beam.totalMeter} margin/>
-    </Box>
-    <ReportTable showFooter data={beam.qualities} columns={[
-      {
-        Header: 'Quality',
-        accessor: (row)=>getQuality(row.qualityId),
-        width: '50%'
-      },
-      {
-        Header: 'Ends',
-        accessor: 'ends',
-      },
-      {
-        Header: 'Net Wt.',
-        accessor: 'usedYarn',
-        Footer: (info)=>{
-          let total = info.rows.reduce((sum, row) => {
-              return (parse(row.values[info.column.id]) || 0) + sum
-            }, 0
-          );
-          total = round(total);
-          return <span style={{fontWeight: 'bold'}}>{total}</span>
-        }
-      },
-    ]}/>
+    <ReportTable>
+      <ReportTableSection>
+        <ReportTableRow>
+          <ReportTableData width='30%' style={{verticalAlign: 'top'}}>
+            <Box>
+              <ReportField name="Beam No" value={beamNo} margin/>
+            </Box>
+            <Box display="flex"  flexWrap="wrap">
+              <ReportField name="Lassa" value={beam.lassa} margin/>
+              <ReportField name="Cuts" value={beam.cuts} margin/>
+              <ReportField name="Total meters" value={beam.totalMeter}/>
+            </Box>
+          </ReportTableData>
+          <ReportTableData style={{padding: 0}} last>
+            <ReportTable style={{border: 'none'}} showFooter data={beam.qualities} columns={[
+              {
+                Header: 'Quality',
+                accessor: (row)=>getQuality(row.qualityId),
+                width: '50%'
+              },
+              {
+                Header: 'Ends',
+                accessor: 'ends',
+              },
+              {
+                Header: 'Net Wt.',
+                accessor: 'usedYarn',
+                Footer: (info)=>{
+                  let total = info.rows.reduce((sum, row) => {
+                      return (parse(row.values[info.column.id]) || 0) + sum
+                    }, 0
+                  );
+                  total = round(total);
+                  return <span style={{fontWeight: 'bold'}}>{total}</span>
+                }
+              },
+            ]}/>
+          </ReportTableData>
+        </ReportTableRow>
+      </ReportTableSection>
+    </ReportTable>
+
     </>
   );
 }
