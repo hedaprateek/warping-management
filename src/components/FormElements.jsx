@@ -30,12 +30,22 @@ export function FormField({ label, isRequired, children }) {
   );
 }
 
-export function InputText({ label, errorMsg, isRequired, ...props }) {
+export function InputText({ label, errorMsg, isRequired, type, inputProps, onChange, ...props }) {
   let extraProps = {};
-  if(props.type == 'number') {
+  let finalInpProps = {...inputProps};
+
+  if(type == 'number') {
+    /* Convert to tel and add pattern */
     extraProps = {
-      onWheel: (e) => e.target.blur(),
-    }
+      type: 'tel',
+      onChange: (e)=>{
+        let val = e.target.value;
+        if(e.target.validity.valid || val === '' || val === '-') {
+          onChange(e);
+        };
+      }
+    };
+    finalInpProps.pattern = '^-?[0-9]\\d*\\.?\\d*$';
   }
   return (
     <FormField label={label} isRequired={isRequired}>
@@ -44,8 +54,10 @@ export function InputText({ label, errorMsg, isRequired, ...props }) {
         {...props}
         fullWidth
         error={Boolean(errorMsg)}
+        onChange={onChange}
         /* Needed for type number */
         {...extraProps}
+        {...finalInpProps}
       />
       {errorMsg}
     </FormField>
