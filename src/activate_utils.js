@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 const Buffer = require('buffer').Buffer;
-const iv = 'warping'.padEnd(16, 'c');
+const iv = 'yantra'.padEnd(16, 'a');
 
 function finalizeKey(key) {
     return  key.substr(0, 32).padEnd(32, 'X');
@@ -24,6 +24,10 @@ module.exports = {
         decrypted = Buffer.concat([decrypted, decipher.final()]);
 
         return decrypted.toString();
+    },
+    epochDiffDays: function(epoch1, epoch2) {
+        let diff = epoch1 - epoch2;
+        return Math.round(diff/84600);
     },
     getEpoch: function(inp_date, reset_at=0) {
         let date_obj = inp_date ? inp_date : new Date();

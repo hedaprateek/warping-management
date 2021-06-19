@@ -97,3 +97,5 @@ npx sequelize-cli model:generate --name OutwardBags --attributes outwardId:integ
 npx sequelize-cli migration:create --name add-new-columns
 npx sequelize-cli migration:create --name add-new-columns2
 npx sequelize-cli migration:create --name add-new-columns-inward
+
+npx sequelize-cli model:generate --name Misc --attributes last_opened_enc:string,install_date_enc:string,system_id:string,expiry_date_enc:string,activation_date_enc:string

@@ -1,6 +1,6 @@
 'use strict';
 
-const {encrypt} = require('../../utils');
+const {encrypt} = require('../../src/activate_utils');
 
 module.exports = {
   up: (queryInterface, Sequelize) => {

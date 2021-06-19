@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 const ROUND_DECIMAL = 3;
 
 export function parse(num) {
@@ -114,4 +116,22 @@ export function convertAmountToWords(amount) {
       major_string += ' and  paise ' + dec_string;
   }
   return (major_string + ' only').toUpperCase();
+}
+
+export function getAxiosErr(err) {
+  let message = '';
+  if (err.response) {
+    // client received an error response (5xx, 4xx)
+    if(_.isString(err.response.data.message)) {
+      message = err.response.data.message;
+    } else {
+      message = err.response.statusText + '. Contact administrator.';
+    }
+  } else if (err.request) {
+    // client never received a response, or request never left
+    message = 'Not able to send the request. Contact administrator.';
+  } else {
+    message = 'Some error occurred. Contact administrator.';
+  }
+  return message;
 }

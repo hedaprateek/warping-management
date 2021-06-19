@@ -17,7 +17,10 @@ import Billing from './pages/Billing';
 
 import Reports from './Reports';
 import Masters from './pages/Masters';
-
+import License from './pages/License';
+import { useEffect } from 'react';
+import axios from 'axios';
+import { epochDiffDays, getEpoch } from './activate_utils';
 
 
 const navItems = [
@@ -27,6 +30,7 @@ const navItems = [
   { label: 'Reports', to: '/reports', component: Reports },
   { label: 'Billing', to: '/billing', component: Billing },
   { label: 'Masters', to: '/masters', component: Masters },
+  { label: 'License', to: '/license', component: License },
 ];
 
 const settings = { label: 'Settings', to: '/settings', component: Settings };
@@ -43,7 +47,45 @@ function NavButton({to, children}) {
   )
 }
 
+const TRIAL_DAYS = 90;
+
 export default function App() {
+  const [activation, setActivation] = React.useState({
+    is_trial: true,
+    usage_days_left: 0,
+    system_id: null,
+  });
+
+  useEffect(()=>{
+    axios.post('/api/misc/init')
+      .then((res)=>{
+          let data = res.data;
+          console.log(data);
+          setActivation((prev)=>{
+            let usage_days_left = (TRIAL_DAYS - epochDiffDays(getEpoch(), data.install_date));
+            usage_days_left = usage_days_left < 0 ? 0 : usage_days_left;
+            return {
+              ...prev,
+              system_id: data.system_id,
+              is_trial: !Boolean(data.activation_date),
+              usage_days_left: usage_days_left,
+            }
+          });
+      })
+      .catch((err)=>{
+        console.log(err);
+      });
+  }, []);
+
+  const onActivate = (activation_date, activation_key)=>{
+    setActivation((prev)=>{
+      return {
+        ...prev,
+        is_trial: !Boolean(activation_date),
+      }
+    });
+  }
+
   return (
     <Theme>
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -68,7 +110,10 @@ export default function App() {
               <Switch>
                 {navItems.map((item) => {
                   return (
-                    <Route exact path={item.to} component={item.component} />
+                    <Route exact path={item.to} component={
+                      (props)=><item.component {...props} activation={activation} onActivate={onActivate}
+                        licexpired={activation.is_trial && activation.usage_days_left <= 0}
+                      />} />
                   );
                 })}
                 <Route

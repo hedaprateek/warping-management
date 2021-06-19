@@ -29,6 +29,7 @@ module.exports = (port) => {
   app.use('/api/outward', require('./routers/outward'));
   app.use('/api/reports', require('./routers/reports'));
   app.use('/api/settings', require('./routers/settings'));
+  app.use('/api/misc', require('./routers/misc'));
 
   app.listen(port || 7227, console.log(`App listening at http://localhost:${port}`));
 };
