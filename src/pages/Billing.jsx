@@ -92,18 +92,6 @@ export default function Billing() {
     function updateBillingValues(e, index) {
     if (e?.target) {
 
-//  let rowOfConcern = billRows[index];
-//  if (e.target.id === 'weaverDesc') {
-//    rowOfConcern.weaverDesc = e.target.value;
-//  } else {
-//    // rowOfConcern.rate = e.target.value;
-//    rowOfConcern.amount = e.target.value * rowOfConcern.netWeight;
-//  }
-
-// setBillRows((a)=> {
-// return [...a, rowOfConcern];
-// })
-
       setBillRows((prevValue) => {
         let updatedValue = [...prevValue];
         let rowOfConcern = updatedValue[index];
@@ -194,18 +182,7 @@ export default function Billing() {
               Header: 'Amount',
               accessor: 'amount',
             },
-            // {
-            //   Header: 'Net Wt.',
-            //   accessor: 'usedYarn',
-            //   Footer: (info) => {
-            //     let total = info.rows.reduce((sum, row) => {
-            //       return (parse(row.values[info.column.id]) || 0) + sum;
-            //     }, 0);
-            //     total = round(total);
-            //     return <span style={{ fontWeight: 'bold' }}>{total}</span>;
-            //   },
-            // },
-          
+            
     ],[]);
 
 
@@ -275,44 +252,62 @@ export default function Billing() {
           </>
         )}
       >
-        <FinalReport data={data} getParty={getParty} getQuality={getQuality} />
+        <FinalReport data={data} getParty={getParty} getQuality={getQuality} billRows={billRows} />
       </ReportViewer>
     </Box>
   );
 }
 
-function BeamDetails({ beam, beamNo, getQuality }) {
+function BillPrintDetails({ billRows }) {
   return (
     <>
-      <Box display="flex">
-        <ReportField name="Beam No" value={beamNo} />
-        <ReportField name="Lassa" value={beam.lassa} margin />
-        <ReportField name="Cuts" value={beam.cuts} margin />
-        <ReportField name="Total meters" value={beam.totalMeter} margin />
-      </Box>
       <ReportTable
         showFooter
-        data={beam.qualities}
+        data={billRows}
         columns={[
           {
-            Header: 'Quality',
-            accessor: (row) => getQuality(row.qualityId),
-            width: '50%',
+            Header: 'Weaver Name',
+            accessor: 'weaverName',
+            // Cell: ({ row, value }) => {
+            //   return (
+            //     <InputText
+            //       label={value}
+            //       variant="outlined"
+            //       fullWidth
+            //       id="weaverDesc"
+            //       value={row.values.weaverDesc}
+            //       onChange={(e) => updateBillingValues(e, row.index)}
+            //     />
+            //   );
+            // },
           },
           {
-            Header: 'Ends',
-            accessor: 'ends',
+            Header: 'Weaver Name',
+            accessor: 'weaverDesc',
           },
           {
-            Header: 'Net Wt.',
-            accessor: 'usedYarn',
-            Footer: (info) => {
-              let total = info.rows.reduce((sum, row) => {
-                return (parse(row.values[info.column.id]) || 0) + sum;
-              }, 0);
-              total = round(total);
-              return <span style={{ fontWeight: 'bold' }}>{total}</span>;
-            },
+            Header: 'Weight',
+            accessor: 'netWeight',
+          },
+          {
+            Header: 'Rate',
+            accessor: 'rate',
+            // Cell: ({ row, value }) => {
+            //   return (
+            //     <InputText
+            //       label={value}
+            //       variant="outlined"
+            //       fullWidth
+            //       id="rate"
+            //       value={row.values.rate}
+            //       onChange={(e) => updateBillingValues(e, row.index)}
+            //     />
+            //   );
+            // },
+          },
+          {
+            Header: 'Amount',
+            accessor: 'amount',
           },
         ]}
       />
@@ -320,7 +315,7 @@ function BeamDetails({ beam, beamNo, getQuality }) {
   );
 }
 
-function FinalReport({ data, getParty, getQuality }) {
+function FinalReport({ data, getParty, getQuality, billRows }) {
   let programData = data['programData'] || {};
   let outwardData = data['outwardData'] || {};
   let inwardOpeningBalance = data['inwardOpeningBalance'] || {};
@@ -386,29 +381,16 @@ function FinalReport({ data, getParty, getQuality }) {
           textDecoration: 'underline',
         }}
       >
-        Beam details
+        BILL
       </Typography>
       {Object.keys(programData).length === 0 && <NoData />}
       {Object.keys(programData).length > 0 && (
-        <>
-          {Object.keys(programData).map((weaverId, wi) => {
-            let weaver = programData[weaverId];
-            return (
-              <>
-                <ReportField name="Weaver" value={getParty(weaverId)} />
-                {weaver.map((beam, i) => {
-                  return (
-                    <BeamDetails
-                      beam={beam}
-                      beamNo={i + 1}
-                      getQuality={getQuality}
-                    />
-                  );
-                })}
+        
+         <>     
+                <BillPrintDetails billRows={billRows} />
+                
                 <DashedDivider />
-              </>
-            );
-          })}
+            
           <Box marginTop="0.5rem">
             <Grid container spacing={2}>
               <Grid item xs>
