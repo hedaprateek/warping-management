@@ -26,7 +26,7 @@ import {
   NoData,
   ReportField,
   ReportTable,
-} from '../Reports/CommonReportComponents';
+} from '../Reports/ReportComponents';
 import ReportViewer from '../Reports/ReportViewer';
 
 const useStyles = makeStyles((theme) => ({
