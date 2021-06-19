@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme)=>({
   pages: {
     width: '210mm',
     backgroundColor: '#fff',
-    padding: '5mm',
+    // padding: '5mm',
     color: '#000',
   },
   toolButton: {
@@ -59,7 +59,7 @@ export default function ReportViewer({reportName, getReportDetails, children}) {
   const pageStyle = `
     @page {
       size: A4;
-      margin: 10mm;
+      margin: 5mm 5mm 17mm 5mm;
     }
   `;
 

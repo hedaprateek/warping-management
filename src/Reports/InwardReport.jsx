@@ -1,16 +1,16 @@
 import { Box, Button, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect, Typography } from '@material-ui/core';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ReportTable } from './ReportComponents';
+import { DashedDivider, NoData, ReportField, ReportTable, ReportTableSection, ReportTableData, ReportTableRow } from './ReportComponents';
 import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import Select from 'react-select';
 import {FormField, InputDate, InputSelectSearch} from '../components/FormElements';
 import { parse, round } from '../utils';
+import Moment from 'moment';
 
 
 const useStyles = makeStyles((theme)=>({
   reportContainer: {
-    // backgroundColor: theme.palette.grey[100],
     height: '100%',
     overflow: 'auto',
     flexGrow: 1,
@@ -218,7 +218,10 @@ export default function InwardReport(props) {
           Get report
         </Button>
       </Box>
-      <ReportViewer reportName={REPORT_NAME}>
+      <ReportViewer reportName={REPORT_NAME} getReportDetails={()=>(<>
+          <ReportField name="Date" value={Moment(filter.from_date).format('DD-MM-YYYY') + " to " + Moment(filter.to_date).format('DD-MM-YYYY')} />
+        </>)
+      }>
         <FinalReport data={data} />
       </ReportViewer>
     </Box>
@@ -232,49 +235,58 @@ function FinalReport({data}) {
         let party = data[partyName];
         return (
           <>
-          <Box borderTop={1} margin={1}></Box>
           <Typography>Party: {partyName}</Typography>
           {Object.keys(party).map((qualityName)=>{
             let quality = party[qualityName];
             return (
               <>
-              <Typography>Quality: {qualityName}</Typography>
-              <ReportTable showFooter data={quality} columns={[
-                {
-                  Header: 'Date',
-                  accessor: 'date',
-                },
-                {
-                  Header: 'Gatepass No.',
-                  accessor: 'gatepass',
-                },
-                {
-                  Header: 'Lot number',
-                  accessor: 'lotNo',
-                  Footer: (info)=>{
-                    return <span style={{fontWeight: 'bold'}}>Total</span>
-                  }
-                },
-                {
-                  Header: 'Net Wt.',
-                  accessor: 'netWt',
-                  Footer: (info)=>{
-                    let total = info.rows.reduce((sum, row) => {
-                        return (parse(row.values[info.column.id]) || 0) + sum
-                      }, 0
-                    );
-                    total = round(total);
-                    return <span style={{fontWeight: 'bold'}}>{total}</span>
-                  }
-                },
-              ]}/>
+              <ReportTable>
+                <ReportTableSection>
+                  <ReportTableRow>
+                    <ReportTableData width='20%' style={{verticalAlign: 'top'}} lastRow>
+                      <ReportField name="Quality" value={qualityName} />
+                    </ReportTableData>
+                    <ReportTableData style={{padding: 0}} last lastRow>
+                      <ReportTable style={{border: 'none'}} showFooter data={quality} columns={[
+                        {
+                          Header: 'Date',
+                          accessor: 'date',
+                        },
+                        {
+                          Header: 'Gatepass No.',
+                          accessor: 'gatepass',
+                        },
+                        {
+                          Header: 'Lot number',
+                          accessor: 'lotNo',
+                          Footer: (info)=>{
+                            return <span style={{fontWeight: 'bold'}}>Total</span>
+                          }
+                        },
+                        {
+                          Header: 'Net Wt.',
+                          accessor: 'netWt',
+                          Footer: (info)=>{
+                            let total = info.rows.reduce((sum, row) => {
+                                return (parse(row.values[info.column.id]) || 0) + sum
+                              }, 0
+                            );
+                            total = round(total);
+                            return <span style={{fontWeight: 'bold'}}>{total}</span>
+                          }
+                        },
+                      ]}/>
+                    </ReportTableData>
+                  </ReportTableRow>
+                </ReportTableSection>
+              </ReportTable>
               </>
             )
           })}
+          <DashedDivider />
           </>
         )
       })}
-      <ReportTable columns={[]}/>
     </>
   )
 }

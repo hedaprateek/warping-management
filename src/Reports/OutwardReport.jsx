@@ -5,7 +5,7 @@ import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import {FormField, InputDate, InputSelectSearch, InputText} from '../components/FormElements';
 import { parse, round } from '../utils';
-import { _ } from 'globalthis/implementation';
+import _ from 'lodash';
 import Moment from 'moment';
 
 const REPORT_NAME = 'OUTWARD REPORT';
@@ -218,7 +218,6 @@ function BeamDetails({beam, beamNo, getQuality}) {
         </ReportTableRow>
       </ReportTableSection>
     </ReportTable>
-
     </>
   );
 }

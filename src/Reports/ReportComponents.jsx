@@ -14,7 +14,6 @@ const useStyles = makeStyles((theme)=>({
     padding: '0.25rem',
     borderBottom: '1px solid '+theme.palette.grey[400],
     borderRight: '1px solid '+theme.palette.grey[400],
-    // pageBreakInside: 'avoid',
     pageBreakAfter: 'auto',
     textAlign: 'left',
   },
@@ -22,10 +21,10 @@ const useStyles = makeStyles((theme)=>({
     margin: 0,
     padding: '0.125rem 0.25rem',
     borderRight: '1px solid '+theme.palette.grey[400],
-    // pageBreakInside: 'avoid',
     pageBreakAfter: 'auto',
     wordBreak: 'break-all',
-    verticalAlign: 'top'
+    verticalAlign: 'top',
+    borderBottom: '1px dotted '+theme.palette.grey[400],
   },
   tf: {
     margin: 0,
@@ -64,7 +63,7 @@ export function ReportTableRow(props) {
   );
 }
 
-export function ReportTableData({footer=false, header=false, last=false, ...props}) {
+export function ReportTableData({footer=false, header=false, last=false, lastRow=false, ...props}) {
   const classes = useStyles();
   let finalClasses = null;
   if(footer) {
@@ -76,6 +75,7 @@ export function ReportTableData({footer=false, header=false, last=false, ...prop
   } else {
     finalClasses = [classes.td];
     last && finalClasses.push(classes.noBorderRight);
+    lastRow && finalClasses.push(classes.noBorderBottom);
   }
   if(header) {
     return (
@@ -143,7 +143,7 @@ function ReactTable({ columns, data, showFooter, style }) {
           return (
             <ReportTableRow {...row.getRowProps()} >
               {row.cells.map((cell, j) => {
-                return <ReportTableData {...cell.getCellProps()} last={j===row.cells.length-1}>
+                return <ReportTableData {...cell.getCellProps()} last={j===row.cells.length-1} lastRow={i==rows.length-1}>
                   {cell.render('Cell')}
                 </ReportTableData>
               })}
