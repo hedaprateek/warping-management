@@ -298,7 +298,7 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
 
 
   function updateoutwardValues(e, name) {
-    if(e.target) {
+    if(e && e.target) {
       outwardDispatch({
         type: 'set_value',
         path: [e.target.id || e.target.name],
@@ -344,7 +344,7 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
               <InputSelectSearch label="Party"
                 value={partiesOpts.filter((party)=>party.value===outwardValue.partyId)}
                 onChange={(value)=>{
-                  updateoutwardValues(value.value, 'partyId')
+                  updateoutwardValues(value?.value, 'partyId')
                 }}
                 options={partiesOpts} />
             </Grid>
@@ -352,7 +352,7 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
               <InputSelectSearch label="Weaver/Party"
                 value={weaverOpts.filter((party)=>party.value===outwardValue.weaverId)}
                 onChange={(value)=>{
-                  updateoutwardValues(value.value, 'weaverId')
+                  updateoutwardValues(value?.value, 'weaverId')
                 }}
                 options={weaverOpts} />
             </Grid>

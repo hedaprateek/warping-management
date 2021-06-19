@@ -61,6 +61,12 @@ export default function ReportViewer({reportName, getReportDetails, children}) {
       size: A4;
       margin: 5mm 5mm 17mm 5mm;
     }
+
+    @page {
+      @bottom-right {
+        content: counter(page) " of " counter(pages);
+      }
+    }
   `;
 
   useEffect(()=>{

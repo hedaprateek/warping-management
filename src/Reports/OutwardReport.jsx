@@ -180,7 +180,7 @@ function BeamDetails({beam, beamNo, getQuality}) {
     <ReportTable>
       <ReportTableSection>
         <ReportTableRow>
-          <ReportTableData width='30%' style={{verticalAlign: 'top'}}>
+          <ReportTableData width='30%' style={{verticalAlign: 'top'}} lastRow>
             <Box>
               <ReportField name="Beam No" value={beamNo} margin/>
             </Box>
@@ -190,7 +190,7 @@ function BeamDetails({beam, beamNo, getQuality}) {
               <ReportField name="Total meters" value={beam.totalMeter}/>
             </Box>
           </ReportTableData>
-          <ReportTableData style={{padding: 0}} last>
+          <ReportTableData style={{padding: 0}} last lastRow>
             <ReportTable style={{border: 'none'}} showFooter data={beam.qualities} columns={[
               {
                 Header: 'Quality',

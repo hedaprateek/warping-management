@@ -399,7 +399,7 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
 
 
   function updatewarpingValues(e, name) {
-    if(e.target) {
+    if(e && e.target) {
       warpingDispatch({
         type: 'set_value',
         path: [e.target.id || e.target.name],
@@ -453,7 +453,7 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
               <InputSelectSearch label="Party"
                 value={partiesOpts.filter((party)=>party.value===warpingValue.partyId)}
                 onChange={(value)=>{
-                  updatewarpingValues(value.value, 'partyId')
+                  updatewarpingValues(value?.value, 'partyId')
                 }}
                 options={partiesOpts}
                 readonly={warpingValue.setNoHasParty} />
@@ -462,7 +462,7 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
               <InputSelectSearch label="Weaver/Party"
                 value={weaverOpts.filter((party)=>party.value===warpingValue.weaverId)}
                 onChange={(value)=>{
-                  updatewarpingValues(value.value, 'weaverId')
+                  updatewarpingValues(value?.value, 'weaverId')
                 }}
                 options={weaverOpts} />
             </Grid>
