@@ -1,209 +1,455 @@
 import {
   Box,
   Button,
-  Divider,
   Grid,
+  InputLabel,
   makeStyles,
+  MenuItem,
+  TextField,
+  Select as MUISelect,
   Typography,
+  Input,
 } from '@material-ui/core';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
-import React, { useEffect, useRef, useState } from 'react';
-import ReactToPrint from 'react-to-print';
-import { InputDate, InputText, InputSelectSearch } from '../components/FormElements'
-
-class Billing extends React.Component {
-  componentDidMount() {}
-
-  state = {};
-
-  render() {
-    return (
-      <div>
-        {/* <InvoicePage /> */}
-        <BillViewer></BillViewer>
-      </div>
-    );
-  }
-}
-
-export default Billing;
-
-function BillHeader({ settings }) {
-  return (
-    <Box textAlign="center">
-      <Typography>Tax Invoice</Typography>
-      <Box borderBottom={1} />
-      <Typography style={{ fontWeight: 'bold' }}>
-        {settings.companyName}
-      </Typography>
-      <Typography variant="subtitle2">{settings.companyAddress}</Typography>
-      <Typography style={{ fontWeight: 'bold' }} variant="subtitle2">
-        GSTIN: {settings.companyGst}
-      </Typography>
-      <Typography variant="body2">
-        {settings.companyContact}, {settings.emailId}
-      </Typography>
-      <Box borderBottom={1} />
-    </Box>
-  );
-}
+import {
+  FormField,
+  InputDate,
+  InputSelectSearch,
+  InputText,
+} from '../components/FormElements';
+import { parse, round } from '../utils';
+import { _ } from 'globalthis/implementation';
+import Moment from 'moment';
+import {
+  DashedDivider,
+  NoData,
+  ReportField,
+  ReportTable,
+} from '../Reports/CommonReportComponents';
+import ReportViewer from '../Reports/ReportViewer';
 
 const useStyles = makeStyles((theme) => ({
-  viewerRoot: {
+  reportContainer: {
+    height: '100%',
+    overflow: 'auto',
     flexGrow: 1,
     minHeight: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    border: '1px solid ' + theme.palette.grey[200],
-  },
-  viewerReport: {
-    backgroundColor: theme.palette.grey[300],
-    flexGrow: 1,
-    overflow: 'auto',
-    padding: theme.spacing(1),
-  },
-  pages: {
-    width: '210mm',
-    backgroundColor: '#fff',
-    padding: '5mm',
-    color: '#000',
-  },
-  toolButton: {
-    marginRight: '0.5rem',
   },
 }));
 
-function BillViewer({ children }) {
-  const classes = useStyles();
-  const reportRef = useRef();
-  const [settings, setSettings] = useState({});
-  const [parties, setParties] = useState({});
-  const [partyGst, setPartyGst] = useState('-');
+export default function Billing() {
+  const [filter, setFilter] = useState({
+    set_no: null,
+  });
+  const [data, setData] = useState([]);
 
-  const pageStyle = `
-    @page {
-      size: A4;
-      margin: 0mm;
+  /* Used by report */
+  const [parties, setParties] = useState([]);
+  const [qualities, setQualities] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [billRows, setBillRows] = useState([]);
+
+  function setBillRecords(data) {
+    let programData = data['programData'] || {};
+
+    let beamDetailsSummary = {
+      weaverName: '',
+      totalMeter: 0,
+      netWeight: 0,
+      weaverDesc: '',
+      rate: 0,
+      amount: 0,
+      rateDynamic: 0,
+    };
+
+    let finalRows = [];
+    Object.keys(programData).forEach((weaverId, i) => {
+      let weaver = programData[weaverId];
+      beamDetailsSummary.weaverName = getParty(weaverId);
+      // let weaver = programData[weaverId];
+      weaver.forEach((beam) => {
+        beamDetailsSummary.totalMeter += beam.totalMeter;
+        beam.qualities.forEach((q) => {
+          beamDetailsSummary.netWeight += q.usedYarn;
+        });
+      });
+      console.log('beamDetailsSummary  : ', beamDetailsSummary);
+      finalRows.push(beamDetailsSummary);
+      beamDetailsSummary = {
+        weaverName: '',
+        totalMeter: 0,
+        netWeight: 0,
+        weaverDesc: '',
+        rate: 0,
+        amount: 0,
+        rateDynamic: 0,
+      };
+    });
+    setBillRows(finalRows);
+  }
+
+    function updateBillingValues(e, index) {
+    if (e?.target) {
+
+//  let rowOfConcern = billRows[index];
+//  if (e.target.id === 'weaverDesc') {
+//    rowOfConcern.weaverDesc = e.target.value;
+//  } else {
+//    // rowOfConcern.rate = e.target.value;
+//    rowOfConcern.amount = e.target.value * rowOfConcern.netWeight;
+//  }
+
+// setBillRows((a)=> {
+// return [...a, rowOfConcern];
+// })
+
+      setBillRows((prevValue) => {
+        let updatedValue = [...prevValue];
+        let rowOfConcern = updatedValue[index];
+        if (e.target.id === 'weaverDesc') 
+        {
+          rowOfConcern.weaverDesc = e.target.value;
+        } else {
+          // rowOfConcern.rate = e.target.value;
+          rowOfConcern.amount = e.target.value * rowOfConcern.netWeight;
+        }
+        return updatedValue;
+      });
     }
-  `;
-
-  useEffect(() => {
+    }
+  const onReportClick = () => {
     axios
-      .get('/api/settings')
+      .get('/api/reports/set', {
+        params: {
+          ...filter,
+        },
+      })
       .then((res) => {
-        setSettings(res.data);
+        console.log(res.data);
+        setData(res.data);
+        setBillRecords(res.data);
       })
       .catch((err) => {
         console.log(err);
       });
+  };
 
-      axios
-        .get(`/api/parties`)
-        .then((res) => {
-          console.log(res);
-          setParties(res.data.filter((p) => p.isWeaver === 'Party')
-                .map((party) => ({ label: party.name, value: party.gstin })));
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  useEffect(() => {
+    axios
+      .get('/api/parties')
+      .then((res) => {
+        setParties(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
+  const updateBillDate = (date) => {
+    setSelectedDate(date);
+  };
 
-    const [selectedDate, handleDateChange] = useState(new Date());
+  const getParty = (id) => (_.find(parties, (w) => w.id == id) || {}).name;
+  const getQuality = (id) => (_.find(qualities, (w) => w.id == id) || {}).name;
 
-    function updateGstFromParty(e, id) {
-console.log(e, id, "")
-setPartyGst(e);
-// setPartyGst(parties.filter(party => party.id === id ? party.gstin : '-'));
-    }
+    const billingCols = useMemo(()=>[
+            {
+              Header: 'Weaver Name',
+              accessor: 'weaverName',
+              Cell: ({ row, value }) => {
+                return (
+                  <InputText
+                    label={value}
+                    variant="outlined"
+                    fullWidth
+                    id="weaverDesc"
+                    value={row.values.weaverDesc}
+                    onChange={(e) => updateBillingValues(e, row.index)}
+                  />
+                );
+              },
+            },
+            {
+              Header: 'Weight',
+              accessor: 'netWeight',
+            },
+            {
+              Header: 'Rate',
+              // accessor: 'rate',
+              Cell: ({ row, value }) => {
+                return (
+                  <InputText
+                    label={value}
+                    variant="outlined"
+                    fullWidth
+                    id="rate"
+                    value={row.values.rate }
+                    onChange={(e) => updateBillingValues(e, row.index)}
+                  />
+                );
+              },
+            },
+            {
+              Header: 'Amount',
+              accessor: 'amount',
+            },
+            // {
+            //   Header: 'Net Wt.',
+            //   accessor: 'usedYarn',
+            //   Footer: (info) => {
+            //     let total = info.rows.reduce((sum, row) => {
+            //       return (parse(row.values[info.column.id]) || 0) + sum;
+            //     }, 0);
+            //     total = round(total);
+            //     return <span style={{ fontWeight: 'bold' }}>{total}</span>;
+            //   },
+            // },
+          
+    ],[]);
 
-    // const getSelectValue = (options, value) => {
-    //   let selectVal = options.filter((option) => option.id === value)[0];
-    //   if (selectVal) {
-    //     selectVal = {
-    //       label: selectVal.name,
-    //       value: selectVal.id,
-    //     };
-    //   }
-    //   return selectVal;
-    // };
 
   return (
-    <Box className={classes.viewerRoot}>
+    <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box p={1}>
-        <ReactToPrint
-          trigger={() => (
+        <Grid container spacing={2}>
+          <Grid item md={4} xs={12}>
+            <InputText
+              value={filter.set_no}
+              onChange={(e) => {
+                setFilter((prev) => ({ ...prev, set_no: e.target.value }));
+              }}
+              label="Set No."
+            />
+            <InputDate
+              id="date"
+              label="Date"
+              value={selectedDate}
+              onChange={updateBillDate}
+            />
+          </Grid>
+          <Grid item md={4} xs={12} style={{ display: 'flex' }}>
             <Button
               color="primary"
-              variant="outlined"
-              className={classes.toolButton}
+              variant="contained"
+              style={{ marginTop: 'auto' }}
+              onClick={onReportClick}
             >
-              Print
+              Fetch Bill details
             </Button>
-          )}
-          content={() => reportRef.current}
-          pageStyle={pageStyle}
-        />
-        <Button color="primary" variant="outlined" disabled>
-          Download PDF
-        </Button>
+          </Grid>
+        </Grid>
       </Box>
-      <Box className={classes.viewerReport}>
-        <Box ref={reportRef} className={classes.pages}>
-          <BillHeader settings={settings} />
-          <div>
-            <Grid container spacing={2}>
-              <Grid item lg={6} md={6} sm={6} xs={6}>
-                <InputText
-                  label="Invoice Number"
-                  variant="outlined"
-                  fullWidth
-                  id="invoiceNumber"
-                  // value={inwardValue.gatepass}
-                  // onChange={updateInwardValues}
-                  // isRequired={true}
-                />
-              </Grid>
-              <Grid item lg={6} md={6} sm={6} xs={6}>
-                <InputDate
-                  id="date"
-                  label="Date"
-                  value={selectedDate}
-                  onChange={(date) => handleDateChange(date)}
-                />
-              </Grid>
-            </Grid>
 
+      <Grid>
+        <ReportTable showFooter data={billRows} columns={billingCols} />
+      </Grid>
+
+      <ReportViewer
+        defaultHeaders={false}
+        getReportDetails={() => (
+          <>
+            <ReportField name="Set No" value={filter.set_no} />
+            <ReportField
+              name="Party"
+              value={
+                (
+                  _.find(parties, (o) => o.id == data.partyId) || {
+                    name: 'No party',
+                  }
+                ).name
+              }
+            />
+            <ReportField
+              name="Party GST"
+              value={
+                (
+                  _.find(parties, (o) => o.id == data.partyGst) || {
+                    name: 'No GST',
+                  }
+                ).name
+              }
+            />
+
+            <ReportField name="Date" value={selectedDate.toDateString()} />
+          </>
+        )}
+      >
+        <FinalReport data={data} getParty={getParty} getQuality={getQuality} />
+      </ReportViewer>
+    </Box>
+  );
+}
+
+function BeamDetails({ beam, beamNo, getQuality }) {
+  return (
+    <>
+      <Box display="flex">
+        <ReportField name="Beam No" value={beamNo} />
+        <ReportField name="Lassa" value={beam.lassa} margin />
+        <ReportField name="Cuts" value={beam.cuts} margin />
+        <ReportField name="Total meters" value={beam.totalMeter} margin />
+      </Box>
+      <ReportTable
+        showFooter
+        data={beam.qualities}
+        columns={[
+          {
+            Header: 'Quality',
+            accessor: (row) => getQuality(row.qualityId),
+            width: '50%',
+          },
+          {
+            Header: 'Ends',
+            accessor: 'ends',
+          },
+          {
+            Header: 'Net Wt.',
+            accessor: 'usedYarn',
+            Footer: (info) => {
+              let total = info.rows.reduce((sum, row) => {
+                return (parse(row.values[info.column.id]) || 0) + sum;
+              }, 0);
+              total = round(total);
+              return <span style={{ fontWeight: 'bold' }}>{total}</span>;
+            },
+          },
+        ]}
+      />
+    </>
+  );
+}
+
+function FinalReport({ data, getParty, getQuality }) {
+  let programData = data['programData'] || {};
+  let outwardData = data['outwardData'] || {};
+  let inwardOpeningBalance = data['inwardOpeningBalance'] || {};
+
+  /* Calculate the beam details summary */
+  let beamDetailsSummary = {
+    qualities: {},
+    overall: {
+      totalMeter: 0,
+      totalCuts: 0,
+      netWeight: 0,
+    },
+  };
+  Object.keys(programData).forEach((weaverId, i) => {
+    let weaver = programData[weaverId];
+    weaver.forEach((beam) => {
+      beamDetailsSummary.overall.totalMeter += beam.totalMeter;
+      beamDetailsSummary.overall.totalCuts += beam.cuts;
+      beam.qualities.forEach((q) => {
+        beamDetailsSummary.qualities[q.qualityId] =
+          beamDetailsSummary.qualities[q.qualityId] || 0;
+        beamDetailsSummary.qualities[q.qualityId] += q.usedYarn;
+        beamDetailsSummary.overall.netWeight += q.usedYarn;
+      });
+    });
+  });
+  beamDetailsSummary.overall.totalMeter = parse(
+    beamDetailsSummary.overall.totalMeter
+  );
+  beamDetailsSummary.overall.totalCuts = parse(
+    beamDetailsSummary.overall.totalCuts
+  );
+  beamDetailsSummary.overall.netWeight = parse(
+    beamDetailsSummary.overall.netWeight
+  );
+
+  /* Calculate the yarn outward summary */
+  let yarnOutwardSummary = {
+    qualities: {},
+  };
+  Object.keys(outwardData).forEach((weaverId, i) => {
+    let weaver = outwardData[weaverId] || {};
+    weaver.forEach((outward) => {
+      yarnOutwardSummary.qualities[outward.qualityId] =
+        yarnOutwardSummary.qualities[outward.qualityId] || 0;
+      yarnOutwardSummary.qualities[outward.qualityId] += outward.netWt;
+    });
+  });
+
+  let allQualities = (
+    _.union(
+      Object.keys(beamDetailsSummary.qualities),
+      Object.keys(yarnOutwardSummary.qualities)
+    ) || []
+  ).map((v) => ({ qualityId: v }));
+
+  return (
+    <>
+      <Typography
+        style={{
+          fontWeight: 'bold',
+          textAlign: 'center',
+          textDecoration: 'underline',
+        }}
+      >
+        Beam details
+      </Typography>
+      {Object.keys(programData).length === 0 && <NoData />}
+      {Object.keys(programData).length > 0 && (
+        <>
+          {Object.keys(programData).map((weaverId, wi) => {
+            let weaver = programData[weaverId];
+            return (
+              <>
+                <ReportField name="Weaver" value={getParty(weaverId)} />
+                {weaver.map((beam, i) => {
+                  return (
+                    <BeamDetails
+                      beam={beam}
+                      beamNo={i + 1}
+                      getQuality={getQuality}
+                    />
+                  );
+                })}
+                <DashedDivider />
+              </>
+            );
+          })}
+          <Box marginTop="0.5rem">
             <Grid container spacing={2}>
-              <Grid item lg={6} md={6} sm={6} xs={6}>
-                <InputSelectSearch
-                  // value={getSelectValue(props.parties, inwardValue.partyId)}
-                  onChange={(value) => {
-                    updateGstFromParty(value.value, 'partyId');
-                  }}
-                  options={parties}
-                  // .filter((p) => p.isWeaver === 'Party')
-                  // .map((party) => ({ label: party.name, value: party.id }))}
-                  label="Party"
+              <Grid item xs>
+                <ReportTable
+                  data={Object.keys(beamDetailsSummary.qualities).map(
+                    (qualityId) => ({
+                      qualityId: qualityId,
+                      netWt: beamDetailsSummary.qualities[qualityId],
+                    })
+                  )}
+                  columns={[
+                    {
+                      Header: 'Quality',
+                      accessor: (row) => getQuality(row.qualityId),
+                    },
+                    {
+                      Header: 'Net Wt.',
+                      accessor: 'netWt',
+                    },
+                  ]}
                 />
               </Grid>
-              <Grid item lg={6} md={6} sm={6} xs={6}>
-                <InputText
-                  label="GST"
-                  variant="outlined"
-                  fullWidth
-                  id="gst"
-                  value={partyGst}
-                  // onChange={updateInwardValues}
-                  // isRequired={true}
-                  readOnly
+              <Grid item xs>
+                <ReportField
+                  name="Overall Total Meter"
+                  value={beamDetailsSummary.overall.totalMeter}
+                />
+                <ReportField
+                  name="Overall Total Cuts"
+                  value={beamDetailsSummary.overall.totalCuts}
+                />
+                <ReportField
+                  name="Overall Net Wt"
+                  value={beamDetailsSummary.overall.netWeight}
                 />
               </Grid>
             </Grid>
-          </div>
-        </Box>
-      </Box>
-    </Box>
+          </Box>
+        </>
+      )}
+      <DashedDivider />
+    </>
   );
 }
