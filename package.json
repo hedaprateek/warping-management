@@ -74,7 +74,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "app": "yarn run build && yarn run electron ."
+    "start:electron": "yarn run electron .",
+    "pack": "electron-builder --win",
+    "dist": "yarn run build && yarn run pack",
+    "rebuild": "yarn run electron-rebuild -f -w",
+    "postinstall": "electron-builder install-app-deps"
   },
   "eslintConfig": {
     "extends": [
