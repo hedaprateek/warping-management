@@ -15,7 +15,8 @@ const useStyles = makeStyles((theme)=>({
     borderBottom: '1px solid '+theme.palette.grey[400],
     borderRight: '1px solid '+theme.palette.grey[400],
     // pageBreakInside: 'avoid',
-    pageBreakAfter: 'auto'
+    pageBreakAfter: 'auto',
+    textAlign: 'left',
   },
   td: {
     margin: 0,
@@ -23,6 +24,8 @@ const useStyles = makeStyles((theme)=>({
     borderRight: '1px solid '+theme.palette.grey[400],
     // pageBreakInside: 'avoid',
     pageBreakAfter: 'auto',
+    wordBreak: 'break-all',
+    verticalAlign: 'top'
   },
   tf: {
     margin: 0,
