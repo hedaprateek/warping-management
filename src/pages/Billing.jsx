@@ -381,16 +381,15 @@ function FinalReport({ data, getParty, getQuality, billRows }) {
           textDecoration: 'underline',
         }}
       >
-        BILL
+        TAX INVOICE
       </Typography>
       {Object.keys(programData).length === 0 && <NoData />}
       {Object.keys(programData).length > 0 && (
-        
-         <>     
-                <BillPrintDetails billRows={billRows} />
-                
-                <DashedDivider />
-            
+        <>
+          <BillPrintDetails billRows={billRows} />
+
+          <DashedDivider />
+
           <Box marginTop="0.5rem">
             <Grid container spacing={2}>
               <Grid item xs>
