@@ -57,7 +57,7 @@ export function InputText({ label, errorMsg, isRequired, type, inputProps, onCha
         onChange={onChange}
         /* Needed for type number */
         {...extraProps}
-        {...finalInpProps}
+        inputProps={finalInpProps}
       />
       {errorMsg}
     </FormField>

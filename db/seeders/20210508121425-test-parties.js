@@ -4,7 +4,8 @@ const { DATEONLY } = require("sequelize");
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-      
+    /* Comment the below return to run migrations */
+    return;
     await queryInterface.bulkInsert('Parties', [{
       name: "Tithiksha Enterprise",
       address: "ABCD",
@@ -414,7 +415,7 @@ module.exports = {
       emptyBeamWt: "",
       actualUsedYarn: "0.0",
       createdAt: new Date(),
-      updatedAt: new Date() 
+      updatedAt: new Date()
       },{
       design: "",
       lassa:"110.0",
@@ -428,9 +429,9 @@ module.exports = {
       emptyBeamWt: "",
       actualUsedYarn: "0.0",
       createdAt: new Date(),
-      updatedAt: new Date() 
+      updatedAt: new Date()
       }]);
-    
+
     await queryInterface.bulkInsert('WarpingQualities', [{
       warpId: "1",
       qualityId: "3",
