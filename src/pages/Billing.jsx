@@ -60,7 +60,7 @@ export default function Billing() {
       weaverDesc: '',
       rate: 0,
       amount: 0,
-      rateDynamic: 0,
+      hsnSacCode: '',
     };
 
     let finalRows = [];
@@ -83,7 +83,7 @@ export default function Billing() {
         weaverDesc: '',
         rate: 0,
         amount: 0,
-        rateDynamic: 0,
+        hsnSacCode: '',
       };
     });
     setBillRows(finalRows);
@@ -268,22 +268,23 @@ function BillPrintDetails({ billRows }) {
           {
             Header: 'Weaver Name',
             accessor: 'weaverName',
-            // Cell: ({ row, value }) => {
-            //   return (
-            //     <InputText
-            //       label={value}
-            //       variant="outlined"
-            //       fullWidth
-            //       id="weaverDesc"
-            //       value={row.values.weaverDesc}
-            //       onChange={(e) => updateBillingValues(e, row.index)}
-            //     />
-            //   );
-            // },
+            Cell: (row) => {
+              return (
+                <div>
+                  <span>
+                    {row.data[row.row.index].weaverName}
+                  </span>
+                  <br  />
+                  <span>
+                    {row.data[row.row.index].weaverDesc}
+                  </span>
+                </div>
+              );
+            },
           },
           {
-            Header: 'Weaver Name',
-            accessor: 'weaverDesc',
+            Header: 'HSN/SAC Code',
+            accessor: 'hsnSacCode',
           },
           {
             Header: 'Weight',
@@ -292,18 +293,6 @@ function BillPrintDetails({ billRows }) {
           {
             Header: 'Rate',
             accessor: 'rate',
-            // Cell: ({ row, value }) => {
-            //   return (
-            //     <InputText
-            //       label={value}
-            //       variant="outlined"
-            //       fullWidth
-            //       id="rate"
-            //       value={row.values.rate}
-            //       onChange={(e) => updateBillingValues(e, row.index)}
-            //     />
-            //   );
-            // },
           },
           {
             Header: 'Amount',
@@ -381,16 +370,15 @@ function FinalReport({ data, getParty, getQuality, billRows }) {
           textDecoration: 'underline',
         }}
       >
-        BILL
+        TAX INVOICE
       </Typography>
       {Object.keys(programData).length === 0 && <NoData />}
       {Object.keys(programData).length > 0 && (
-        
-         <>     
-                <BillPrintDetails billRows={billRows} />
-                
-                <DashedDivider />
-            
+        <>
+          <BillPrintDetails billRows={billRows} />
+
+          <DashedDivider />
+
           <Box marginTop="0.5rem">
             <Grid container spacing={2}>
               <Grid item xs>
