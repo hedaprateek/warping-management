@@ -132,7 +132,7 @@ function PartiesDialog({ open, ...props }) {
 
 class Parties extends React.Component {
   componentDidMount() {
-    axios.get(`http://localhost:7227/api/parties`).then((res) => {
+    axios.get(`/api/parties`).then((res) => {
       const parties = res.data;
       this.setState({ parties });
       console.log('parties', parties);
