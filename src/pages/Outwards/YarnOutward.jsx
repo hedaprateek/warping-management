@@ -70,7 +70,7 @@ function outwardReducer(state, path) {
 
 function getNumberCell(dataDispatch, basePath, readOnly=false) {
   return ({value, row, column})=>{
-    return <OutlinedInput
+    return <InputText
       fullWidth type="number" value={value} readOnly={readOnly}
       size="small"
       margin="dense"
@@ -91,7 +91,7 @@ function TotalFooter(info) {
   );
   total = round(total);
   return (
-    <OutlinedInput
+    <InputText
       fullWidth type="number" value={total} readOnly
       size="small"
       margin="dense"

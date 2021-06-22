@@ -95,7 +95,7 @@ function beamReducer(state, path, changedKey) {
 
 function getNumberCell(dataDispatch, basePath, readOnly=false) {
   return ({value, row, column})=>{
-    return <OutlinedInput
+    return <InputText
       fullWidth type="number" value={value} readOnly={readOnly}
       size="small"
       margin="dense"
@@ -199,7 +199,7 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
         );
         total = round(total);
         return (
-          <OutlinedInput
+          <InputText
             fullWidth type="number" value={total} readOnly
             size="small"
             margin="dense"
