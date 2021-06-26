@@ -138,7 +138,6 @@ class Parties extends React.Component {
     axios.get(`/api/parties`).then((res) => {
       const parties = res.data;
       this.setState({ parties });
-      console.log('parties', parties);
     });
   }
 

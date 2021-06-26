@@ -18,7 +18,7 @@ import {
   InputSelectSearch,
   InputText,
 } from '../components/FormElements';
-import { parse, round } from '../utils';
+import { convertAmountToWords, parse, round } from '../utils';
 import { _ } from 'globalthis/implementation';
 import Moment from 'moment';
 import {
@@ -95,7 +95,7 @@ export default function Billing() {
       setBillRows((prevValue) => {
         let updatedValue = [...prevValue];
         let rowOfConcern = updatedValue[index];
-        if (e.target.id === 'weaverDesc') 
+        if (e.target.id === 'weaverDesc')
         {
           rowOfConcern.weaverDesc = e.target.value;
         } else {
@@ -145,14 +145,17 @@ export default function Billing() {
             {
               Header: 'Weaver Name',
               accessor: 'weaverName',
+            },
+            {
+              Header: 'Desc',
+              accessor: 'weaverDesc',
               Cell: ({ row, value }) => {
                 return (
                   <InputText
-                    label={value}
                     variant="outlined"
                     fullWidth
                     id="weaverDesc"
-                    value={row.values.weaverDesc}
+                    value={value}
                     onChange={(e) => updateBillingValues(e, row.index)}
                   />
                 );
@@ -182,7 +185,7 @@ export default function Billing() {
               Header: 'Amount',
               accessor: 'amount',
             },
-            
+
     ],[]);
 
 
@@ -190,7 +193,7 @@ export default function Billing() {
     <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box p={1}>
         <Grid container spacing={2}>
-          <Grid item md={4} xs={12}>
+          <Grid item md={3} xs={12}>
             <InputText
               value={filter.set_no}
               onChange={(e) => {
@@ -198,22 +201,26 @@ export default function Billing() {
               }}
               label="Set No."
             />
-            <InputDate
-              id="date"
-              label="Date"
-              value={selectedDate}
-              onChange={updateBillDate}
-            />
           </Grid>
-          <Grid item md={4} xs={12} style={{ display: 'flex' }}>
+          <Grid item md={3} xs={12} style={{ display: 'flex' }}>
             <Button
               color="primary"
               variant="contained"
               style={{ marginTop: 'auto' }}
               onClick={onReportClick}
             >
-              Fetch Bill details
+              Fetch details
             </Button>
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+          <Grid item md={4} xs={12} style={{ display: 'flex' }}>
+            <InputDate
+              id="date"
+              label="Date"
+              value={selectedDate}
+              onChange={updateBillDate}
+            />
           </Grid>
         </Grid>
       </Box>
@@ -258,15 +265,24 @@ export default function Billing() {
   );
 }
 
-function BillPrintDetails({ billRows }) {
+function BillPrintDetails({ billRows, amountTotal }) {
   return (
     <>
       <ReportTable
+        style={{fontSize: '0.8em'}}
         showFooter
         data={billRows}
         columns={[
           {
-            Header: 'Weaver Name',
+            Header: 'Sr. No.',
+            id: 'srno',
+            Cell: ({row})=>{
+              return <span>{row.index+1}</span>;
+            },
+            width: '2%'
+          },
+          {
+            Header: 'Description',
             accessor: 'weaverName',
             Cell: (row) => {
               return (
@@ -281,6 +297,7 @@ function BillPrintDetails({ billRows }) {
                 </div>
               );
             },
+            width: '40%'
           },
           {
             Header: 'HSN/SAC Code',
@@ -297,6 +314,9 @@ function BillPrintDetails({ billRows }) {
           {
             Header: 'Amount',
             accessor: 'amount',
+            Footer: (info)=>{
+              return <span style={{fontWeight: 'bold'}}>{amountTotal}</span>
+            }
           },
         ]}
       />
@@ -361,6 +381,11 @@ function FinalReport({ data, getParty, getQuality, billRows }) {
     ) || []
   ).map((v) => ({ qualityId: v }));
 
+  let amountTotal = billRows.reduce((sum, row) => {
+    return (parse(row.amount) || 0) + sum
+  }, 0);
+  amountTotal = round(amountTotal);
+
   return (
     <>
       <Typography
@@ -372,54 +397,9 @@ function FinalReport({ data, getParty, getQuality, billRows }) {
       >
         TAX INVOICE
       </Typography>
-      {Object.keys(programData).length === 0 && <NoData />}
-      {Object.keys(programData).length > 0 && (
-        <>
-          <BillPrintDetails billRows={billRows} />
-
-          <DashedDivider />
-
-          <Box marginTop="0.5rem">
-            <Grid container spacing={2}>
-              <Grid item xs>
-                <ReportTable
-                  data={Object.keys(beamDetailsSummary.qualities).map(
-                    (qualityId) => ({
-                      qualityId: qualityId,
-                      netWt: beamDetailsSummary.qualities[qualityId],
-                    })
-                  )}
-                  columns={[
-                    {
-                      Header: 'Quality',
-                      accessor: (row) => getQuality(row.qualityId),
-                    },
-                    {
-                      Header: 'Net Wt.',
-                      accessor: 'netWt',
-                    },
-                  ]}
-                />
-              </Grid>
-              <Grid item xs>
-                <ReportField
-                  name="Overall Total Meter"
-                  value={beamDetailsSummary.overall.totalMeter}
-                />
-                <ReportField
-                  name="Overall Total Cuts"
-                  value={beamDetailsSummary.overall.totalCuts}
-                />
-                <ReportField
-                  name="Overall Net Wt"
-                  value={beamDetailsSummary.overall.netWeight}
-                />
-              </Grid>
-            </Grid>
-          </Box>
-        </>
-      )}
+      <BillPrintDetails billRows={billRows} amountTotal={amountTotal} />
       <DashedDivider />
+      <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
     </>
   );
 }
