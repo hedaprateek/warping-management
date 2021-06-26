@@ -20,6 +20,8 @@ import _ from 'lodash';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 import {parse, round} from './../../utils';
+import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
+import { connect } from 'react-redux';
 
 const outwardValueReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
@@ -473,9 +475,10 @@ class YarnOutward extends React.Component {
       },
       {
         Header: 'Date',
-        accessor: (row) => {
-          return Moment(row.date).format('DD-MM-YYYY');
-        },
+        accessor: 'date',
+        Cell:({value})=>{
+          return Moment(value).format('DD-MM-YYYY');
+        }
       },
       {
         Header: 'Party Name',
@@ -548,21 +551,25 @@ class YarnOutward extends React.Component {
               ],
             };
           });
+          this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Outward updated successfully');
         })
         .catch((err) => {
           console.log(err);
+          this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
         });
     } else {
       outwardValue.forEach((singleOut) => {
         axios
           .post('/api/outward', singleOut)
           .then((res) => {
-            this.setState((prevState) => {
-              return { outwards: [...prevState.outwards, res.data] };
-            });
+            // this.setState((prevState) => {
+            //   return { outwards: [...prevState.outwards, res.data] };
+            // });
+            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Outward added successfully');
           })
           .catch((err) => {
             console.log(err);
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
           });
       });
     }
@@ -638,4 +645,6 @@ class YarnOutward extends React.Component {
   }
 }
 
-export default YarnOutward;
+export default connect(()=>({}), (dispatch)=>({
+  setNotification: (...args)=>{dispatch(setNotification.apply(this, args))},
+}))(YarnOutward);

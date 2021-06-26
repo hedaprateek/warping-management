@@ -11,6 +11,8 @@ import {
 import TableComponent from '../components/TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
+import { NOTIFICATION_TYPE, setNotification } from '../store/reducers/notification';
+import { connect } from 'react-redux';
 
 function InwardDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
@@ -284,9 +286,10 @@ class Inwards extends React.Component {
       },
       {
         Header: 'Date',
-        accessor: (row) => {
-          return Moment(row.date).format('DD-MM-YYYY');
-        },
+        accessor: 'date',
+        Cell:({value})=>{
+          return Moment(value).format('DD-MM-YYYY');
+        }
       },
       {
         Header: 'Party Name',
@@ -362,8 +365,7 @@ class Inwards extends React.Component {
             },
           })
           .then((res) => {
-            // const parties = this.state.parties;
-            // const latestData = res.data;
+            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Inward updated succesfully');
             let indx = this.setState((prevState) => {
               let indx = prevState.inward.findIndex(
                 (i) => i.id === inwardValue.id
@@ -376,6 +378,10 @@ class Inwards extends React.Component {
                 ],
               };
             });
+          })
+          .catch((err)=>{
+            console.log(err);
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
           });
       } else {
         axios
@@ -385,6 +391,7 @@ class Inwards extends React.Component {
             },
           })
           .then((res) => {
+            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Inward added succesfully');
             const parties = this.state.parties;
             const latestData = res.data;
             this.setState((prevState) => {
@@ -445,4 +452,6 @@ class Inwards extends React.Component {
   }
 }
 
-export default Inwards;
+export default connect(()=>({}), (dispatch)=>({
+  setNotification: (...args)=>{dispatch(setNotification.apply(this, args))},
+}))(Inwards);

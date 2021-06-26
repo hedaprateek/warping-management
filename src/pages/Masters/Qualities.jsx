@@ -22,6 +22,8 @@ import DraggableDialog from '../../helpers/DraggableDialog';
 import { FormField, InputSelect, InputText } from '../../components/FormElements';
 import TableComponent from '../../components/TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
+import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
+import { connect } from 'react-redux';
 
 function QualitiesDialog({ open, ...props }) {
   const defaults = {};
@@ -184,8 +186,7 @@ class Qualities extends React.Component {
             },
           })
           .then((res) => {
-            // const parties = this.state.parties;
-            // const latestData = res.data;
+            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Quality updated successfully');
             let indx = this.setState((prevState) => {
               let indx = prevState.qualities.findIndex(
                 (i) => i.id === qualityValue.id
@@ -198,6 +199,10 @@ class Qualities extends React.Component {
                 ],
               };
             });
+          })
+          .catch((err)=>{
+            console.log(err);
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
           });
       } else {
         axios
@@ -207,6 +212,7 @@ class Qualities extends React.Component {
             },
           })
           .then((res) => {
+            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Quality added successfully');
             const qualities = this.state.qualities;
             const latestData = res.data;
             this.setState((prevState) => {
@@ -214,6 +220,10 @@ class Qualities extends React.Component {
                 qualities: [...prevState.qualities, latestData],
               };
             });
+          })
+          .catch((err)=>{
+            console.log(err);
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
           });
       }
       this.showDialog(false);
@@ -267,4 +277,6 @@ class Qualities extends React.Component {
   }
 }
 
-export default Qualities;
+export default connect(()=>({}), (dispatch)=>({
+  setNotification: (...args)=>{dispatch(setNotification.apply(this, args))},
+}))(Qualities);

@@ -1,7 +1,9 @@
 import { Button, Grid } from '@material-ui/core';
 import axios from 'axios';
 import React from 'react';
+import { connect } from 'react-redux';
 import { InputText } from '../components/FormElements';
+import { NOTIFICATION_TYPE, setNotification } from '../store/reducers/notification';
 
 class Settings extends React.Component {
   constructor() {
@@ -13,7 +15,6 @@ class Settings extends React.Component {
     axios.get(`/api/settings`).then((res) => {
       const companyDetails = res.data;
       this.setState({ ...companyDetails });
-      console.log('companyDetails', this.state);
     });
   }
 
@@ -26,14 +27,12 @@ class Settings extends React.Component {
   };
 
   updateCompanyValues(e) {
-    console.log('Updated', e);
     const { id, value } = e.target;
     this.setState(() => ({
       [id]: value,
     }));
   }
   updateCompanyDetails() {
-    console.log('Saved');
     axios
       .put(`/api/settings`, this.state, {
         headers: {
@@ -43,6 +42,7 @@ class Settings extends React.Component {
       .then((res) => {
         const companyDetails1 = res.data;
         this.setState({ companyDetails1 });
+        this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Settings updated successfully');
       });
   }
 
@@ -106,4 +106,6 @@ class Settings extends React.Component {
   }
 }
 
-export default Settings;
+export default connect(()=>({}), (dispatch)=>({
+  setNotification: (...args)=>{dispatch(setNotification.apply(this, args))},
+}))(Settings);

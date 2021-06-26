@@ -21,6 +21,8 @@ import _ from 'lodash';
 import { parse, round } from '../../utils';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
+import { connect } from 'react-redux';
+import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 
 const warpingReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
@@ -563,9 +565,10 @@ class Warping extends React.Component {
       },
       {
         Header: 'Date',
-        accessor: (row) => {
-          return Moment(row.date).format('DD-MM-YYYY');
-        },
+        accessor: 'date',
+        Cell:({value})=>{
+          return Moment(value).format('DD-MM-YYYY');
+        }
       },
       {
         Header: 'Party Name',
@@ -650,21 +653,25 @@ class Warping extends React.Component {
               ],
             };
           });
+          this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Warping program updated successfully');
         })
         .catch((err) => {
           console.log(err);
+          this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
         });
     } else {
       warpingValue.forEach((singleWarp) => {
         axios
           .post('/api/warping', singleWarp)
           .then((res) => {
-            this.setState((prevState) => {
-              return { warpings: [...prevState.warpings, res.data] };
-            });
+            // this.setState((prevState) => {
+            //   return { warpings: [...prevState.warpings, res.data] };
+            // });
+            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Warping program added successfully');
           })
           .catch((err) => {
             console.log(err);
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
           });
       });
     }
@@ -740,4 +747,6 @@ class Warping extends React.Component {
   }
 }
 
-export default Warping;
+export default connect(()=>({}), (dispatch)=>({
+  setNotification: (...args)=>{dispatch(setNotification.apply(this, args))},
+}))(Warping);

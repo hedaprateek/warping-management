@@ -11,6 +11,8 @@ import DraggableDialog from '../../helpers/DraggableDialog';
 import { FormField, InputSelect, InputText } from '../../components/FormElements'
 import TableComponent from '../../components/TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
+import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
+import { connect } from 'react-redux';
 
 function PartiesDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
@@ -227,6 +229,7 @@ class Parties extends React.Component {
             },
           })
           .then((res) => {
+            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Party updated successfully');
             let indx = this.setState((prevState) => {
               let indx = prevState.parties.findIndex(
                 (i) => i.id === partyValue.id
@@ -239,6 +242,10 @@ class Parties extends React.Component {
                 ],
               };
             });
+          })
+          .catch((err)=>{
+            console.log(err);
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
           });
       } else {
         axios
@@ -248,28 +255,22 @@ class Parties extends React.Component {
             },
           })
           .then((res) => {
+            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Party added successfully');
             const parties = this.state.parties;
             const latestData = res.data;
             // this.state.parties.push(latestData);
             this.setState((prevState) => {
               return { parties: [...prevState.parties, latestData] };
             });
+          })
+          .catch((err)=>{
+            console.log(err);
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
           });
       }
       this.showDialog(false);
     } else {
-      // if (validator.allValid()) {
-      //   // validator.message('name', 'aaaaa', 'required')
-      //   // validator.message(name: "asssas");
-      //   // validator.showMessages();
-      //   console.log("abc");
-      //   // this.forceUpdate();
-      // }
-      //
-      console.log('abc');
       validator.showMessages();
-      // rerender to show messages for the first time
-      // you can use the autoForceUpdate option to do this automatically`
       this.forceUpdate();
     }
   }
@@ -316,4 +317,6 @@ class Parties extends React.Component {
   }
 }
 
-export default Parties;
+export default connect(()=>({}), (dispatch)=>({
+  setNotification: (...args)=>{dispatch(setNotification.apply(this, args))},
+}))(Parties);
