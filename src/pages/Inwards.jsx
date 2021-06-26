@@ -13,6 +13,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 import { NOTIFICATION_TYPE, setNotification } from '../store/reducers/notification';
 import { connect } from 'react-redux';
+import { getAxiosErr } from '../utils';
 
 function InwardDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
@@ -381,7 +382,7 @@ class Inwards extends React.Component {
           })
           .catch((err)=>{
             console.log(err);
-            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
           });
       } else {
         axios

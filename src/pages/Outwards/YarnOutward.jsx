@@ -19,9 +19,10 @@ import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
-import {parse, round} from './../../utils';
+import {getAxiosErr, parse, round} from './../../utils';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
+import { getSetNo } from './Warping';
 
 const outwardValueReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
@@ -263,21 +264,25 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
   const [partiesOpts, setPartiesOpts] = useState([]);
   const [weaverOpts, setWeaverOpts] = useState([]);
   const [qualityOpts, setQualityOpts] = useState([]);
+  const [setnoOpts, setSetNoOpts] = useState([]);
 
   const isEdit = editOutwardValue != null;
 
-  useEffect(()=>{
+  useEffect(async ()=>{
     if(open) {
       if(isEdit) {
         outwardDispatch({
           type: 'init',
           value: editOutwardValue,
         });
+        let res = await getSetNo(editOutwardValue.partyId);
+        setSetNoOpts(res.map((row)=>({label: row.setNo, value: row.setNo})));
       } else {
         outwardDispatch({
           type: 'init',
           value: defaults,
         });
+        setSetNoOpts([]);
       }
       setPartiesOpts(accounts.filter((a)=>a.isWeaver=="Party").map((party)=>({label: party.name, value: party.id})));
       setWeaverOpts(accounts.map((party)=>({label: party.name, value: party.id})));
@@ -333,22 +338,37 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
         <Grid item lg={12} md={12} sm={12} xs={12}>
           <Grid container spacing={2}>
             <Grid item md={4} xs={12}>
-              <InputText
+              <InputSelectSearch label="Party"
+                value={partiesOpts.filter((party)=>party.value===outwardValue.partyId)}
+                onChange={async (value)=>{
+                  updateoutwardValues(value?.value, 'partyId');
+                  let res = await getSetNo(value?.value);
+                  setSetNoOpts(res.map((row)=>({label: row.setNo, value: row.setNo})));
+                }}
+                options={partiesOpts}
+                autoFocus
+                />
+            </Grid>
+            <Grid item md={4} xs={12}>
+            <InputSelectSearch
                 label="Set No."
                 name="setNo"
                 type="number"
-                value={outwardValue.setNo}
-                onChange={updateoutwardValues}
-                autoFocus
-              />
-            </Grid>
-            <Grid item md={4} xs={12}>
-              <InputSelectSearch label="Party"
-                value={partiesOpts.filter((party)=>party.value===outwardValue.partyId)}
+                options={setnoOpts}
+                value={setnoOpts.filter((setno)=>setno.value===outwardValue.setNo)}
                 onChange={(value)=>{
-                  updateoutwardValues(value?.value, 'partyId')
+                  updateoutwardValues(value?.value, 'setNo');
                 }}
-                options={partiesOpts} />
+                onCreateOption={(value)=>{
+                  setSetNoOpts((prevOpts)=>{
+                    let newOpts = [...prevOpts];
+                    newOpts.push({label: value, value: value});
+                    return newOpts;
+                  });
+                  updateoutwardValues(value, 'setNo');
+                }}
+                creatable
+              />
             </Grid>
             <Grid item md={4} xs={12}>
               <InputSelectSearch label="Weaver/Party"
@@ -552,28 +572,26 @@ class YarnOutward extends React.Component {
             };
           });
           this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Outward updated successfully');
+          this.showDialog(false);
         })
         .catch((err) => {
           console.log(err);
-          this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
+          this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
         });
     } else {
       outwardValue.forEach((singleOut) => {
         axios
           .post('/api/outward', singleOut)
           .then((res) => {
-            // this.setState((prevState) => {
-            //   return { outwards: [...prevState.outwards, res.data] };
-            // });
             this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Outward added successfully');
+            this.showDialog(false);
           })
           .catch((err) => {
             console.log(err);
-            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
           });
       });
     }
-    this.showDialog(false);
   }
 
   render() {

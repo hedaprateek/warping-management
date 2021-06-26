@@ -101,6 +101,12 @@ npx sequelize-cli migration:create --name add-new-columns-inward
 npx sequelize-cli model:generate --name Misc --attributes last_opened_enc:string,install_date_enc:string,system_id:string,expiry_date_enc:string,activation_date_enc:string
 
 
+npx sequelize-cli model:generate --name PartySetNo --attributes partyId:integer,setNo:integer
+
+
+npx sequelize-cli migration:create --name migrate-setno
+
+
 
 Aditya activation key:
 c43fcb6d7f9a842905416c97dc2876558c527ad0e6ea12c41f06fde3b74b0945

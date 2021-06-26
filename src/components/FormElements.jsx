@@ -7,7 +7,8 @@ import {
   Select,
   useTheme,
 } from '@material-ui/core';
-import ReactSelect from 'react-select';
+import ReactSelect, { components as RSComponents } from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import { KeyboardDatePicker } from '@material-ui/pickers';
 
 const useStyles = makeStyles((theme) => ({
@@ -137,18 +138,47 @@ const customReactSelectStyles = (theme, readonly)=>({
   }),
 });
 
-export function InputSelectSearch({ label, errorMsg, readonly, ...props }) {
+
+function NumericSearch(props) {
+  return <RSComponents.Input {...props} type="tel"
+    onChange={(e)=>{
+      let val = e.target.value;
+      if(e.target.validity.valid || val === '' || val === '-') {
+        props.onChange(e);
+      }
+    }}
+    pattern={"^-?[0-9]\\d*\\.?\\d*$"}
+  />
+}
+
+export function InputSelectSearch({ label, errorMsg, readonly, creatable, type, ...props }) {
   const theme = useTheme();
+  let commonProps = {
+    menuPortalTarget: document.body,
+    ...props,
+    isSearchable: !readonly,
+    isClearable: !readonly,
+    openMenuOnClick: !readonly,
+    error: Boolean(errorMsg),
+    styles: customReactSelectStyles(theme, readonly),
+    components: {
+      Input: type=="number" ? NumericSearch : RSComponents.Input,
+    },
+  };
+  if(creatable) {
+    return (
+      <FormField label={label}>
+        <CreatableSelect
+          {...commonProps}
+        />
+        {errorMsg}
+      </FormField>
+    );
+  }
   return (
     <FormField label={label}>
       <ReactSelect
-        menuPortalTarget={document.body}
-        {...props}
-        isSearchable={!readonly}
-        isClearable={!readonly}
-        openMenuOnClick={!readonly}
-        error={Boolean(errorMsg)}
-        styles={customReactSelectStyles(theme, readonly)}
+        {...commonProps}
       />
       {errorMsg}
     </FormField>

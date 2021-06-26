@@ -18,7 +18,7 @@ import Select from 'react-select';
 import DataGrid from '../../components/DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
-import { parse, round } from '../../utils';
+import { getAxiosErr, parse, round } from '../../utils';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 import { connect } from 'react-redux';
@@ -58,14 +58,6 @@ const warpingReducer = (state, action)=>{
       break;
     case 'set_beam_no':
       newState.startBeamNo = action.value.beamNo;
-      if(!action.value.isEdit) {
-        newState.partyId = action.value.partyId;
-        if(action.value.partyId) {
-          newState.setNoHasParty = true;
-        } else {
-          newState.setNoHasParty = false;
-        }
-      }
   }
   return newState;
 }
@@ -212,10 +204,9 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
     },
   ], [qualityOpts]);
 
-
   return (
     <Card variant="outlined" style={{marginBottom: '0.5rem'}}>
-      <CardHeader title={`Beam No: ${beamNo}`} titleTypographyProps={{variant: 'h6'}} action={
+      <CardHeader title={`Beam No: ${isNaN(beamNo) ? 1 : beamNo}`} titleTypographyProps={{variant: 'h6'}} action={
         <Box>
           {onCopy && <Button color="primary" variant="outlined" onClick={onCopy} style={{marginRight:'0.5rem'}}>Copy</Button>}
           {onRemove && <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>}
@@ -341,6 +332,11 @@ async function getBeamNoDetails(setNo) {
   return res.data;
 }
 
+export async function getSetNo(partyId) {
+  let res = await axios.get('/api/setno/'+partyId);
+  return res.data;
+}
+
 function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
   const defaultBeam = {
     design: '',
@@ -358,27 +354,30 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
     beams: [defaultBeam],
     /* No need to pass to BE */
     startBeamNo: 1,
-    setNoHasParty: false,
   };
   const [warpingValue, warpingDispatch] = useReducer(warpingReducer, defaults);
   const [partiesOpts, setPartiesOpts] = useState([]);
   const [weaverOpts, setWeaverOpts] = useState([]);
   const [qualityOpts, setQualityOpts] = useState([]);
+  const [setnoOpts, setSetNoOpts] = useState([]);
 
   const isEdit = editWarpingValue != null;
 
-  useEffect(()=>{
+  useEffect(async ()=>{
     if(open) {
       if(isEdit) {
         warpingDispatch({
           type: 'init',
           value: editWarpingValue,
         });
+        let res = await getSetNo(editWarpingValue.partyId);
+        setSetNoOpts(res.map((row)=>({label: row.setNo, value: row.setNo})));
       } else {
         warpingDispatch({
           type: 'init',
           value: defaults,
         });
+        setSetNoOpts([]);
       }
       setPartiesOpts(accounts.filter((acc)=>acc.isWeaver=='Party').map((party)=>({label: party.name, value: party.id})));
       setWeaverOpts(accounts.map((party)=>({label: party.name, value: party.id})));
@@ -416,6 +415,15 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
     }
   }
 
+  useEffect(async ()=>{
+    let result = await getBeamNoDetails(warpingValue.setNo);
+    warpingDispatch({
+      type: 'set_beam_no',
+      value: result,
+      isEdit: isEdit,
+    });
+  }, [warpingValue.setNo]);
+
   return (
     <DraggableDialog
       sectionTitle="Program"
@@ -434,31 +442,37 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
         <Grid item lg={12} md={12} sm={12} xs={12}>
           <Grid container spacing={2}>
             <Grid item md={4} xs={12}>
-              <InputText
+              <InputSelectSearch label="Party"
+                value={partiesOpts.filter((party)=>party.value===warpingValue.partyId)}
+                onChange={async (value)=>{
+                  updatewarpingValues(value?.value, 'partyId');
+                  let res = await getSetNo(value?.value);
+                  setSetNoOpts(res.map((row)=>({label: row.setNo, value: row.setNo})));
+                }}
+                options={partiesOpts}
+                autoFocus
+                />
+            </Grid>
+            <Grid item md={4} xs={12}>
+              <InputSelectSearch
                 label="Set No."
                 name="setNo"
                 type="number"
-                value={warpingValue.setNo}
-                onChange={updatewarpingValues}
-                onBlur={async (e)=>{
-                  let result = await getBeamNoDetails(e.target.value);
-                  warpingDispatch({
-                    type: 'set_beam_no',
-                    value: result,
-                    isEdit: isEdit,
+                options={setnoOpts}
+                value={setnoOpts.filter((setno)=>setno.value===warpingValue.setNo)}
+                onChange={async (value)=>{
+                  updatewarpingValues(value?.value, 'setNo');
+                }}
+                onCreateOption={async (value)=>{
+                  setSetNoOpts((prevOpts)=>{
+                    let newOpts = [...prevOpts];
+                    newOpts.push({label: value, value: value});
+                    return newOpts;
                   });
+                  updatewarpingValues(value, 'setNo');
                 }}
-                autoFocus
+                creatable
               />
-            </Grid>
-            <Grid item md={4} xs={12}>
-              <InputSelectSearch label="Party"
-                value={partiesOpts.filter((party)=>party.value===warpingValue.partyId)}
-                onChange={(value)=>{
-                  updatewarpingValues(value?.value, 'partyId')
-                }}
-                options={partiesOpts}
-                readonly={warpingValue.setNoHasParty} />
             </Grid>
             <Grid item md={4} xs={12}>
               <InputSelectSearch label="Weaver/Party"
@@ -654,28 +668,26 @@ class Warping extends React.Component {
             };
           });
           this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Warping program updated successfully');
+          this.showDialog(false);
         })
         .catch((err) => {
           console.log(err);
-          this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
+          this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
         });
     } else {
       warpingValue.forEach((singleWarp) => {
         axios
           .post('/api/warping', singleWarp)
           .then((res) => {
-            // this.setState((prevState) => {
-            //   return { warpings: [...prevState.warpings, res.data] };
-            // });
             this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Warping program added successfully');
+            this.showDialog(false);
           })
           .catch((err) => {
             console.log(err);
-            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
           });
       });
     }
-    this.showDialog(false);
   }
 
   render() {

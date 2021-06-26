@@ -24,6 +24,7 @@ import TableComponent from '../../components/TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
+import { getAxiosErr } from '../../utils';
 
 function QualitiesDialog({ open, ...props }) {
   const defaults = {};
@@ -202,7 +203,7 @@ class Qualities extends React.Component {
           })
           .catch((err)=>{
             console.log(err);
-            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
           });
       } else {
         axios
@@ -223,7 +224,7 @@ class Qualities extends React.Component {
           })
           .catch((err)=>{
             console.log(err);
-            this.props.setNotification(NOTIFICATION_TYPE.ERROR, 'Failed. Contact administrator.');
+            this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
           });
       }
       this.showDialog(false);

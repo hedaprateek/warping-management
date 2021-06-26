@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 var router = require('express').Router();
 const db = require('../db/models');
+const { addSetNo } = require('./utils');
 
 router.get('/beamno/:id', async function(req, res) {
   let result = await db.WarpingProgram.findOne({
@@ -63,9 +64,14 @@ router.delete('/:id', function(req, res) {
   });
 });
 
-router.post('/', function(req, res) {
+router.post('/', async function(req, res) {
   let reqJson = req.body;
   let retVal = {};
+  let isValid = await addSetNo(reqJson.setNo, reqJson.partyId);
+  if(!isValid) {
+    res.status(500).json({message: 'Set number is already used by other party.'});
+    return;
+  }
   db.WarpingProgram.create({
     design: reqJson.design,
     lassa: reqJson.lassa,
@@ -100,6 +106,12 @@ router.post('/', function(req, res) {
 
 router.put('/:id', async function(req, res) {
   let reqJson = req.body;
+  let isValid = await addSetNo(reqJson.setNo, reqJson.partyId);
+  if(!isValid) {
+    res.status(500).json({message: 'Set number is already used by other party.'});
+    return;
+  }
+
   await db.WarpingProgram.update({
     design: reqJson.design,
     lassa: reqJson.lassa,

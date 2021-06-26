@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 var router = require('express').Router();
 const db = require('../db/models');
+const { addSetNo } = require('./utils');
 
 router.get('/', function(req, res) {
   let where = {};
@@ -35,8 +36,15 @@ router.delete('/:id', function(req, res) {
   });
 });
 
-router.post('/', function(req, res) {
+router.post('/', async function(req, res) {
   let reqJson = req.body;
+
+  let isValid = await addSetNo(reqJson.setNo, reqJson.partyId);
+  if(!isValid) {
+    res.status(500).json({message: 'Set number is already used by other party.'});
+    return;
+  }
+
   db.Outward.create({
     setNo: reqJson.setNo,
     partyId: reqJson.partyId,
@@ -65,7 +73,12 @@ router.post('/', function(req, res) {
 
 router.put('/:id', async function(req, res) {
   let reqJson = req.body;
-  console.log(reqJson);
+  let isValid = await addSetNo(reqJson.setNo, reqJson.partyId);
+  if(!isValid) {
+    res.status(500).json({message: 'Set number is already used by other party.'});
+    return;
+  }
+
   await db.Outward.update({
     setNo: reqJson.setNo,
     partyId: reqJson.partyId,
