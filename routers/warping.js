@@ -91,6 +91,7 @@ router.post('/', async function(req, res) {
   try {
     let isValid = await addSetNo(reqJson.setNo, reqJson.partyId, t);
     if(!isValid) {
+      await t.rollback();
       res.status(500).json({message: 'Set number is already used by other party.'});
       return;
     }
@@ -134,6 +135,7 @@ router.put('/:id', async function(req, res) {
   try {
     let isValid = await addSetNo(reqJson.setNo, reqJson.partyId, t);
     if(!isValid) {
+      await t.rollback();
       res.status(500).json({message: 'Set number is already used by other party.'});
       return;
     }
