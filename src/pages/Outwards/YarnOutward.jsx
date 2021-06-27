@@ -177,7 +177,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
               value={qualityOpts.filter(
                 (op) => op.value === data.qualityId
               )}
-              onChange={(op)=>onChange(op.value, 'qualityId')}
+              onChange={(op)=>onChange(op?.value, 'qualityId')}
               options={qualityOpts}
             />
           </Grid>

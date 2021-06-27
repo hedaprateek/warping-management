@@ -1,7 +1,7 @@
 const db = require('../db/models');
 const _ = require('lodash');
 
-async function deleteSetNo(setNo) {
+async function deleteSetNo(setNo, t) {
   let result = await db.WarpingProgram.findOne({
     where: {
       setNo: setNo,
@@ -19,6 +19,7 @@ async function deleteSetNo(setNo) {
     return true;
   }
   await db.PartySetNo.destroy({
+    transaction: t,
     where: {
       setNo: setNo,
     },
@@ -26,7 +27,7 @@ async function deleteSetNo(setNo) {
   return true;
 }
 
-async function addSetNo(setNo, partyId) {
+async function addSetNo(setNo, partyId, t) {
   if(_.isUndefined(setNo) || _.isNull(setNo)){
     return true;
   }
@@ -41,7 +42,7 @@ async function addSetNo(setNo, partyId) {
     await db.PartySetNo.create({
       setNo: setNo,
       partyId: partyId,
-    });
+    }, {transaction: t});
   } else if(result['partyId'] != partyId) {
     return false;
   }

@@ -52,22 +52,33 @@ router.get('/', function(req, res) {
 });
 
 router.delete('/:id', async function(req, res) {
-  let result = await db.WarpingProgram.findOne({
-    where: {
-      id: req.params.id,
-    },
-  })
-  await db.WarpingQualities.destroy({
-    where: {
-      warpId: req.params.id,
-    },
-  });
-  await db.WarpingProgram.destroy({
-    where: {
-      id: req.params.id,
-    },
-  });
-  await deleteSetNo(result.setNo);
+  const t = await db.sequelize.transaction();
+
+  try {
+    let result = await db.WarpingProgram.findOne({
+      where: {
+        id: req.params.id,
+      },
+    })
+    await db.WarpingQualities.destroy({
+      transaction: t,
+      where: {
+        warpId: req.params.id,
+      },
+    });
+    await db.WarpingProgram.destroy({
+      transaction: t,
+      where: {
+        id: req.params.id,
+      },
+    });
+    await deleteSetNo(result.setNo, t);
+    await t.commit();
+    res.status(200).json({});
+  } catch(error) {
+    await t.rollback();
+    res.status(500).json({message: error});
+  }
   res.status(200).json({});
 });
 
@@ -75,86 +86,99 @@ router.delete('/:id', async function(req, res) {
 router.post('/', async function(req, res) {
   let reqJson = req.body;
   let retVal = {};
-  let isValid = await addSetNo(reqJson.setNo, reqJson.partyId);
-  if(!isValid) {
-    res.status(500).json({message: 'Set number is already used by other party.'});
-    return;
-  }
-  db.WarpingProgram.create({
-    design: reqJson.design,
-    lassa: reqJson.lassa,
-    cuts: reqJson.cuts,
-    totalMeter: reqJson.totalMeter,
-    totalEnds: reqJson.totalEnds,
-    partyId: reqJson.partyId,
-    weaverId: reqJson.weaverId,
-    date: reqJson.date,
-    filledBeamWt: reqJson.filledBeamWt,
-    emptyBeamWt: reqJson.emptyBeamWt,
-    actualUsedYarn: reqJson.actualUsedYarn,
-    setNo: reqJson.setNo,
-  }).then((result)=>{
+  const t = await db.sequelize.transaction();
+
+  try {
+    let isValid = await addSetNo(reqJson.setNo, reqJson.partyId, t);
+    if(!isValid) {
+      res.status(500).json({message: 'Set number is already used by other party.'});
+      return;
+    }
+    let result = await db.WarpingProgram.create({
+      design: reqJson.design,
+      lassa: reqJson.lassa,
+      cuts: reqJson.cuts,
+      totalMeter: reqJson.totalMeter,
+      totalEnds: reqJson.totalEnds,
+      partyId: reqJson.partyId,
+      weaverId: reqJson.weaverId,
+      date: reqJson.date,
+      filledBeamWt: reqJson.filledBeamWt,
+      emptyBeamWt: reqJson.emptyBeamWt,
+      actualUsedYarn: reqJson.actualUsedYarn,
+      setNo: reqJson.setNo,
+    }, {transaction: t});
     retVal = result.toJSON();
-    db.WarpingQualities.bulkCreate(reqJson.qualities.map((quality)=>({
+
+    await db.WarpingQualities.bulkCreate(reqJson.qualities.map((quality)=>({
       warpId: result.id,
       qualityId: quality.qualityId,
       ends: quality.ends,
       count: quality.count,
       usedYarn: quality.usedYarn,
-    }))).then(()=>{
-      retVal.qualities = reqJson.qualities;
-      res.status(200).json(retVal);
-    }).catch((error)=>{
-      res.status(500).json({message: error});
-    });
-  }).catch((error)=>{
+    })), {transaction: t});
+
+    retVal.qualities = reqJson.qualities;
+    await t.commit();
+    res.status(200).json(retVal);
+  } catch(error) {
+    await t.rollback();
     res.status(500).json({message: error});
-  });
+  }
 });
 
 router.put('/:id', async function(req, res) {
   let reqJson = req.body;
-  let isValid = await addSetNo(reqJson.setNo, reqJson.partyId);
-  if(!isValid) {
-    res.status(500).json({message: 'Set number is already used by other party.'});
-    return;
-  }
+  const t = await db.sequelize.transaction();
 
-  await db.WarpingProgram.update({
-    design: reqJson.design,
-    lassa: reqJson.lassa,
-    cuts: reqJson.cuts,
-    totalMeter: reqJson.totalMeter,
-    totalEnds: reqJson.totalEnds,
-    partyId: reqJson.partyId,
-    weaverId: reqJson.weaverId,
-    date: reqJson.date,
-    filledBeamWt: reqJson.filledBeamWt,
-    emptyBeamWt: reqJson.emptyBeamWt,
-    actualUsedYarn: reqJson.actualUsedYarn,
-    setNo: reqJson.setNo,
-  },{
-    where: {
-      id: reqJson.id,
-    },
-  });
-
-  await db.WarpingQualities.destroy({
-    where: {
-      warpId: reqJson.id,
+  try {
+    let isValid = await addSetNo(reqJson.setNo, reqJson.partyId, t);
+    if(!isValid) {
+      res.status(500).json({message: 'Set number is already used by other party.'});
+      return;
     }
-  });
 
-  await db.WarpingQualities.bulkCreate(reqJson.qualities.map((quality)=>({
-    id: quality.id,
-    warpId: reqJson.id,
-    qualityId: quality.qualityId,
-    ends: quality.ends || 0,
-    count: quality.count || 0,
-    usedYarn: quality.usedYarn || 0,
-  })));
+    await db.WarpingProgram.update({
+      design: reqJson.design,
+      lassa: reqJson.lassa,
+      cuts: reqJson.cuts,
+      totalMeter: reqJson.totalMeter,
+      totalEnds: reqJson.totalEnds,
+      partyId: reqJson.partyId,
+      weaverId: reqJson.weaverId,
+      date: reqJson.date,
+      filledBeamWt: reqJson.filledBeamWt,
+      emptyBeamWt: reqJson.emptyBeamWt,
+      actualUsedYarn: reqJson.actualUsedYarn,
+      setNo: reqJson.setNo,
+    },{
+      transaction: t,
+      where: {
+        id: reqJson.id,
+      },
+    });
 
-  res.status(200).json({});
+    await db.WarpingQualities.destroy({
+      where: {
+        warpId: reqJson.id,
+      }
+    }, {transaction: t});
+
+    await db.WarpingQualities.bulkCreate(reqJson.qualities.map((quality)=>({
+      id: quality.id,
+      warpId: reqJson.id,
+      qualityId: quality.qualityId,
+      ends: quality.ends || 0,
+      count: quality.count || 0,
+      usedYarn: quality.usedYarn || 0,
+    })), {transaction: t});
+
+    await t.commit();
+    res.status(200).json({});
+  } catch(error) {
+    await t.rollback();
+    res.status(500).json({message: error});
+  }
 });
 
 module.exports = router;

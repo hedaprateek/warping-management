@@ -24,98 +24,123 @@ router.get('/', function(req, res) {
 });
 
 router.delete('/:id', async function(req, res) {
-  let result = await db.Outward.findOne({
-    where: {
-      id: req.params.id,
-    },
-  })
-  await db.OutwardBags.destroy({
-    where: {
-      outwardId: req.params.id,
-    },
-  });
-  await db.Outward.destroy({
-    where: {
-      id: req.params.id,
-    },
-  });
-  await deleteSetNo(result.setNo);
-  res.status(200).json({});
+  const t = await db.sequelize.transaction();
+
+  try {
+    let result = await db.Outward.findOne({
+      where: {
+        id: req.params.id,
+      },
+    })
+    await db.OutwardBags.destroy({
+      transaction: t,
+      where: {
+        outwardId: req.params.id,
+      },
+    });
+    await db.Outward.destroy({
+      transaction: t,
+      where: {
+        id: req.params.id,
+      },
+    });
+    await deleteSetNo(result.setNo, t);
+    await t.commit();
+    res.status(200).json({});
+  } catch(error) {
+    await t.rollback();
+    res.status(500).json({message: error});
+  }
 });
 
 router.post('/', async function(req, res) {
   let reqJson = req.body;
+  const t = await db.sequelize.transaction();
 
-  let isValid = await addSetNo(reqJson.setNo, reqJson.partyId);
-  if(!isValid) {
-    res.status(500).json({message: 'Set number is already used by other party.'});
-    return;
-  }
+  try {
+    let isValid = await addSetNo(reqJson.setNo, reqJson.partyId, t);
+    if(!isValid) {
+      await t.rollback();
+      res.status(500).json({message: 'Set number is already used by other party.'});
+      return;
+    }
 
-  db.Outward.create({
-    setNo: reqJson.setNo,
-    partyId: reqJson.partyId,
-    weaverId: reqJson.weaverId,
-    qualityId: reqJson.qualityId,
-    date: reqJson.date,
-    emptyConeWt: reqJson.emptyConeWt,
-    emptyBagWt: reqJson.emptyBagWt,
-    netWt: reqJson.netWt
-  }).then((result)=>{
-    db.OutwardBags.bulkCreate(reqJson.bags.map((bag)=>({
+    result = await db.Outward.create({
+      setNo: reqJson.setNo,
+      partyId: reqJson.partyId,
+      weaverId: reqJson.weaverId,
+      qualityId: reqJson.qualityId,
+      date: reqJson.date,
+      emptyConeWt: reqJson.emptyConeWt,
+      emptyBagWt: reqJson.emptyBagWt,
+      netWt: reqJson.netWt
+    }, {transaction: t});
+
+    await db.OutwardBags.bulkCreate(reqJson.bags.map((bag)=>({
       outwardId: result.id,
       cones: bag.cones,
       date: bag.date,
       grossWt: bag.grossWt,
-    }))).then(()=>{
-      result.bags = reqJson.bags;
-      res.status(200).json(result);
-    }).catch((error)=>{
-      res.status(500).json({message: error});
-    });
-  }).catch((error)=>{
+    })), {transaction: t});
+
+    result.bags = reqJson.bags;
+    await t.commit();
+    res.status(200).json(result);
+  } catch(error) {
+    await t.rollback();
     res.status(500).json({message: error});
-  });
+  }
 });
 
 router.put('/:id', async function(req, res) {
   let reqJson = req.body;
-  let isValid = await addSetNo(reqJson.setNo, reqJson.partyId);
-  if(!isValid) {
-    res.status(500).json({message: 'Set number is already used by other party.'});
-    return;
-  }
 
-  await db.Outward.update({
-    setNo: reqJson.setNo,
-    partyId: reqJson.partyId,
-    weaverId: reqJson.weaverId,
-    qualityId: reqJson.qualityId,
-    date: reqJson.date,
-    emptyConeWt: reqJson.emptyConeWt,
-    emptyBagWt: reqJson.emptyBagWt,
-    netWt: reqJson.netWt
-  },{
-    where: {
-      id: reqJson.id,
-    },
-  });
+  const t = await db.sequelize.transaction();
 
-  await db.OutwardBags.destroy({
-    where: {
-      outwardId: reqJson.id,
+  try {
+    let isValid = await addSetNo(reqJson.setNo, reqJson.partyId, t);
+    if(!isValid) {
+      res.status(500).json({message: 'Set number is already used by other party.'});
+      return;
     }
-  });
 
-  await db.OutwardBags.bulkCreate(reqJson.bags.map((bag)=>({
-    id: bag.id,
-    outwardId: reqJson.id,
-    cones: bag.cones || 0,
-    date: bag.date,
-    grossWt: bag.grossWt || 0,
-  })));
+    await db.Outward.update({
+      setNo: reqJson.setNo,
+      partyId: reqJson.partyId,
+      weaverId: reqJson.weaverId,
+      qualityId: reqJson.qualityId,
+      date: reqJson.date,
+      emptyConeWt: reqJson.emptyConeWt,
+      emptyBagWt: reqJson.emptyBagWt,
+      netWt: reqJson.netWt
+    },{
+      transaction: t,
+      where: {
+        id: reqJson.id,
+      },
+    });
 
-  res.status(200).json({});
+    await db.OutwardBags.destroy({
+      transaction: t,
+      where: {
+        outwardId: reqJson.id,
+      }
+    });
+
+    await db.OutwardBags.bulkCreate(reqJson.bags.map((bag)=>({
+      id: bag.id,
+      outwardId: reqJson.id,
+      cones: bag.cones || 0,
+      date: bag.date,
+      grossWt: bag.grossWt || 0,
+    })), {transaction: t});
+
+    await t.commit();
+    res.status(200).json({});
+  } catch(error) {
+    await t.rollback();
+    res.status(500).json({message: error});
+  }
 });
 
 module.exports = router;
