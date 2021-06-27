@@ -22,12 +22,13 @@ import { convertAmountToWords, parse, round } from '../utils';
 import { _ } from 'globalthis/implementation';
 import Moment from 'moment';
 import {
+  BillTable,
   DashedDivider,
   NoData,
   ReportField,
   ReportTable,
 } from '../Reports/ReportComponents';
-import ReportViewer from '../Reports/ReportViewer';
+import ReportViewer, { ReportHeader } from '../Reports/ReportViewer';
 
 const useStyles = makeStyles((theme) => ({
   reportContainer: {
@@ -229,45 +230,45 @@ export default function Billing() {
         <ReportTable showFooter data={billRows} columns={billingCols} />
       </Grid>
 
-      <ReportViewer
-        defaultHeaders={false}
-        getReportDetails={() => (
-          <>
-            <ReportField name="Set No" value={filter.set_no} />
-            <ReportField
-              name="Party"
-              value={
-                (
-                  _.find(parties, (o) => o.id == data.partyId) || {
-                    name: 'No party',
-                  }
-                ).name
-              }
-            />
-            <ReportField
-              name="Party GST"
-              value={
-                (
-                  _.find(parties, (o) => o.id == data.partyGst) || {
-                    name: 'No GST',
-                  }
-                ).name
-              }
-            />
+      <ReportViewer withHeader={false}>
+        <FinalReport data={data} getParty={getParty} getQuality={getQuality} billRows={billRows}
+          getReportDetails={() => (
+            <>
+              <ReportField name="Set No" value={filter.set_no} />
+              <ReportField
+                name="Party"
+                value={
+                  (
+                    _.find(parties, (o) => o.id == data.partyId) || {
+                      name: 'No party',
+                    }
+                  ).name
+                }
+              />
+              <ReportField
+                name="Party GST"
+                value={
+                  (
+                    _.find(parties, (o) => o.id == data.partyGst) || {
+                      name: 'No GST',
+                    }
+                  ).name
+                }
+              />
 
-            <ReportField name="Date" value={selectedDate.toDateString()} />
-          </>
-        )}
-      >
-        <FinalReport data={data} getParty={getParty} getQuality={getQuality} billRows={billRows} />
+              <ReportField name="Date" value={selectedDate.toDateString()} />
+            </>
+          )}
+        />
       </ReportViewer>
     </Box>
   );
 }
 
-function BillLeaflet({ billRows, amountTotal }) {
+function BillLeaflet({ billRows, amountTotal, getReportDetails }) {
   return (
-    <Box display="flex" flexDirection="column" height="297mm" width="210mm">
+    <Box display="flex" flexDirection="column" height="270mm">
+      <ReportHeader getReportDetails={getReportDetails}/>
       <Box>
         <Typography
           style={{
@@ -280,8 +281,8 @@ function BillLeaflet({ billRows, amountTotal }) {
         </Typography>
       </Box>
       <Box flexGrow="1">
-        <ReportTable
-          style={{fontSize: '0.8em'}}
+        <BillTable
+          style={{fontSize: '0.9em'}}
           showFooter
           data={billRows}
           columns={[
@@ -291,7 +292,7 @@ function BillLeaflet({ billRows, amountTotal }) {
               Cell: ({row})=>{
                 return <span>{row.index+1}</span>;
               },
-              width: '2%'
+              width: 10,
             },
             {
               Header: 'Description',
@@ -309,23 +310,27 @@ function BillLeaflet({ billRows, amountTotal }) {
                   </div>
                 );
               },
-              width: '40%'
+              width: 90,
             },
             {
               Header: 'HSN/SAC Code',
               accessor: 'hsnSacCode',
+              width: 30
             },
             {
               Header: 'Weight',
               accessor: 'netWeight',
+              width: 30,
             },
             {
               Header: 'Rate',
               accessor: 'rate',
+              width: 30,
             },
             {
               Header: 'Amount',
               accessor: 'amount',
+              width: 30,
               Footer: (info)=>{
                 return <span style={{fontWeight: 'bold'}}>{amountTotal}</span>
               }
@@ -335,12 +340,20 @@ function BillLeaflet({ billRows, amountTotal }) {
       </Box>
       <Box>
         <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
+        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
+        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
+        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
+        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
+        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
+        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
+        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
+        {/* <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} /> */}
       </Box>
     </Box>
   );
 }
 
-function FinalReport({ data, getParty, getQuality, billRows }) {
+function FinalReport({ data, getParty, getQuality, billRows, getReportDetails }) {
   let programData = data['programData'] || {};
   let outwardData = data['outwardData'] || {};
 
@@ -396,7 +409,7 @@ function FinalReport({ data, getParty, getQuality, billRows }) {
 
   return (
     <>
-      <BillLeaflet billRows={billRows} amountTotal={amountTotal} />
+      <BillLeaflet billRows={billRows} amountTotal={amountTotal} getReportDetails={getReportDetails} />
     </>
   );
 }

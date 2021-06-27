@@ -30,31 +30,37 @@ const useStyles = makeStyles((theme)=>({
   }
 }));
 
-function ReportHeader({reportName, getReportDetails, settings}) {
+export function ReportHeader({reportName, getReportDetails}) {
+  const [settings, setSettings] = useState({});
   let reportDetails = getReportDetails && getReportDetails();
+
+  useEffect(async ()=>{
+    let res = await axios.get('/api/settings');
+    setSettings(res.data);
+  }, []);
+
   return (
     <Box borderBottom={1} borderTop={1}>
-    <Grid container borderBottom={1} spacing={1}>
-      <Grid item xs>
-        <Typography style={{fontWeight: 'bold'}}>{settings.companyName}</Typography>
-        <Typography variant="subtitle2">{settings.companyAddress}</Typography>
-        <Typography style={{fontWeight: 'bold'}} variant="subtitle2">GSTIN: {settings.companyGst}</Typography>
-        <Typography variant="body2">{settings.companyContact}, {settings.emailId}</Typography>
+      <Grid container borderBottom={1} spacing={1}>
+        <Grid item xs>
+          <Typography style={{fontWeight: 'bold'}}>{settings.companyName}</Typography>
+          <Typography variant="subtitle2">{settings.companyAddress}</Typography>
+          <Typography style={{fontWeight: 'bold'}} variant="subtitle2">GSTIN: {settings.companyGst}</Typography>
+          <Typography variant="body2">{settings.companyContact}, {settings.emailId}</Typography>
+        </Grid>
+        <Grid item xs>
+          {reportName && <ReportField name="Report" value={reportName} />}
+          <ReportField name="Generated On" value={Moment(new Date()).format('DD-MM-YYYY')} />
+          {reportDetails}
+        </Grid>
       </Grid>
-      <Grid item xs>
-        <ReportField name="Report" value={reportName} />
-        <ReportField name="Generated On" value={Moment(new Date()).format('DD-MM-YYYY')} />
-        {reportDetails}
-      </Grid>
-    </Grid>
     </Box>
   );
 }
 
-export default function ReportViewer({reportName, getReportDetails, children}) {
+export default function ReportViewer({reportName, getReportDetails, withHeader=true, children}) {
   const classes = useStyles();
   const reportRef = useRef();
-  const [settings, setSettings] = useState({});
 
   const pageStyle = `
     @page {
@@ -69,15 +75,6 @@ export default function ReportViewer({reportName, getReportDetails, children}) {
     }
   `;
 
-  useEffect(()=>{
-    axios.get('/api/settings')
-      .then((res)=>{
-        setSettings(res.data);
-      }).catch((err)=>{
-        console.log(err);
-      });
-  }, []);
-
   return (
     <Box className={classes.viewerRoot}>
       <Box p={1}>
@@ -90,7 +87,7 @@ export default function ReportViewer({reportName, getReportDetails, children}) {
       </Box>
       <Box className={classes.viewerReport}>
         <Box ref={reportRef} className={classes.pages}>
-          <ReportHeader reportName={reportName} getReportDetails={getReportDetails} settings={settings} />
+          {withHeader && <ReportHeader reportName={reportName} getReportDetails={getReportDetails} />}
           {children}
         </Box>
       </Box>
