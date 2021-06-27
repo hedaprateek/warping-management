@@ -230,7 +230,7 @@ const useBillStyles = makeStyles((theme)=>({
     verticalAlign: 'top',
   },
   tdNogrow:{
-    flexGrow: 0,
+    flexGrow: '0 !important',
   },
   tbody: {
     display: 'flex',

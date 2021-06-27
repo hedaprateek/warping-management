@@ -267,7 +267,7 @@ export default function Billing() {
 
 function BillLeaflet({ billRows, amountTotal, getReportDetails }) {
   return (
-    <Box display="flex" flexDirection="column" height="270mm">
+    <Box display="flex" flexDirection="column" height="270mm" marginLeft="5mm">
       <ReportHeader getReportDetails={getReportDetails}/>
       <Box>
         <Typography
@@ -280,9 +280,9 @@ function BillLeaflet({ billRows, amountTotal, getReportDetails }) {
           TAX INVOICE
         </Typography>
       </Box>
-      <Box flexGrow="1">
+      <Box flexGrow="1" display="flex" flexDirection="column">
         <BillTable
-          style={{fontSize: '0.9em'}}
+          style={{fontSize: '0.9em', height: '100%'}}
           showFooter
           data={billRows}
           columns={[
