@@ -265,69 +265,84 @@ export default function Billing() {
   );
 }
 
-function BillPrintDetails({ billRows, amountTotal }) {
+function BillLeaflet({ billRows, amountTotal }) {
   return (
-    <>
-      <ReportTable
-        style={{fontSize: '0.8em'}}
-        showFooter
-        data={billRows}
-        columns={[
-          {
-            Header: 'Sr. No.',
-            id: 'srno',
-            Cell: ({row})=>{
-              return <span>{row.index+1}</span>;
+    <Box display="flex" flexDirection="column" height="297mm" width="210mm">
+      <Box>
+        <Typography
+          style={{
+            fontWeight: 'bold',
+            textAlign: 'center',
+            textDecoration: 'underline',
+          }}
+        >
+          TAX INVOICE
+        </Typography>
+      </Box>
+      <Box flexGrow="1">
+        <ReportTable
+          style={{fontSize: '0.8em'}}
+          showFooter
+          data={billRows}
+          columns={[
+            {
+              Header: 'Sr. No.',
+              id: 'srno',
+              Cell: ({row})=>{
+                return <span>{row.index+1}</span>;
+              },
+              width: '2%'
             },
-            width: '2%'
-          },
-          {
-            Header: 'Description',
-            accessor: 'weaverName',
-            Cell: (row) => {
-              return (
-                <div>
-                  <span>
-                    {row.data[row.row.index].weaverName}
-                  </span>
-                  <br  />
-                  <span>
-                    {row.data[row.row.index].weaverDesc}
-                  </span>
-                </div>
-              );
+            {
+              Header: 'Description',
+              accessor: 'weaverName',
+              Cell: (row) => {
+                return (
+                  <div>
+                    <span>
+                      {row.data[row.row.index].weaverName}
+                    </span>
+                    <br  />
+                    <span>
+                      {row.data[row.row.index].weaverDesc}
+                    </span>
+                  </div>
+                );
+              },
+              width: '40%'
             },
-            width: '40%'
-          },
-          {
-            Header: 'HSN/SAC Code',
-            accessor: 'hsnSacCode',
-          },
-          {
-            Header: 'Weight',
-            accessor: 'netWeight',
-          },
-          {
-            Header: 'Rate',
-            accessor: 'rate',
-          },
-          {
-            Header: 'Amount',
-            accessor: 'amount',
-            Footer: (info)=>{
-              return <span style={{fontWeight: 'bold'}}>{amountTotal}</span>
-            }
-          },
-        ]}
-      />
-    </>
+            {
+              Header: 'HSN/SAC Code',
+              accessor: 'hsnSacCode',
+            },
+            {
+              Header: 'Weight',
+              accessor: 'netWeight',
+            },
+            {
+              Header: 'Rate',
+              accessor: 'rate',
+            },
+            {
+              Header: 'Amount',
+              accessor: 'amount',
+              Footer: (info)=>{
+                return <span style={{fontWeight: 'bold'}}>{amountTotal}</span>
+              }
+            },
+          ]}
+        />
+      </Box>
+      <Box>
+        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
+      </Box>
+    </Box>
   );
 }
 
 function FinalReport({ data, getParty, getQuality, billRows }) {
   let programData = data['programData'] || {};
   let outwardData = data['outwardData'] || {};
-  let inwardOpeningBalance = data['inwardOpeningBalance'] || {};
 
   /* Calculate the beam details summary */
   let beamDetailsSummary = {
@@ -374,13 +389,6 @@ function FinalReport({ data, getParty, getQuality, billRows }) {
     });
   });
 
-  let allQualities = (
-    _.union(
-      Object.keys(beamDetailsSummary.qualities),
-      Object.keys(yarnOutwardSummary.qualities)
-    ) || []
-  ).map((v) => ({ qualityId: v }));
-
   let amountTotal = billRows.reduce((sum, row) => {
     return (parse(row.amount) || 0) + sum
   }, 0);
@@ -388,18 +396,7 @@ function FinalReport({ data, getParty, getQuality, billRows }) {
 
   return (
     <>
-      <Typography
-        style={{
-          fontWeight: 'bold',
-          textAlign: 'center',
-          textDecoration: 'underline',
-        }}
-      >
-        TAX INVOICE
-      </Typography>
-      <BillPrintDetails billRows={billRows} amountTotal={amountTotal} />
-      <DashedDivider />
-      <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
+      <BillLeaflet billRows={billRows} amountTotal={amountTotal} />
     </>
   );
 }
