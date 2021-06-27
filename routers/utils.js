@@ -1,23 +1,28 @@
 const db = require('../db/models');
 const _ = require('lodash');
 
-async function deleteSetNo(setNo, partyId) {
-  let result = await db.PartySetNo.findOne({
-    attributes: ['setNo', 'partyId'],
-    raw: true,
+async function deleteSetNo(setNo) {
+  let result = await db.WarpingProgram.findOne({
     where: {
       setNo: setNo,
-      partyId: partyId,
+    }
+  });
+  if(result) {
+    return true;
+  }
+  result = await db.Outward.findOne({
+    where: {
+      setNo: setNo,
+    }
+  });
+  if(result) {
+    return true;
+  }
+  await db.PartySetNo.destroy({
+    where: {
+      setNo: setNo,
     },
   });
-  if(result && result.length == 1) {
-    await db.PartySetNo.destroy({
-      where: {
-        setNo: setNo,
-        partyId: partyId,
-      },
-    });
-  }
   return true;
 }
 

@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 var router = require('express').Router();
 const db = require('../db/models');
-const { addSetNo } = require('./utils');
+const { addSetNo, deleteSetNo } = require('./utils');
 
 router.get('/', function(req, res) {
   let where = {};
@@ -23,17 +23,24 @@ router.get('/', function(req, res) {
   });
 });
 
-router.delete('/:id', function(req, res) {
-  db.Outward.destroy({
+router.delete('/:id', async function(req, res) {
+  let result = await db.Outward.findOne({
     where: {
       id: req.params.id,
     },
-  }).then((data)=>{
-    res.status(200).json(data);
   })
-  .catch(err => {
-    console.error('Unable to connect to the database:', err);
+  await db.OutwardBags.destroy({
+    where: {
+      outwardId: req.params.id,
+    },
   });
+  await db.Outward.destroy({
+    where: {
+      id: req.params.id,
+    },
+  });
+  await deleteSetNo(result.setNo);
+  res.status(200).json({});
 });
 
 router.post('/', async function(req, res) {

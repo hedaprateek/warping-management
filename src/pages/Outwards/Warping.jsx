@@ -23,6 +23,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 import { connect } from 'react-redux';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
+import ConfirmDialog from '../../helpers/ConfirmDialog';
 
 const warpingReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
@@ -361,6 +362,8 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
   const [qualityOpts, setQualityOpts] = useState([]);
   const [setnoOpts, setSetNoOpts] = useState([]);
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   const isEdit = editWarpingValue != null;
 
   useEffect(async ()=>{
@@ -437,6 +440,11 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
       }}
       open={open}
       maxWidth="lg"
+      extraButtons={
+        <>
+          {isEdit && <Button color="secondary" variant="contained" onClick={()=>setConfirmOpen(true)}>Delete</Button>}
+        </>
+      }
     >
       <Grid container>
         <Grid item lg={12} md={12} sm={12} xs={12}>
@@ -518,6 +526,16 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
           }}>Add Beam</Button>}
         </Grid>
       </Grid>
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={()=>setConfirmOpen(false)}
+        title={"Delete ?"}
+        content={"Are you sure you want to delete this record ?"}
+        onConfirm={()=>{
+          setConfirmOpen(false);
+          props.onDelete(warpingValue);
+        }}
+        />
     </DraggableDialog>
   );
 }
@@ -555,7 +573,6 @@ class Warping extends React.Component {
     columns: [
       {
         Header: '',
-        accessor: 'editButton',
         id: 'btn-edit',
         Cell: ({ row }) => {
           return (
@@ -690,6 +707,30 @@ class Warping extends React.Component {
     }
   }
 
+  deleteRecord(warpingValue) {
+    axios
+      .delete('/api/warping/'+warpingValue.id)
+      .then(() => {
+        this.setState((prevState) => {
+          let indx = prevState.warpings.findIndex(
+            (i) => i.id === warpingValue.id
+          );
+          return {
+            warpings: [
+              ...prevState.warpings.slice(0, indx),
+              ...prevState.warpings.slice(indx + 1),
+            ],
+          };
+        });
+        this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Warping program deleted successfully');
+        this.showDialog(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
+      });
+  }
+
   render() {
     return (
       <>
@@ -753,6 +794,9 @@ class Warping extends React.Component {
           }
           accounts={this.state.accounts}
           editWarpingValue={this.state.editWarpingValue}
+          onDelete={(warpingValue)=>
+            this.deleteRecord(warpingValue)
+          }
         />
       </>
     );

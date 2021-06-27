@@ -7,6 +7,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Paper from '@material-ui/core/Paper';
 import Draggable from 'react-draggable';
+import { Box } from '@material-ui/core';
 
 function PaperComponent(props) {
   return (
@@ -16,7 +17,7 @@ function PaperComponent(props) {
   );
 }
 
-export default function DraggableDialog({children, sectionTitle, ...props}) {
+export default function DraggableDialog({children, sectionTitle, extraButtons, ...props}) {
   return (
     <Dialog
       PaperComponent={PaperComponent}
@@ -30,6 +31,7 @@ export default function DraggableDialog({children, sectionTitle, ...props}) {
         {children}
       </DialogContent>
       <DialogActions>
+        <Box marginRight="auto">{extraButtons}</Box>
         <Button onClick={props.onClose} color="secondary" variant="outlined">
           Close
         </Button>

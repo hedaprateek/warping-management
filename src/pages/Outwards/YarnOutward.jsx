@@ -23,6 +23,7 @@ import {getAxiosErr, parse, round} from './../../utils';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
 import { getSetNo } from './Warping';
+import ConfirmDialog from '../../helpers/ConfirmDialog';
 
 const outwardValueReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
@@ -266,6 +267,8 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
   const [qualityOpts, setQualityOpts] = useState([]);
   const [setnoOpts, setSetNoOpts] = useState([]);
 
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   const isEdit = editOutwardValue != null;
 
   useEffect(async ()=>{
@@ -333,6 +336,11 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
       }}
       open={open}
       maxWidth="md"
+      extraButtons={
+        <>
+          {isEdit && <Button color="secondary" variant="contained" onClick={()=>setConfirmOpen(true)}>Delete</Button>}
+        </>
+      }
     >
       <Grid container>
         <Grid item lg={12} md={12} sm={12} xs={12}>
@@ -413,6 +421,16 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
           }}>Add Outward</Button>}
         </Grid>
       </Grid>
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={()=>setConfirmOpen(false)}
+        title={"Delete ?"}
+        content={"Are you sure you want to delete this record ?"}
+        onConfirm={()=>{
+          setConfirmOpen(false);
+          props.onDelete(outwardValue);
+        }}
+        />
     </DraggableDialog>
   );
 }
@@ -594,6 +612,31 @@ class YarnOutward extends React.Component {
     }
   }
 
+  deleteRecord(outwardValue) {
+    axios
+      .delete('/api/outward/'+outwardValue.id)
+      .then(() => {
+        this.setState((prevState) => {
+          let indx = prevState.outwards.findIndex(
+            (i) => i.id === outwardValue.id
+          );
+
+          return {
+            outwards: [
+              ...prevState.outwards.slice(0, indx),
+              ...prevState.outwards.slice(indx + 1),
+            ],
+          };
+        });
+        this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Yarn outward deleted successfully');
+        this.showDialog(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
+      });
+  }
+
   render() {
     return (
       <>
@@ -657,6 +700,9 @@ class YarnOutward extends React.Component {
           }
           accounts={this.state.accounts}
           editOutwardValue={this.state.editOutwardValue}
+          onDelete={(outwardValue)=>
+            this.deleteRecord(outwardValue)
+          }
         />
       </>
     );
