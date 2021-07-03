@@ -58,33 +58,55 @@ export default function Billing() {
       weaverName: '',
       totalMeter: 0,
       netWeight: 0,
+      netLength: 0,
+      netQuantity: 0,
+      calculationParameter: 'wt',
+      netWeight: 0,
       weaverDesc: '',
       rate: 0,
       amount: 0,
       hsnSacCode: '',
+      quantity: 0,
+      unit: 'kgs',
     };
 
     let finalRows = [];
     Object.keys(programData).forEach((weaverId, i) => {
-      let weaver = programData[weaverId];
+      let beams = programData[weaverId];
       beamDetailsSummary.weaverName = getParty(weaverId);
-      // let weaver = programData[weaverId];
-      weaver.forEach((beam) => {
-        beamDetailsSummary.totalMeter += beam.totalMeter;
+      beamDetailsSummary.netQuantity = beams.length;
+
+      beams.forEach((beam) => {
+        beamDetailsSummary.netLength += beam.totalMeter;
         beam.qualities.forEach((q) => {
           beamDetailsSummary.netWeight += q.usedYarn;
         });
       });
-      console.log('beamDetailsSummary  : ', beamDetailsSummary);
+
+      if (beamDetailsSummary.calculationParameter === 'wt') {
+        beamDetailsSummary.quantity = beamDetailsSummary.netWeight;
+        beamDetailsSummary.unit = 'Kgs.';
+      } if (beamDetailsSummary.calculationParameter === 'ln') {
+        beamDetailsSummary.quantity = beamDetailsSummary.netLength;
+        beamDetailsSummary.unit = 'Mtr.';
+      } if (beamDetailsSummary.calculationParameter === 'qn') {
+        beamDetailsSummary.quantity = beamDetailsSummary.netQuantity;
+        beamDetailsSummary.unit = 'Nos.';
+      }
       finalRows.push(beamDetailsSummary);
       beamDetailsSummary = {
         weaverName: '',
         totalMeter: 0,
         netWeight: 0,
+        netLength: 0,
+        netQuantity: 0,
+        calculationParameter: 'wt',
         weaverDesc: '',
         rate: 0,
         amount: 0,
         hsnSacCode: '',
+        quantity: 0,
+        unit: 'kgs',
       };
     });
     setBillRows(finalRows);
@@ -99,9 +121,26 @@ export default function Billing() {
         if (e.target.id === 'weaverDesc')
         {
           rowOfConcern.weaverDesc = e.target.value;
+        } if (e.target.name === 'select') {
+          rowOfConcern.calculationParameter = e.target.value;
+
         } else {
           // rowOfConcern.rate = e.target.value;
-          rowOfConcern.amount = e.target.value * rowOfConcern.netWeight;
+          if (rowOfConcern.calculationParameter === "wt") {
+            rowOfConcern.amount = e.target.value * rowOfConcern.netWeight;
+            rowOfConcern.quantity = rowOfConcern.netWeight;
+            rowOfConcern.unit = 'Kgs.';
+          }
+          if (rowOfConcern.calculationParameter === "ln") {
+            rowOfConcern.amount = e.target.value * rowOfConcern.netLength;
+            rowOfConcern.quantity = rowOfConcern.netLength;
+            rowOfConcern.unit = 'Mtr.';
+          }
+          if (rowOfConcern.calculationParameter === "qn") {
+            rowOfConcern.amount = e.target.value * rowOfConcern.netQuantity;
+            rowOfConcern.quantity = rowOfConcern.netQuantity;
+            rowOfConcern.unit = 'Nos.';
+          }
         }
         return updatedValue;
       });
@@ -163,8 +202,26 @@ export default function Billing() {
               },
             },
             {
-              Header: 'Weight',
-              accessor: 'netWeight',
+              Header: 'Calculation Parameter',
+              accessor: 'calculationParameter',
+              Cell: ({ row }) => {
+                return (
+                  <div>
+                    <TextField id="select" name="select" label="" value="20" select onChange={(e) => updateBillingValues(e, row.index)}>
+                      <MenuItem value="wt">Kgs.</MenuItem>
+                      <MenuItem value="ln">Mtr.</MenuItem>
+                      <MenuItem value="qn">Nos.</MenuItem>
+                    </TextField>
+                    {/* <span>
+                      {row.data[row.row.index].weaverName}
+                    </span>
+                    <br />
+                    <span>
+                      {row.data[row.row.index].weaverDesc}
+                    </span> */}
+                  </div>
+                );
+              },
             },
             {
               Header: 'Rate',
@@ -318,9 +375,13 @@ function BillLeaflet({ billRows, amountTotal, getReportDetails }) {
               width: 30
             },
             {
-              Header: 'Weight',
-              accessor: 'netWeight',
+              Header: 'Qty.',
+              accessor: 'quantity',
               width: 30,
+            },
+            {
+              Header: 'Unit',
+              accessor: 'unit',
             },
             {
               Header: 'Rate',
@@ -339,13 +400,6 @@ function BillLeaflet({ billRows, amountTotal, getReportDetails }) {
         />
       </Box>
       <Box>
-        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
-        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
-        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
-        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
-        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
-        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
-        <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
         <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
         {/* <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} /> */}
       </Box>
