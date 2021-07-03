@@ -249,11 +249,11 @@ function parseOutwardValue(outwardValue) {
 
 function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
   const defaultOutward = {
-    design: '',
-    meter: '',
     totalEnds: '',
     bags: [{}],
     date: new Date(),
+    emptyConeWt: 0,
+    emptyBagWt: 0,
   };
   const defaults = {
     setNo: null,
@@ -266,6 +266,7 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
   const [weaverOpts, setWeaverOpts] = useState([]);
   const [qualityOpts, setQualityOpts] = useState([]);
   const [setnoOpts, setSetNoOpts] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -287,6 +288,7 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
         });
         setSetNoOpts([]);
       }
+      setSaving(false);
       setPartiesOpts(accounts.filter((a)=>a.isWeaver=="Party").map((party)=>({label: party.name, value: party.id})));
       setWeaverOpts(accounts.map((party)=>({label: party.name, value: party.id})));
     }
@@ -306,6 +308,35 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
     }
   }, [outwardValue.partyId]);
 
+  const saveDetails = async ()=>{
+    let saveVal = outwardValue;
+    if(!isEdit) {
+      saveVal = parseOutwardValue(outwardValue);
+    }
+
+    setSaving(true);
+    if(isEdit) {
+      try {
+        await axios.put('/api/outward/'+outwardValue.id, saveVal);
+        props.onSave(saveVal, isEdit);
+        props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Outward updated successfully');
+      } catch(err) {
+        console.log(err);
+        setSaving(false);
+        props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
+      }
+    } else {
+      try {
+        await axios.post('/api/outward', saveVal);
+        props.onSave(saveVal, isEdit);
+        props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Outward added successfully');
+      } catch(err) {
+        console.log(err);
+        setSaving(false);
+        props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
+      }
+    }
+  };
 
   function updateoutwardValues(e, name) {
     if(e && e.target) {
@@ -327,13 +358,7 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
     <DraggableDialog
       sectionTitle="Yarn Outward"
       {...props}
-      onSave={() => {
-        let saveVal = outwardValue;
-        if(!isEdit) {
-          saveVal = parseOutwardValue(outwardValue);
-        }
-        props.onSave(saveVal, isEdit);
-      }}
+      onSave={saveDetails}
       open={open}
       maxWidth="md"
       extraButtons={
@@ -341,6 +366,7 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
           {isEdit && <Button color="secondary" variant="contained" onClick={()=>setConfirmOpen(true)}>Delete</Button>}
         </>
       }
+      isSaving={saving}
     >
       <Grid container>
         <Grid item lg={12} md={12} sm={12} xs={12}>
@@ -572,44 +598,8 @@ class YarnOutward extends React.Component {
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails(outwardValue, isEdit) {
-    if(isEdit) {
-      axios
-        .put('/api/outward/'+outwardValue.id, outwardValue)
-        .then(() => {
-          this.setState((prevState) => {
-            let indx = prevState.outwards.findIndex(
-              (i) => i.id === outwardValue.id
-            );
-            return {
-              outwards: [
-                ...prevState.outwards.slice(0, indx),
-                outwardValue,
-                ...prevState.outwards.slice(indx + 1),
-              ],
-            };
-          });
-          this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Outward updated successfully');
-          this.showDialog(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
-        });
-    } else {
-      outwardValue.forEach((singleOut) => {
-        axios
-          .post('/api/outward', singleOut)
-          .then((res) => {
-            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Outward added successfully');
-            this.showDialog(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
-          });
-      });
-    }
+  saveDetails() {
+    this.showDialog(false);
   }
 
   deleteRecord(outwardValue) {
@@ -703,6 +693,7 @@ class YarnOutward extends React.Component {
           onDelete={(outwardValue)=>
             this.deleteRecord(outwardValue)
           }
+          setNotification={this.props.setNotification}
         />
       </>
     );

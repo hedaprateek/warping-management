@@ -54,38 +54,40 @@ router.delete('/:id', async function(req, res) {
 });
 
 router.post('/', async function(req, res) {
-  let reqJson = req.body;
+  let reqJsonBulk = req.body;
   const t = await db.sequelize.transaction();
-
+  /* reqJsonBulk will be an array since it is a bulk operation */
   try {
-    let isValid = await addSetNo(reqJson.setNo, reqJson.partyId, t);
-    if(!isValid) {
-      await t.rollback();
-      res.status(500).json({message: 'Set number is already used by other party.'});
-      return;
+    for(const reqJson of reqJsonBulk) {
+      let isValid = await addSetNo(reqJson.setNo, reqJson.partyId, t);
+      if(!isValid) {
+        await t.rollback();
+        res.status(500).json({message: 'Set number is already used by other party.'});
+        return;
+      }
+
+      result = await db.Outward.create({
+        setNo: reqJson.setNo,
+        partyId: reqJson.partyId,
+        weaverId: reqJson.weaverId,
+        qualityId: reqJson.qualityId,
+        date: reqJson.date,
+        emptyConeWt: reqJson.emptyConeWt,
+        emptyBagWt: reqJson.emptyBagWt,
+        netWt: reqJson.netWt
+      }, {transaction: t});
+
+      await db.OutwardBags.bulkCreate(reqJson.bags.map((bag)=>({
+        outwardId: result.id,
+        cones: bag.cones,
+        date: bag.date,
+        grossWt: bag.grossWt,
+      })), {transaction: t});
+
+      result.bags = reqJson.bags;
     }
-
-    result = await db.Outward.create({
-      setNo: reqJson.setNo,
-      partyId: reqJson.partyId,
-      weaverId: reqJson.weaverId,
-      qualityId: reqJson.qualityId,
-      date: reqJson.date,
-      emptyConeWt: reqJson.emptyConeWt,
-      emptyBagWt: reqJson.emptyBagWt,
-      netWt: reqJson.netWt
-    }, {transaction: t});
-
-    await db.OutwardBags.bulkCreate(reqJson.bags.map((bag)=>({
-      outwardId: result.id,
-      cones: bag.cones,
-      date: bag.date,
-      grossWt: bag.grossWt,
-    })), {transaction: t});
-
-    result.bags = reqJson.bags;
     await t.commit();
-    res.status(200).json(result);
+    res.status(200).json({});
   } catch(error) {
     await t.rollback();
     res.status(500).json({message: error});

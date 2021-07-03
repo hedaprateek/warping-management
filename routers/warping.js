@@ -84,44 +84,47 @@ router.delete('/:id', async function(req, res) {
 
 
 router.post('/', async function(req, res) {
-  let reqJson = req.body;
+  let reqJsonBulk = req.body;
   let retVal = {};
   const t = await db.sequelize.transaction();
 
+  /* reqJsonBulk will be an array since it is a bulk operation */
   try {
-    let isValid = await addSetNo(reqJson.setNo, reqJson.partyId, t);
-    if(!isValid) {
-      await t.rollback();
-      res.status(500).json({message: 'Set number is already used by other party.'});
-      return;
+    for(const reqJson of reqJsonBulk) {
+      let isValid = await addSetNo(reqJson.setNo, reqJson.partyId, t);
+      if(!isValid) {
+        await t.rollback();
+        res.status(500).json({message: 'Set number is already used by other party.'});
+        return;
+      }
+      let result = await db.WarpingProgram.create({
+        design: reqJson.design,
+        lassa: reqJson.lassa,
+        cuts: reqJson.cuts,
+        totalMeter: reqJson.totalMeter,
+        totalEnds: reqJson.totalEnds,
+        partyId: reqJson.partyId,
+        weaverId: reqJson.weaverId,
+        date: reqJson.date,
+        filledBeamWt: reqJson.filledBeamWt,
+        emptyBeamWt: reqJson.emptyBeamWt,
+        actualUsedYarn: reqJson.actualUsedYarn,
+        setNo: reqJson.setNo,
+      }, {transaction: t});
+      retVal = result.toJSON();
+
+      await db.WarpingQualities.bulkCreate(reqJson.qualities.map((quality)=>({
+        warpId: result.id,
+        qualityId: quality.qualityId,
+        ends: quality.ends,
+        count: quality.count,
+        usedYarn: quality.usedYarn,
+      })), {transaction: t});
+
+      retVal.qualities = reqJson.qualities;
     }
-    let result = await db.WarpingProgram.create({
-      design: reqJson.design,
-      lassa: reqJson.lassa,
-      cuts: reqJson.cuts,
-      totalMeter: reqJson.totalMeter,
-      totalEnds: reqJson.totalEnds,
-      partyId: reqJson.partyId,
-      weaverId: reqJson.weaverId,
-      date: reqJson.date,
-      filledBeamWt: reqJson.filledBeamWt,
-      emptyBeamWt: reqJson.emptyBeamWt,
-      actualUsedYarn: reqJson.actualUsedYarn,
-      setNo: reqJson.setNo,
-    }, {transaction: t});
-    retVal = result.toJSON();
-
-    await db.WarpingQualities.bulkCreate(reqJson.qualities.map((quality)=>({
-      warpId: result.id,
-      qualityId: quality.qualityId,
-      ends: quality.ends,
-      count: quality.count,
-      usedYarn: quality.usedYarn,
-    })), {transaction: t});
-
-    retVal.qualities = reqJson.qualities;
     await t.commit();
-    res.status(200).json(retVal);
+    res.status(200).json({});
   } catch(error) {
     await t.rollback();
     res.status(500).json({message: error});

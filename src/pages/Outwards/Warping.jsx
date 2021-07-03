@@ -361,6 +361,7 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
   const [weaverOpts, setWeaverOpts] = useState([]);
   const [qualityOpts, setQualityOpts] = useState([]);
   const [setnoOpts, setSetNoOpts] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -382,6 +383,7 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
         });
         setSetNoOpts([]);
       }
+      setSaving(false);
       setPartiesOpts(accounts.filter((acc)=>acc.isWeaver=='Party').map((party)=>({label: party.name, value: party.id})));
       setWeaverOpts(accounts.map((party)=>({label: party.name, value: party.id})));
     }
@@ -427,17 +429,41 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
     });
   }, [warpingValue.setNo]);
 
+  const saveDetails = async ()=>{
+    let saveVal = warpingValue;
+    if(!isEdit) {
+      saveVal = parseWarpingValue(warpingValue);
+    }
+
+    setSaving(true);
+    if(isEdit) {
+      try {
+        await axios.put('/api/warping/'+warpingValue.id, warpingValue);
+        props.onSave(saveVal, isEdit);
+        props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Warping program updated successfully');
+      } catch(err) {
+        console.log(err);
+        setSaving(false);
+        props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
+      }
+    } else {
+      try {
+        await axios.post('/api/warping', saveVal);
+        props.onSave(saveVal, isEdit);
+        props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Warping program added successfully');
+      } catch(err) {
+        console.log(err);
+        setSaving(false);
+        props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
+      }
+    }
+  };
+
   return (
     <DraggableDialog
       sectionTitle="Program"
       {...props}
-      onSave={() => {
-        let saveVal = warpingValue;
-        if(!isEdit) {
-          saveVal = parseWarpingValue(warpingValue);
-        }
-        props.onSave(saveVal, isEdit);
-      }}
+      onSave={saveDetails}
       open={open}
       maxWidth="lg"
       extraButtons={
@@ -445,6 +471,7 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
           {isEdit && <Button color="secondary" variant="contained" onClick={()=>setConfirmOpen(true)}>Delete</Button>}
         </>
       }
+      isSaving={saving}
     >
       <Grid container>
         <Grid item lg={12} md={12} sm={12} xs={12}>
@@ -668,43 +695,7 @@ class Warping extends React.Component {
   }
 
   saveDetails(warpingValue, isEdit) {
-    if(isEdit) {
-      axios
-        .put('/api/warping/'+warpingValue.id, warpingValue)
-        .then(() => {
-          this.setState((prevState) => {
-            let indx = prevState.warpings.findIndex(
-              (i) => i.id === warpingValue.id
-            );
-            return {
-              warpings: [
-                ...prevState.warpings.slice(0, indx),
-                warpingValue,
-                ...prevState.warpings.slice(indx + 1),
-              ],
-            };
-          });
-          this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Warping program updated successfully');
-          this.showDialog(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
-        });
-    } else {
-      warpingValue.forEach((singleWarp) => {
-        axios
-          .post('/api/warping', singleWarp)
-          .then((res) => {
-            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Warping program added successfully');
-            this.showDialog(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
-          });
-      });
-    }
+    this.showDialog(false);
   }
 
   deleteRecord(warpingValue) {
@@ -797,6 +788,7 @@ class Warping extends React.Component {
           onDelete={(warpingValue)=>
             this.deleteRecord(warpingValue)
           }
+          setNotification={this.props.setNotification}
         />
       </>
     );

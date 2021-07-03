@@ -17,7 +17,7 @@ function PaperComponent(props) {
   );
 }
 
-export default function DraggableDialog({children, sectionTitle, extraButtons, ...props}) {
+export default function DraggableDialog({children, sectionTitle, extraButtons, isSaving, ...props}) {
   return (
     <Dialog
       PaperComponent={PaperComponent}
@@ -35,8 +35,8 @@ export default function DraggableDialog({children, sectionTitle, extraButtons, .
         <Button onClick={props.onClose} color="secondary" variant="outlined">
           Close
         </Button>
-        <Button onClick={props.onSave} color="primary" variant="contained">
-          Save
+        <Button onClick={props.onSave} color="primary" variant="contained" disabled={isSaving}>
+          {isSaving ? "Saving..." : "Save"}
         </Button>
       </DialogActions>
     </Dialog>
