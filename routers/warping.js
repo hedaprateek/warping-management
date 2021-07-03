@@ -161,10 +161,11 @@ router.put('/:id', async function(req, res) {
     });
 
     await db.WarpingQualities.destroy({
+      transaction: t,
       where: {
         warpId: reqJson.id,
       }
-    }, {transaction: t});
+    });
 
     await db.WarpingQualities.bulkCreate(reqJson.qualities.map((quality)=>({
       id: quality.id,
