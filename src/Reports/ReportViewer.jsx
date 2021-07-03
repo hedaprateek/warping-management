@@ -11,7 +11,8 @@ const useStyles = makeStyles((theme)=>({
     minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
-    border: '1px solid '+theme.palette.grey[200]
+    border: '1px solid '+theme.palette.grey[200],
+    fontSize: 12,
   },
   viewerReport: {
     backgroundColor: theme.palette.grey[300],
@@ -43,10 +44,10 @@ export function ReportHeader({reportName, getReportDetails}) {
     <Box borderBottom={1} borderTop={1}>
       <Grid container borderBottom={1} spacing={1}>
         <Grid item xs>
-          <Typography style={{fontWeight: 'bold'}}>{settings.companyName}</Typography>
-          <Typography variant="subtitle2">{settings.companyAddress}</Typography>
-          <Typography style={{fontWeight: 'bold'}} variant="subtitle2">GSTIN: {settings.companyGst}</Typography>
-          <Typography variant="body2">{settings.companyContact}, {settings.emailId}</Typography>
+          <Typography style={{fontWeight: 'bold', lineHeight: 1.3, fontSize: 14}}>{settings.companyName}</Typography>
+          <Typography style={{lineHeight: 1.3}} variant="subtitle2">{settings.companyAddress}</Typography>
+          <Typography style={{fontWeight: 'bold', lineHeight: 1.3, fontSize: 12}} variant="subtitle2">GSTIN: {settings.companyGst}</Typography>
+          <Typography style={{lineHeight: 1.3}} variant="subtitle2">{settings.companyContact}, {settings.emailId}</Typography>
         </Grid>
         <Grid item xs>
           {reportName && <ReportField name="Report" value={reportName} />}
@@ -66,6 +67,10 @@ export default function ReportViewer({reportName, getReportDetails, withHeader=t
     @page {
       size: A4;
       margin: 5mm 5mm 17mm 5mm;
+    }
+
+    * {
+      font-size: 12px;
     }
 
     @page {

@@ -176,7 +176,7 @@ export function DashedDivider() {
 
 export function ReportField({name, value, margin, style}) {
   return (
-    <Typography style={margin ? {marginRight: '0.5rem', ...style} : style}>
+    <Typography component="div" style={margin ? {marginRight: '0.5rem', ...style} : style}>
       <span style={{fontWeight: 'bold'}}>{name}: </span>{value}
     </Typography>
   )

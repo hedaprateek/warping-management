@@ -208,9 +208,12 @@ function FinalReport({data, getParty, getQuality}) {
       });
     });
   });
-  beamDetailsSummary.overall.totalMeter = parse(beamDetailsSummary.overall.totalMeter);
-  beamDetailsSummary.overall.totalCuts = parse(beamDetailsSummary.overall.totalCuts);
-  beamDetailsSummary.overall.netWeight = parse(beamDetailsSummary.overall.netWeight);
+  Object.keys(beamDetailsSummary.qualities).map((qualityId)=>{
+    beamDetailsSummary.qualities[qualityId] = round(beamDetailsSummary.qualities[qualityId]);
+  });
+  beamDetailsSummary.overall.totalMeter = round(beamDetailsSummary.overall.totalMeter);
+  beamDetailsSummary.overall.totalCuts = round(beamDetailsSummary.overall.totalCuts);
+  beamDetailsSummary.overall.netWeight = round(beamDetailsSummary.overall.netWeight);
 
   /* Calculate the yarn outward summary */
   let yarnOutwardSummary = {
@@ -222,6 +225,9 @@ function FinalReport({data, getParty, getQuality}) {
       yarnOutwardSummary.qualities[outward.qualityId] = yarnOutwardSummary.qualities[outward.qualityId] || 0;
       yarnOutwardSummary.qualities[outward.qualityId] += outward.netWt;
     });
+  });
+  Object.keys(yarnOutwardSummary.qualities).map((qualityId)=>{
+    yarnOutwardSummary.qualities[qualityId] = round(yarnOutwardSummary.qualities[qualityId]);
   });
 
   let allQualities =
@@ -293,7 +299,7 @@ function FinalReport({data, getParty, getQuality}) {
         <ReportTable data={
             Object.keys(yarnOutwardSummary.qualities).map(
               (qualityId)=>({
-                qualityId: qualityId, netWt: yarnOutwardSummary.qualities[qualityId]
+                qualityId: qualityId, netWt: round(yarnOutwardSummary.qualities[qualityId])
               })
             )
           } columns={[

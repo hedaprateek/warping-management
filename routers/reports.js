@@ -21,7 +21,7 @@ router.get('/inward', function(req, res) {
   }
   db.Inward.findAll({
     attributes: ['date', [Sequelize.col('PartyDetails.name'), 'party'],
-      'gatepass', [Sequelize.col('QualityDetails.name'), 'quality'], 'lotNo', 'netWt'],
+      'gatepass', [Sequelize.col('QualityDetails.name'), 'quality'], 'lotNo', 'netWt', 'notes'],
     order: [['gatepass', 'DESC']],
     raw: true,
     where: where,
@@ -35,7 +35,8 @@ router.get('/inward', function(req, res) {
         date: row.date,
         gatepass: row.gatepass,
         lotNo: row.lotNo,
-        netWt: row.netWt
+        netWt: row.netWt,
+        notes: row.notes,
       });
     })
 

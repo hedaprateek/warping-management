@@ -99,6 +99,10 @@ export default function InwardReport(props) {
       Header: 'Net Wt.',
       accessor: 'netWt',
     },
+    {
+      Header: 'Notes',
+      accessor: 'notes',
+    },
   ]);
 
   const onReportClick = ()=>{
@@ -231,11 +235,12 @@ export default function InwardReport(props) {
 function FinalReport({data}) {
   return (
     <>
+      <Box p={0.5}></Box>
       {Object.keys(data).map((partyName)=>{
         let party = data[partyName];
         return (
           <>
-          <Typography>Party: {partyName}</Typography>
+          <ReportField name="Party" value={partyName} />
           {Object.keys(party).map((qualityName)=>{
             let quality = party[qualityName];
             return (
@@ -243,7 +248,7 @@ function FinalReport({data}) {
               <ReportTable>
                 <ReportTableSection>
                   <ReportTableRow>
-                    <ReportTableData width='20%' style={{verticalAlign: 'top'}} lastRow>
+                    <ReportTableData width='18%' style={{verticalAlign: 'top'}} lastRow>
                       <ReportField name="Quality" value={qualityName} />
                     </ReportTableData>
                     <ReportTableData style={{padding: 0}} last lastRow>
@@ -251,14 +256,17 @@ function FinalReport({data}) {
                         {
                           Header: 'Date',
                           accessor: 'date',
+                          width: 90,
                         },
                         {
                           Header: 'Gatepass No.',
                           accessor: 'gatepass',
+                          width: 100,
                         },
                         {
                           Header: 'Lot number',
                           accessor: 'lotNo',
+                          width: 100,
                           Footer: (info)=>{
                             return <span style={{fontWeight: 'bold'}}>Total</span>
                           }
@@ -266,6 +274,7 @@ function FinalReport({data}) {
                         {
                           Header: 'Net Wt.',
                           accessor: 'netWt',
+                          width: 120,
                           Footer: (info)=>{
                             let total = info.rows.reduce((sum, row) => {
                                 return (parse(row.values[info.column.id]) || 0) + sum
@@ -274,6 +283,10 @@ function FinalReport({data}) {
                             total = round(total);
                             return <span style={{fontWeight: 'bold'}}>{total}</span>
                           }
+                        },
+                        {
+                          Header: 'Notes',
+                          accessor: 'notes',
                         },
                       ]}/>
                     </ReportTableData>

@@ -135,6 +135,11 @@ export const theme = createMuiTheme({
             sizeSmall: {
                 padding: 0,
             }
+        },
+        MuiTypography: {
+            body1: {
+                fontSize: 'inherit',
+            }
         }
     },
     otherVars: {
