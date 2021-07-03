@@ -1,4 +1,4 @@
-import { AppBar, Box, Button, Snackbar, Toolbar, Typography, useTheme } from '@material-ui/core';
+import { AppBar, Box, Button, Snackbar, Toolbar, Link, Typography, useTheme } from '@material-ui/core';
 import React, { useMemo } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link as RouterLink, useRouteMatch } from 'react-router-dom';
 import DateFnsUtils from '@date-io/date-fns';
@@ -93,6 +93,8 @@ function Dashboard(props) {
     });
   }
 
+  const theme = useTheme();
+
   const dash = useMemo(()=>{
     return (
       <>
@@ -128,6 +130,12 @@ function Dashboard(props) {
                 component={settings.component}
               />
             </Switch>
+          </Box>
+          {/* <Box style={{padding:'0.25rem', backgroundColor: theme.palette.primary.main, color: theme.palette.primary.contrastText}}> */}
+          <Box style={{
+              padding:'0.25rem', borderTop: '1px solid '+theme.palette.primary.main,
+            }}>
+            <Button style={{padding: '0px 10px'}} color="secondary" variant="outlined">Test company with big name</Button>
           </Box>
         </Box>
       </>

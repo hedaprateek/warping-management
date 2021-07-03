@@ -1,6 +1,7 @@
 import { Box, Tab, Tabs } from '@material-ui/core';
 import React from 'react';
 import TabPanel from '../../components/TabPanel';
+import CompanyAccounts from './CompanyAccounts';
 import Parties from './Parties';
 import Qualities from './Qualities';
 
@@ -17,6 +18,7 @@ export default function Masters() {
         <Tabs value={tabvalue} onChange={tabChange}>
           <Tab label="Accounts" />
           <Tab label="Qualities" />
+          <Tab label="Companies Accounts" />
         </Tabs>
       </Box>
       <TabPanel value={tabvalue} index={0}>
@@ -24,6 +26,9 @@ export default function Masters() {
       </TabPanel>
       <TabPanel value={tabvalue} index={1}>
         <Qualities />
+      </TabPanel>
+      <TabPanel value={tabvalue} index={2}>
+        <CompanyAccounts />
       </TabPanel>
     </Box>
   )

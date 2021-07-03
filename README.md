@@ -106,6 +106,11 @@ npx sequelize-cli model:generate --name PartySetNo --attributes partyId:integer,
 
 npx sequelize-cli migration:create --name migrate-setno
 
+npx sequelize-cli model:generate --name CompanyAccounts --attributes last_opened_enc:string,install_date_enc:string,system_id:string,expiry_date_enc:string,activation_date_enc:string
+
+npx sequelize-cli model:generate --name CompanyAccounts --attributes name:string,address:string,gst:string,contact:string,email:string
+
+npx sequelize-cli seed:generate --name default-company
 
 
 Aditya activation key:
