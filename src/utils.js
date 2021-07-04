@@ -10,10 +10,15 @@ export function parse(num) {
   }
 }
 
-export function round(num) {
+export function round(num, withLeadingZeros=false, decimals=ROUND_DECIMAL) {
   num = parse(num);
-  num = Math.round(num + "e" + ROUND_DECIMAL);
-  return Number(num + "e" + -ROUND_DECIMAL);
+  num = Math.round(num + "e" + decimals);
+  num = Number(num + "e" + -decimals);
+  if(withLeadingZeros) {
+    return num.toLocaleString("en",{useGrouping: false,minimumFractionDigits: decimals});
+  } else {
+    return num;
+  }
 }
 
 export const getDefaultRow = (cols) => {

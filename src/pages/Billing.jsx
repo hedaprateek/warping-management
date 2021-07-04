@@ -15,6 +15,7 @@ import axios from 'axios';
 import {
   FormField,
   InputDate,
+  InputSelect,
   InputSelectSearch,
   InputText,
 } from '../components/FormElements';
@@ -29,6 +30,7 @@ import {
   ReportTable,
 } from '../Reports/ReportComponents';
 import ReportViewer, { ReportHeader } from '../Reports/ReportViewer';
+import DataGrid from '../components/DataGrid';
 
 const useStyles = makeStyles((theme) => ({
   reportContainer: {
@@ -53,25 +55,21 @@ export default function Billing() {
 
   function setBillRecords(data) {
     let programData = data['programData'] || {};
-
-    let beamDetailsSummary = {
-      weaverName: '',
-      totalMeter: 0,
-      netWeight: 0,
-      netLength: 0,
-      netQuantity: 0,
-      calculationParameter: 'wt',
-      netWeight: 0,
-      weaverDesc: '',
-      rate: 0,
-      amount: 0,
-      hsnSacCode: '',
-      quantity: 0,
-      unit: 'kgs',
-    };
-
     let finalRows = [];
     Object.keys(programData).forEach((weaverId, i) => {
+      let beamDetailsSummary = {
+        weaverName: '',
+        totalMeter: 0,
+        netWeight: 0,
+        netLength: 0,
+        netQuantity: 0,
+        unit: 'wt',
+        weaverDesc: '',
+        rate: 0,
+        amount: 0,
+        hsnSacCode: '',
+        quantity: 0,
+      };
       let beams = programData[weaverId];
       beamDetailsSummary.weaverName = getParty(weaverId);
       beamDetailsSummary.netQuantity = beams.length;
@@ -83,69 +81,50 @@ export default function Billing() {
         });
       });
 
-      if (beamDetailsSummary.calculationParameter === 'wt') {
+      beamDetailsSummary.netWeight = round(beamDetailsSummary.netWeight);
+
+      if (beamDetailsSummary.unit === 'wt') {
         beamDetailsSummary.quantity = beamDetailsSummary.netWeight;
-        beamDetailsSummary.unit = 'Kgs.';
-      } if (beamDetailsSummary.calculationParameter === 'ln') {
+        beamDetailsSummary.unitLabel = 'Kgs.';
+      } if (beamDetailsSummary.unit === 'ln') {
         beamDetailsSummary.quantity = beamDetailsSummary.netLength;
-        beamDetailsSummary.unit = 'Mtr.';
-      } if (beamDetailsSummary.calculationParameter === 'qn') {
+        beamDetailsSummary.unitLabel = 'Mtr.';
+      } if (beamDetailsSummary.unit === 'qn') {
         beamDetailsSummary.quantity = beamDetailsSummary.netQuantity;
-        beamDetailsSummary.unit = 'Nos.';
+        beamDetailsSummary.unitLabel = 'Nos.';
       }
       finalRows.push(beamDetailsSummary);
-      beamDetailsSummary = {
-        weaverName: '',
-        totalMeter: 0,
-        netWeight: 0,
-        netLength: 0,
-        netQuantity: 0,
-        calculationParameter: 'wt',
-        weaverDesc: '',
-        rate: 0,
-        amount: 0,
-        hsnSacCode: '',
-        quantity: 0,
-        unit: 'kgs',
-      };
     });
     setBillRows(finalRows);
   }
 
-    function updateBillingValues(e, index) {
+  function updateBillingValues(e, index, id) {
     if (e?.target) {
-
       setBillRows((prevValue) => {
         let updatedValue = [...prevValue];
         let rowOfConcern = updatedValue[index];
-        if (e.target.id === 'weaverDesc')
-        {
-          rowOfConcern.weaverDesc = e.target.value;
-        } if (e.target.name === 'select') {
-          rowOfConcern.calculationParameter = e.target.value;
+        let targetId = e.target.id || id;
+        rowOfConcern[targetId] = e.target.value;
 
-        } else {
-          // rowOfConcern.rate = e.target.value;
-          if (rowOfConcern.calculationParameter === "wt") {
-            rowOfConcern.amount = e.target.value * rowOfConcern.netWeight;
-            rowOfConcern.quantity = rowOfConcern.netWeight;
-            rowOfConcern.unit = 'Kgs.';
-          }
-          if (rowOfConcern.calculationParameter === "ln") {
-            rowOfConcern.amount = e.target.value * rowOfConcern.netLength;
-            rowOfConcern.quantity = rowOfConcern.netLength;
-            rowOfConcern.unit = 'Mtr.';
-          }
-          if (rowOfConcern.calculationParameter === "qn") {
-            rowOfConcern.amount = e.target.value * rowOfConcern.netQuantity;
-            rowOfConcern.quantity = rowOfConcern.netQuantity;
-            rowOfConcern.unit = 'Nos.';
-          }
+        if (rowOfConcern.unit === "wt") {
+          rowOfConcern.amount = round(parse(rowOfConcern.rate) * rowOfConcern.netWeight, true, 2);
+          rowOfConcern.quantity = rowOfConcern.netWeight;
+          rowOfConcern.unitLabel = 'Kgs.';
+        }
+        if (rowOfConcern.unit === "ln") {
+          rowOfConcern.amount = round(parse(rowOfConcern.rate) * rowOfConcern.netLength, true, 2);
+          rowOfConcern.quantity = rowOfConcern.netLength;
+          rowOfConcern.unitLabel = 'Mtr.';
+        }
+        if (rowOfConcern.unit === "qn") {
+          rowOfConcern.amount = round(parse(rowOfConcern.rate) * rowOfConcern.netQuantity, true, 2);
+          rowOfConcern.quantity = rowOfConcern.netQuantity;
+          rowOfConcern.unitLabel = 'Nos.';
         }
         return updatedValue;
       });
     }
-    }
+  }
   const onReportClick = () => {
     axios
       .get('/api/reports/set', {
@@ -154,7 +133,6 @@ export default function Billing() {
         },
       })
       .then((res) => {
-        console.log(res.data);
         setData(res.data);
         setBillRecords(res.data);
       })
@@ -181,71 +159,65 @@ export default function Billing() {
   const getParty = (id) => (_.find(parties, (w) => w.id == id) || {}).name;
   const getQuality = (id) => (_.find(qualities, (w) => w.id == id) || {}).name;
 
-    const billingCols = useMemo(()=>[
-            {
-              Header: 'Weaver Name',
-              accessor: 'weaverName',
-            },
-            {
-              Header: 'Desc',
-              accessor: 'weaverDesc',
-              Cell: ({ row, value }) => {
-                return (
-                  <InputText
-                    variant="outlined"
-                    fullWidth
-                    id="weaverDesc"
-                    value={value}
-                    onChange={(e) => updateBillingValues(e, row.index)}
-                  />
-                );
-              },
-            },
-            {
-              Header: 'Calculation Parameter',
-              accessor: 'calculationParameter',
-              Cell: ({ row }) => {
-                return (
-                  <div>
-                    <TextField id="select" name="select" label="" value="20" select onChange={(e) => updateBillingValues(e, row.index)}>
-                      <MenuItem value="wt">Kgs.</MenuItem>
-                      <MenuItem value="ln">Mtr.</MenuItem>
-                      <MenuItem value="qn">Nos.</MenuItem>
-                    </TextField>
-                    {/* <span>
-                      {row.data[row.row.index].weaverName}
-                    </span>
-                    <br />
-                    <span>
-                      {row.data[row.row.index].weaverDesc}
-                    </span> */}
-                  </div>
-                );
-              },
-            },
-            {
-              Header: 'Rate',
-              // accessor: 'rate',
-              Cell: ({ row, value }) => {
-                return (
-                  <InputText
-                    label={value}
-                    variant="outlined"
-                    fullWidth
-                    id="rate"
-                    value={row.values.rate }
-                    onChange={(e) => updateBillingValues(e, row.index)}
-                  />
-                );
-              },
-            },
-            {
-              Header: 'Amount',
-              accessor: 'amount',
-            },
-
-    ],[]);
-
+  const billingCols = useMemo(()=>[
+    {
+      Header: 'Weaver Name',
+      accessor: 'weaverName',
+      style: {width: 250},
+    },
+    {
+      Header: 'Notes',
+      accessor: 'weaverDesc',
+      Cell: ({ row, value }) => {
+        return (
+          <InputText
+            variant="outlined"
+            fullWidth
+            value={value}
+            onChange={(e) => updateBillingValues(e, row.index, 'weaverDesc')}
+          />
+        );
+      },
+      style: {width: 250},
+    },
+    {
+      Header: 'Unit',
+      accessor: 'unit',
+      Cell: ({ row, value }) => {
+        return (
+          <InputSelect options={[
+              {label: 'Kgs.', value: 'wt'},
+              {label: 'Mtr.', value: 'ln'},
+              {label: 'Nos.', value: 'qn'},
+            ]}
+            value={value}
+            onChange={(e) => updateBillingValues(e, row.index, "unit")}
+          />
+        );
+      },
+      style: {width: 100},
+    },
+    {
+      Header: 'Rate',
+      accessor: 'rate',
+      Cell: ({ row, value }) => {
+        return (
+          <InputText
+            variant="outlined"
+            fullWidth
+            value={value}
+            onChange={(e) => updateBillingValues(e, row.index, "rate")}
+          />
+        );
+      },
+      style: {width: 200},
+    },
+    {
+      Header: 'Amount',
+      accessor: 'amount',
+      style: {width: 220},
+    },
+  ],[]);
 
   return (
     <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -282,9 +254,10 @@ export default function Billing() {
           </Grid>
         </Grid>
       </Box>
-
-      <Grid>
-        <ReportTable showFooter data={billRows} columns={billingCols} />
+      <Grid container>
+        <Grid item lg={8} md={12} sm={12} xs={12}>
+          <DataGrid showFooter data={billRows} columns={billingCols} />
+        </Grid>
       </Grid>
 
       <ReportViewer withHeader={false}>
@@ -325,20 +298,10 @@ export default function Billing() {
 function BillLeaflet({ billRows, amountTotal, getReportDetails, compHeader }) {
   return (
     <Box display="flex" flexDirection="column" height="270mm" marginLeft="5mm">
-      <Box>
-        <Typography
-          style={{
-            fontWeight: 'bold',
-            textAlign: 'center',
-          }}
-        >
-          TAX INVOICE
-        </Typography>
-      </Box>
-      <ReportHeader getReportDetails={getReportDetails} compHeader={compHeader}/>
+      <ReportHeader reportName={'TAX INVOICE'} getReportDetails={getReportDetails} compHeader={compHeader}/>
       <Box flexGrow="1" display="flex" flexDirection="column">
         <BillTable
-          style={{fontSize: '0.9em', height: '100%'}}
+          style={{height: '100%'}}
           showFooter
           data={billRows}
           columns={[
@@ -366,7 +329,7 @@ function BillLeaflet({ billRows, amountTotal, getReportDetails, compHeader }) {
                   </div>
                 );
               },
-              width: 90,
+              width: 120,
             },
             {
               Header: 'HSN/SAC Code',
@@ -376,21 +339,24 @@ function BillLeaflet({ billRows, amountTotal, getReportDetails, compHeader }) {
             {
               Header: 'Qty.',
               accessor: 'quantity',
-              width: 30,
+              width: 40,
             },
             {
               Header: 'Unit',
-              accessor: 'unit',
+              accessor: 'unitLabel',
+              width: 20,
             },
             {
               Header: 'Rate',
               accessor: 'rate',
-              width: 30,
+              width: 50,
+              Footer: ()=><span style={{fontWeight: 'bold'}}>Total</span>
             },
             {
               Header: 'Amount',
               accessor: 'amount',
-              width: 30,
+              width: 50,
+              align: 'right',
               Footer: (info)=>{
                 return <span style={{fontWeight: 'bold'}}>{amountTotal}</span>
               }
@@ -400,65 +366,16 @@ function BillLeaflet({ billRows, amountTotal, getReportDetails, compHeader }) {
       </Box>
       <Box>
         <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} />
-        {/* <ReportField name="Amount in words" value={convertAmountToWords(amountTotal)} /> */}
       </Box>
     </Box>
   );
 }
 
 function FinalReport({ data, getParty, getQuality, billRows, getReportDetails, compHeader }) {
-  let programData = data['programData'] || {};
-  let outwardData = data['outwardData'] || {};
-
-  /* Calculate the beam details summary */
-  let beamDetailsSummary = {
-    qualities: {},
-    overall: {
-      totalMeter: 0,
-      totalCuts: 0,
-      netWeight: 0,
-    },
-  };
-  Object.keys(programData).forEach((weaverId, i) => {
-    let weaver = programData[weaverId];
-    weaver.forEach((beam) => {
-      beamDetailsSummary.overall.totalMeter += beam.totalMeter;
-      beamDetailsSummary.overall.totalCuts += beam.cuts;
-      beam.qualities.forEach((q) => {
-        beamDetailsSummary.qualities[q.qualityId] =
-          beamDetailsSummary.qualities[q.qualityId] || 0;
-        beamDetailsSummary.qualities[q.qualityId] += q.usedYarn;
-        beamDetailsSummary.overall.netWeight += q.usedYarn;
-      });
-    });
-  });
-  beamDetailsSummary.overall.totalMeter = parse(
-    beamDetailsSummary.overall.totalMeter
-  );
-  beamDetailsSummary.overall.totalCuts = parse(
-    beamDetailsSummary.overall.totalCuts
-  );
-  beamDetailsSummary.overall.netWeight = parse(
-    beamDetailsSummary.overall.netWeight
-  );
-
-  /* Calculate the yarn outward summary */
-  let yarnOutwardSummary = {
-    qualities: {},
-  };
-  Object.keys(outwardData).forEach((weaverId, i) => {
-    let weaver = outwardData[weaverId] || {};
-    weaver.forEach((outward) => {
-      yarnOutwardSummary.qualities[outward.qualityId] =
-        yarnOutwardSummary.qualities[outward.qualityId] || 0;
-      yarnOutwardSummary.qualities[outward.qualityId] += outward.netWt;
-    });
-  });
-
   let amountTotal = billRows.reduce((sum, row) => {
     return (parse(row.amount) || 0) + sum
   }, 0);
-  amountTotal = round(amountTotal);
+  amountTotal = round(amountTotal, true, 2);
 
   return (
     <>

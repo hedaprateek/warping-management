@@ -237,6 +237,9 @@ const useBillStyles = makeStyles((theme)=>({
     flexDirection: 'column',
     flexGrow: 1,
   },
+  tfoot: {
+    borderTop: '1px solid '+theme.palette.grey[400],
+  },
   tf: {
     margin: 0,
     padding: '0.25rem',
@@ -300,6 +303,20 @@ export function BillTable({ columns, data, style }) {
             </>
           )
         })}
+      </div>
+      <div className={classes.tfoot}>
+        {footerGroups.map(footerGroup => (
+          <div
+            {...footerGroup.getFooterGroupProps()}
+            className={classes.tr}
+          >
+            {footerGroup.headers.map(column => (
+              <div {...column.getFooterProps(headerProps)} className={classes.th}>
+                {column.render('Footer')}
+              </div>
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   )
