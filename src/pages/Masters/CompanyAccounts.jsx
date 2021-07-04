@@ -6,7 +6,6 @@ import {
 } from '@material-ui/core';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import SimpleReactValidator from 'simple-react-validator';
 import DraggableDialog from '../../helpers/DraggableDialog';
 import { FormField, InputSelect, InputText } from '../../components/FormElements'
 import TableComponent from '../../components/TableComponent';
@@ -16,7 +15,6 @@ import { connect } from 'react-redux';
 import { getAxiosErr } from '../../utils';
 
 function CompaniesDialog({ open, ...props }) {
-  const [validator, setValidator] = useState(new SimpleReactValidator());
   const [isEdit, setIsEdit] = useState(false);
   const editModeCompany = props.editModeCompanyValue;
   const isUniqueName = props.isUniqueName;
@@ -38,7 +36,6 @@ function CompaniesDialog({ open, ...props }) {
       setIsEdit(false);
       setCompanyValue(defaults);
     }
-    setValidator(new SimpleReactValidator());
   }, [open]);
 
   function updateCompanyValues(e) {
@@ -57,7 +54,7 @@ function CompaniesDialog({ open, ...props }) {
       sectionTitle="Company Account"
       {...props}
       onSave={() => {
-        props.onSave(companyValue, validator, isEdit);
+        props.onSave(companyValue, isEdit);
       }}
     >
       {isUniqueName == 'false' && <h4>Company name should be unique</h4>}
@@ -70,9 +67,7 @@ function CompaniesDialog({ open, ...props }) {
             value={companyValue.name}
             onChange={updateCompanyValues}
             autoFocus
-            errorMsg={validator.message('Name', companyValue.name, 'required')}
           />
-          {/*  {this.validator.message('ipAddress', this.state.ip, 'required|ip:127.0.0.1')} */}
         </Grid>
         <Grid item lg={6} md={6} sm={12} xs={12}>
           <InputText
@@ -80,11 +75,6 @@ function CompaniesDialog({ open, ...props }) {
             id="contact"
             value={companyValue.contact}
             onChange={updateCompanyValues}
-            errorMsg={validator.message(
-              'Contact',
-              companyValue.contact,
-              'required|phone'
-            )}
           />
         </Grid>
       </Grid>
@@ -116,11 +106,6 @@ function CompaniesDialog({ open, ...props }) {
             id="address"
             value={companyValue.address}
             onChange={updateCompanyValues}
-            errorMsg={validator.message(
-              'Address',
-              companyValue.address,
-              'required'
-            )}
           />
         </Grid>
       </Grid>
@@ -195,7 +180,7 @@ class CompanyAccounts extends React.Component {
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails(companyValue, validator, isEdit) {
+  saveDetails(companyValue, isEdit) {
     let editCompanyName = '';
     if (isEdit) {
       editCompanyName = companyValue.name;
@@ -212,60 +197,54 @@ class CompanyAccounts extends React.Component {
     if (isUniqueNameList && isUniqueNameList.length > 0) {
       this.state.isUniqueName = 'false';
     }
-    if (validator.allValid() && this.state.isUniqueName === 'true') {
-      console.log(companyValue);
-      this.state.isUniqueName = 'true';
-      if (isEdit) {
-        axios
-          .put(`/api/companies/` + companyValue.id, companyValue, {
-            headers: {
-              'content-type': 'application/json',
-            },
-          })
-          .then((res) => {
-            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Company updated successfully');
-            let indx = this.setState((prevState) => {
-              let indx = prevState.companies.findIndex(
-                (i) => i.id === companyValue.id
-              );
-              return {
-                companies: [
-                  ...prevState.companies.slice(0, indx),
-                  companyValue,
-                  ...prevState.companies.slice(indx + 1),
-                ],
-              };
-            });
-          })
-          .catch((err)=>{
-            console.log(err);
-            this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
+    this.state.isUniqueName = 'true';
+    if (isEdit) {
+      axios
+        .put(`/api/companies/` + companyValue.id, companyValue, {
+          headers: {
+            'content-type': 'application/json',
+          },
+        })
+        .then((res) => {
+          this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Company updated successfully');
+          let indx = this.setState((prevState) => {
+            let indx = prevState.companies.findIndex(
+              (i) => i.id === companyValue.id
+            );
+            return {
+              companies: [
+                ...prevState.companies.slice(0, indx),
+                companyValue,
+                ...prevState.companies.slice(indx + 1),
+              ],
+            };
           });
-      } else {
-        axios
-          .post(`/api/companies`, companyValue, {
-            headers: {
-              'content-type': 'application/json',
-            },
-          })
-          .then((res) => {
-            this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Company added successfully');
-            const latestData = res.data;
-            // this.state.companies.push(latestData);
-            this.setState((prevState) => {
-              return { companies: [...prevState.companies, latestData] };
-            });
-          })
-          .catch((err)=>{
-            console.log(err);
-            this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
-          });
-      }
-      this.showDialog(false);
+        })
+        .catch((err)=>{
+          console.log(err);
+          this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
+        });
     } else {
-      validator.showMessages();
-      this.forceUpdate();
+      axios
+        .post(`/api/companies`, companyValue, {
+          headers: {
+            'content-type': 'application/json',
+          },
+        })
+        .then((res) => {
+          this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Company added successfully');
+          const latestData = res.data;
+          // this.state.companies.push(latestData);
+          this.setState((prevState) => {
+            return { companies: [...prevState.companies, latestData] };
+          });
+        })
+        .catch((err)=>{
+          console.log(err);
+          this.props.setNotification(NOTIFICATION_TYPE.ERROR, getAxiosErr(err));
+        });
     }
+    this.showDialog(false);
   }
 
   render() {
@@ -299,8 +278,8 @@ class CompanyAccounts extends React.Component {
         <CompaniesDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}
-          onSave={(companyValue, validator, isEdit) =>
-            this.saveDetails(companyValue, validator, isEdit)
+          onSave={(companyValue, isEdit) =>
+            this.saveDetails(companyValue, isEdit)
           }
           isUniqueName={this.state.isUniqueName}
           editModeCompanyValue={this.state.editModeCompanyValue}

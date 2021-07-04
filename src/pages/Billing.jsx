@@ -322,21 +322,20 @@ export default function Billing() {
   );
 }
 
-function BillLeaflet({ billRows, amountTotal, getReportDetails }) {
+function BillLeaflet({ billRows, amountTotal, getReportDetails, compHeader }) {
   return (
     <Box display="flex" flexDirection="column" height="270mm" marginLeft="5mm">
-      <ReportHeader getReportDetails={getReportDetails}/>
       <Box>
         <Typography
           style={{
             fontWeight: 'bold',
             textAlign: 'center',
-            textDecoration: 'underline',
           }}
         >
           TAX INVOICE
         </Typography>
       </Box>
+      <ReportHeader getReportDetails={getReportDetails} compHeader={compHeader}/>
       <Box flexGrow="1" display="flex" flexDirection="column">
         <BillTable
           style={{fontSize: '0.9em', height: '100%'}}
@@ -407,7 +406,7 @@ function BillLeaflet({ billRows, amountTotal, getReportDetails }) {
   );
 }
 
-function FinalReport({ data, getParty, getQuality, billRows, getReportDetails }) {
+function FinalReport({ data, getParty, getQuality, billRows, getReportDetails, compHeader }) {
   let programData = data['programData'] || {};
   let outwardData = data['outwardData'] || {};
 
@@ -463,7 +462,7 @@ function FinalReport({ data, getParty, getQuality, billRows, getReportDetails })
 
   return (
     <>
-      <BillLeaflet billRows={billRows} amountTotal={amountTotal} getReportDetails={getReportDetails} />
+      <BillLeaflet billRows={billRows} amountTotal={amountTotal} getReportDetails={getReportDetails} compHeader={compHeader} />
     </>
   );
 }
