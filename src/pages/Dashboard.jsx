@@ -9,21 +9,21 @@ import Alert from '@material-ui/lab/Alert';
 
 import { connect, Provider as ReduxProvider } from "react-redux";
 
-import Theme from './helpers/Theme';
+import Theme from '../helpers/Theme';
 
-import Home from './pages/Home';
-import Inwards from './pages/Inwards';
-import Outwards from './pages/Outwards';
-import Billing from './pages/Billing';
+import Home from './Home';
+import Inwards from './Inwards';
+import Outwards from './Outwards';
+import Billing from './Billing';
 
-import Reports from './Reports';
-import Masters from './pages/Masters';
-import License from './pages/License';
+import Reports from '../Reports';
+import Masters from './Masters';
+import License from './License';
 import { useEffect } from 'react';
 import axios from 'axios';
-import { epochDiffDays, getEpoch } from './activate_utils';
-import getStore from './store';
-import { setNotification } from './store/reducers/notification';
+import { epochDiffDays, getEpoch } from '../activate_utils';
+import getStore from '../store';
+import { setNotification } from '../store/reducers/notification';
 
 
 const navItems = [

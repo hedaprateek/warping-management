@@ -9,7 +9,7 @@ import { Provider as ReduxProvider } from "react-redux";
 
 import Theme from './helpers/Theme';
 import getStore from './store';
-import Dashboard from './Dashboard';
+import Dashboard from './pages/Dashboard';
 
 const reduxStore = getStore();
 
