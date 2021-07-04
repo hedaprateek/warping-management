@@ -5,7 +5,6 @@ import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
-import SettingsRoundedIcon from '@material-ui/icons/SettingsRounded';
 import Alert from '@material-ui/lab/Alert';
 
 import { connect, Provider as ReduxProvider } from "react-redux";
@@ -15,7 +14,6 @@ import Theme from './helpers/Theme';
 import Home from './pages/Home';
 import Inwards from './pages/Inwards';
 import Outwards from './pages/Outwards';
-import Settings from './pages/Settings';
 import Billing from './pages/Billing';
 
 import Reports from './Reports';
@@ -37,8 +35,6 @@ const navItems = [
   { label: 'Masters', to: '/masters', component: Masters },
   { label: 'License', to: '/license', component: License },
 ];
-
-const settings = { label: 'Settings', to: '/settings', component: Settings };
 
 function NavButton({to, children}) {
   let urlMatch = useRouteMatch({
@@ -103,11 +99,6 @@ function Dashboard(props) {
               {navItems.map((item) => {
                 return <NavButton to={item.to}>{item.label}</NavButton>;
               })}
-              <span style={{ marginLeft: 'auto' }}>
-                <NavButton to={settings.to}>
-                  <SettingsRoundedIcon></SettingsRoundedIcon>
-                </NavButton>
-              </span>
             </Toolbar>
           </AppBar>
           <Box>
@@ -123,11 +114,6 @@ function Dashboard(props) {
                     />} />
                 );
               })}
-              <Route
-                exact
-                path={settings.to}
-                component={settings.component}
-              />
             </Switch>
           </Box>
         </Box>
