@@ -94,10 +94,6 @@ function Dashboard(props) {
   }
 
   const theme = useTheme();
-<<<<<<< HEAD
-=======
-
->>>>>>> fcd5d8b3e7ecc4ccca38673cba2b04c230d6fa69
   const dash = useMemo(()=>{
     return (
       <>
@@ -133,12 +129,6 @@ function Dashboard(props) {
                 component={settings.component}
               />
             </Switch>
-          </Box>
-          {/* <Box style={{padding:'0.25rem', backgroundColor: theme.palette.primary.main, color: theme.palette.primary.contrastText}}> */}
-          <Box style={{
-              padding:'0.25rem', borderTop: '1px solid '+theme.palette.primary.main,
-            }}>
-            <Button style={{padding: '0px 10px'}} color="secondary" variant="outlined">Test company with big name</Button>
           </Box>
         </Box>
       </>
