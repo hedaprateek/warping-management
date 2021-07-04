@@ -67,7 +67,7 @@ function QualitiesDialog({ open, ...props }) {
     >
       {isUniqueName == 'false' && <h4>Quality name should be unique</h4>}
       <Grid container spacing={2}>
-        <Grid item lg={6} md={6} sm={12} xs={12}>
+        <Grid item xs={12}>
           <InputText
             label="Quality Name"
             variant="outlined"
@@ -82,17 +82,34 @@ function QualitiesDialog({ open, ...props }) {
             )}
           />
         </Grid>
+      </Grid>
+      <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
           <InputText
-            label="Count"
+            label="Min Count"
             variant="outlined"
             fullWidth
-            id="desc"
-            value={qualityValue.desc}
+            id="minCount"
+            value={qualityValue.minCount}
             onChange={updateQualityValues}
             errorMsg={validator.message(
-              'count',
-              qualityValue.desc,
+              'minCount',
+              qualityValue.minCount,
+              'required|numeric'
+            )}
+          />
+        </Grid>
+        <Grid item lg={6} md={6} sm={12} xs={12}>
+          <InputText
+            label="Max Count"
+            variant="outlined"
+            fullWidth
+            id="maxCount"
+            value={qualityValue.maxCount}
+            onChange={updateQualityValues}
+            errorMsg={validator.message(
+              'maxCount',
+              qualityValue.maxCount,
               'required|numeric'
             )}
           />
@@ -139,11 +156,15 @@ class Qualities extends React.Component {
       },
       {
         Header: 'Quality Name',
-        accessor: 'name', // accessor is the "key" in the data
+        accessor: 'name',
       },
       {
-        Header: 'Count',
-        accessor: 'desc',
+        Header: 'Min Count',
+        accessor: 'minCount',
+      },
+      {
+        Header: 'Max Count',
+        accessor: 'maxCount',
       },
     ],
   };

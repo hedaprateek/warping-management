@@ -113,5 +113,7 @@ npx sequelize-cli model:generate --name CompanyAccounts --attributes name:string
 npx sequelize-cli seed:generate --name default-company
 
 
+npx sequelize-cli migration:create --name quality-count-range
+
 Aditya activation key:
 c43fcb6d7f9a842905416c97dc2876558c527ad0e6ea12c41f06fde3b74b0945

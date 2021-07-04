@@ -57,7 +57,8 @@ router.post('/', function(req, res) {
   let reqJson = req.body;
   db.Qualities.create({
     name: reqJson.name,
-    desc: reqJson.desc,
+    minCount: reqJson.minCount,
+    maxCount: reqJson.maxCount,
   }).then((result)=>{
     res.status(200).json(result);
   }).catch((error)=>{
@@ -69,7 +70,8 @@ router.put('/:id', function(req, res) {
   let reqJson = req.body;
   db.Qualities.update({
     name: reqJson.name,
-    desc: reqJson.address,
+    minCount: reqJson.minCount,
+    maxCount: reqJson.maxCount,
   },{
     where: {
       id: reqJson.id,
