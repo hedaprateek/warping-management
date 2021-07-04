@@ -309,7 +309,8 @@ class Inwards extends React.Component {
         accessor: 'date',
         Cell:({value})=>{
           return Moment(value).format('DD-MM-YYYY');
-        }
+        },
+        width: 100,
       },
       {
         Header: 'Party Name',
@@ -324,10 +325,12 @@ class Inwards extends React.Component {
           }
           return partyName[0] ? partyName[0].name : '-';
         },
+        width: 300,
       },
       {
         Header: 'Gatepass No.',
-        accessor: 'gatepass', // accessor is the "key" in the data
+        accessor: 'gatepass',
+        width: 130,
       },
       {
         Header: 'Quality Name',
@@ -342,26 +345,32 @@ class Inwards extends React.Component {
           }
           return qualityName[0] ? qualityName[0].name : '-';
         },
+        width: 180,
       },
       {
         Header: 'Quality Company',
         accessor: 'qualityComp',
+        width: 130,
       },
       {
-        Header: 'No of Bags',
-        accessor: 'qtyBags', // accessor is the "key" in the data
+        Header: 'Bags/Boxes',
+        accessor: 'qtyBags',
+        width: 130,
       },
       {
         Header: 'No of Cones',
-        accessor: 'qtyCones', // accessor is the "key" in the data
+        accessor: 'qtyCones',
+        width: 130,
       },
       {
         Header: 'Lot No.',
         accessor: 'lotNo',
+        width: 130,
       },
       {
         Header: 'Net Weight (Kg)',
-        accessor: 'netWt', // accessor is the "key" in the data
+        accessor: 'netWt',
+        width: 130,
       },
     ],
   };

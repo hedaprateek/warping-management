@@ -616,17 +616,20 @@ class Warping extends React.Component {
       {
         Header: 'Set No',
         accessor: 'setNo',
+        width: 70,
       },
       {
         Header: 'Beam No',
         accessor: 'beamNo',
+        width: 70,
       },
       {
         Header: 'Date',
         accessor: 'date',
         Cell:({value})=>{
           return Moment(value).format('DD-MM-YYYY');
-        }
+        },
+        width: 90,
       },
       {
         Header: 'Party Name',
@@ -641,6 +644,7 @@ class Warping extends React.Component {
           }
           return partyName[0] ? partyName[0].name : '-';
         },
+        width: 200,
       },
       {
         Header: 'Weaver Name',
@@ -655,24 +659,29 @@ class Warping extends React.Component {
           }
           return weaverName[0] ? weaverName[0].name : '-';
         },
+        width: 200,
       },
       {
         Header: 'Design No.',
         accessor: 'design',
+        width: 130,
       },
       {
         Header: 'Total Meters',
         accessor: 'totalMeter',
+        width: 130,
       },
       {
         Header: 'Total Ends',
         accessor: 'totalEnds',
+        width: 130,
       },
       {
         Header: 'Net Used Yarn (Kg)',
         accessor: (row)=>{
           return round(_.sum(row.qualities.map((q)=>parse(q.usedYarn)||0)));
-        }
+        },
+        width: 130,
       },
     ],
     editWarpingValue: null,

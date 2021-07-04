@@ -536,13 +536,15 @@ class YarnOutward extends React.Component {
       {
         Header: 'Set No',
         accessor: 'setNo',
+        width: 50,
       },
       {
         Header: 'Date',
         accessor: 'date',
         Cell:({value})=>{
           return Moment(value).format('DD-MM-YYYY');
-        }
+        },
+        width: 70,
       },
       {
         Header: 'Party Name',
@@ -557,6 +559,7 @@ class YarnOutward extends React.Component {
           }
           return partyName[0] ? partyName[0].name : '-';
         },
+        width: 200,
       },
       {
         Header: 'Weaver Name',
@@ -571,6 +574,7 @@ class YarnOutward extends React.Component {
           }
           return weaverName[0] ? weaverName[0].name : '-';
         },
+        width: 200,
       },
       {
         Header: 'Quality Name',
@@ -585,10 +589,12 @@ class YarnOutward extends React.Component {
           }
           return qualityName[0] ? qualityName[0].name : '-';
         },
+        width: 130,
       },
       {
         Header: 'Net Weight (Kg)',
-        accessor: 'netWt', // accessor is the "key" in the data
+        accessor: 'netWt',
+        width: 130,
       },
     ],
     editOutwardValue: null,
