@@ -1,6 +1,6 @@
-const Sequelize = require('sequelize');
 var router = require('express').Router();
 const db = require('../db/models');
+const { getInwardOpenBalance } = require('./utils');
 
 
 router.get('/', function(req, res) {
@@ -18,6 +18,22 @@ router.get('/', function(req, res) {
   .catch(err => {
     console.error('Unable to connect to the database:', err);
   });
+});
+
+router.get('/balance/:partyId', async function(req, res) {
+  if(!req.params.partyId) {
+    res.status(200).json({});
+  }
+  try {
+    /* Live balance is nothing but tommorrow mornings opening balance */
+    let from_date = new Date();
+    from_date.setDate(from_date.getDate() + 1);
+    let inwardOpeningBalance = await getInwardOpenBalance(req.params.partyId, from_date, from_date);
+    res.status(200).json(inwardOpeningBalance);
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+    res.status(500).json(error);
+  }
 });
 
 router.delete('/:id', function(req, res) {

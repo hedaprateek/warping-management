@@ -14,8 +14,10 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     overflowY: 'scroll',
-    margin: theme.spacing(1),
     borderRadius: theme.spacing(0.5),
+  },
+  rootMargin: {
+    margin: theme.spacing(1),
   },
   th: {
     backgroundColor: theme.palette.primary.main,
@@ -56,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
 
 // Let the table remove the filter if the string is empty
 fuzzyTextFilterFn.autoRemove = val => !val
-function TableComponent(props) {
+function TableComponent({margin=true, ...props}) {
   const filter = ""; // TODO : Later for filtering
 
   //    const defaultColumn = React.useMemo(
@@ -87,7 +89,7 @@ function TableComponent(props) {
   }, [props.filterText])
 
   return (
-    <div className={classes.root}>
+    <div className={clsx(classes.root, margin ? classes.rootMargin : null)}>
       <table {...getTableProps()} className={classes.table}>
         <thead>
           {headerGroups.map((headerGroup) => (
@@ -103,6 +105,7 @@ function TableComponent(props) {
                       classes.cell,
                       actionBtn ? classes.actionBtn : null
                     )}
+                    {...(actionBtn ? {} : {width: column.width})}
                   >
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <div>{column.render('Header')}</div>

@@ -341,7 +341,7 @@ export async function getSetNo(partyId) {
 function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
   const defaultBeam = {
     design: '',
-    lassa: 0,
+    lassa: 110,
     cuts: 0,
     totalMeter: 0,
     totalEnds: 0,

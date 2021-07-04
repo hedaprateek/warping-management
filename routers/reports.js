@@ -3,6 +3,7 @@ var router = require('express').Router();
 const db = require('../db/models');
 const Op = Sequelize.Op;
 const _ = require('lodash');
+const { getInwardOpenBalance } = require('./utils');
 
 router.get('/inward', function(req, res) {
   let where = {
@@ -47,56 +48,6 @@ router.get('/inward', function(req, res) {
     res.status(500).json({message: err});
   });
 });
-
-async function getInwardOpenBalance(partyId, fromDate, toDate) {
-  /* Find the total inward till to date */
-  let where = {
-    partyId: parseInt(partyId),
-    date: {
-      [Op.lte]: toDate,
-    }
-  };
-  let res = await db.Inward.findAll({
-    attributes: ['qualityId', [db.sequelize.fn('sum', db.sequelize.col('netWt')), 'netWt']],
-    raw: true,
-    where: where,
-    group: ['qualityId'],
-  });
-  let inwardQualities = res;
-
-  /* Find the total warping till from date minus 1 day */
-  where = {
-    partyId: parseInt(partyId),
-    date: {
-      [Op.lt]: fromDate,
-    }
-  };
-  res = await db.WarpingProgram.findAll({
-    attributes: [db.sequelize.col('qualities.qualityId'), [db.sequelize.fn('sum', db.sequelize.col('qualities.usedYarn')), 'netWt']],
-    raw: true,
-    where: where,
-    group: [db.sequelize.col('qualities.qualityId')],
-    include: [{model: db.WarpingQualities, as: 'qualities', attributes: ['qualityId', 'usedYarn'], required:false}]
-  });
-  let warpingQualities = res;
-
-  /* Find the total yarn outward till from date minus 1 day */
-  res = await db.Outward.findAll({
-    attributes: [db.sequelize.col('qualityId'), [db.sequelize.fn('sum', db.sequelize.col('netWt')), 'netWt']],
-    raw: true,
-    where: where,
-    group: [db.sequelize.col('qualityId')],
-  });
-  let outwardQualities = res;
-
-  let finalBalance = {};
-  inwardQualities.forEach((entry)=>{
-    finalBalance[entry.qualityId] = entry.netWt;
-    finalBalance[entry.qualityId] -= (_.find(warpingQualities, (w)=>w.qualityId==entry.qualityId)||{netWt: 0}).netWt;
-    finalBalance[entry.qualityId] -= (_.find(outwardQualities, (w)=>w.qualityId==entry.qualityId)||{netWt: 0}).netWt;
-  });
-  return finalBalance;
-}
 
 router.get('/outward', async function(req, res) {
   let where = {

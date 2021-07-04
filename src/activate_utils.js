@@ -46,5 +46,5 @@ module.exports = {
             return date_obj.toLocaleDateString() + ' ' + date_obj.toLocaleTimeString();
         }
         return date_obj;
-    }
+    },
 }

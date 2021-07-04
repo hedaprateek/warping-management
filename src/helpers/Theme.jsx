@@ -58,6 +58,9 @@ export const theme = createMuiTheme({
         MuiIconButton: {
             size: 'small',
             disableTouchRipple: true,
+        },
+        MuiCard: {
+            variant: 'outlined',
         }
     },
     overrides: {
@@ -139,6 +142,16 @@ export const theme = createMuiTheme({
         MuiTypography: {
             body1: {
                 fontSize: 'inherit',
+            }
+        },
+        MuiCardHeader: {
+            root: {
+                padding: defaultTheme.spacing(1, 2)
+            }
+        },
+        MuiCardContent: {
+            root: {
+                padding: defaultTheme.spacing(1, 2)
             }
         }
     },
