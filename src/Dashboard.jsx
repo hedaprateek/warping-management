@@ -93,10 +93,11 @@ function Dashboard(props) {
     });
   }
 
+  const theme = useTheme();
   const dash = useMemo(()=>{
     return (
       <>
-        <Box display="flex" flexDirection="column" height="100%">
+        <Box display="flex" flexDirection="column" height="100%" fontSize={theme.typography.fontSize}>
           <AppBar position="fixed">
             <Toolbar variant="dense">
               {navItems.map((item) => {

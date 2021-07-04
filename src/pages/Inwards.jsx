@@ -222,12 +222,17 @@ function InwardDialog({ open, ...props }) {
   );
 }
 class Inwards extends React.Component {
+  constructor() {
+    super();
+    this.getInwards = this.getInwards.bind(this);
+  }
   componentDidMount() {
     let p1 = axios
       .get(`/api/parties`)
       .then((res) => {
         const parties = res.data;
-        this.setState({ parties });
+        const partiesOpts = parties.map((p)=>({label: p.name, value: p.id}));
+        this.setState({ parties, partiesOpts });
       })
       .catch((err) => {
         console.log(err);
@@ -242,17 +247,17 @@ class Inwards extends React.Component {
         console.log(err);
       });
 
-    Promise.all([p1, p2]).then(() => {
-      axios
-        .get(`/api/inward`)
-        .then((res) => {
-          const inward = res.data;
-          this.setState({ inward });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    });
+    // Promise.all([p1, p2]).then(() => {
+    //   axios
+    //     .get(`/api/inward`)
+    //     .then((res) => {
+    //       const inward = res.data;
+    //       this.setState({ inward });
+    //     })
+    //     .catch((err) => {
+    //       console.log(err);
+    //     });
+    // });
   }
 
   editInward(row) {
@@ -260,12 +265,26 @@ class Inwards extends React.Component {
     if (row && row.values) this.state.editModeInwardValue = row.original;
   }
 
+  getInwards() {
+    axios.get(`/api/inward`, {
+      params: {
+        partyId: this.state.partyId,
+      }
+    }).then((res) => {
+      const inward = res.data;
+      this.setState({ inward });
+    });
+  }
+
+
   state = {
     editModeInwardValue: [],
     parties: [],
     qualities: [],
     inward: [],
     filter: '',
+    partiesOpts: [],
+    partyId: null,
     dialogOpen: false,
 
     columns: [
@@ -393,11 +412,6 @@ class Inwards extends React.Component {
           })
           .then((res) => {
             this.props.setNotification(NOTIFICATION_TYPE.SUCCESS, 'Inward added succesfully');
-            const parties = this.state.parties;
-            const latestData = res.data;
-            this.setState((prevState) => {
-              return { inward: [...prevState.inward, latestData] };
-            });
           });
       }
       this.showDialog(false);
@@ -415,24 +429,45 @@ class Inwards extends React.Component {
     return (
       <Box display="flex" flexDirection="column" height="100%">
         <Box p={1}>
+          <Grid container spacing={2}>
+            <Grid item md={3} xs={12}>
+              <InputSelectSearch
+                value={this.state.partiesOpts.filter(
+                  (party) => party.value === this.state.partyId
+                )}
+                onChange={(op) => this.setState({ partyId: op?.value })}
+                options={this.state.partiesOpts}
+                label="Party"
+                isClearable
+              />
+            </Grid>
+            <Grid item md={3} xs={12}>
+            </Grid>
+          </Grid>
+        </Box>
+        <Box p={1}>
           <Box display="flex">
-            <InputText
-              placeholder="Search..."
-              value={this.state.filter}
-              style={{ minWidth: '250px' }}
-              onChange={(e) => this.setState({ filter: e.target.value })}
-            />
             <Button
               variant="outlined"
               color="primary"
-              onClick={() => this.showDialog(true)}
+              onClick={this.getInwards}
+              disabled={!this.state.partyId}
+            >
+              Get data
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => {
+                this.setState({ editModeInwardValue: null });
+                this.showDialog(true);
+              }}
               style={{ marginLeft: '0.5rem' }}
             >
               Add Inward
             </Button>
           </Box>
         </Box>
-
         <TableComponent
           columns={this.state.columns}
           data={this.state.inward}

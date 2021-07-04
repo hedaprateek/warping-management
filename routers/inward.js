@@ -4,8 +4,13 @@ const db = require('../db/models');
 
 
 router.get('/', function(req, res) {
+  let where = {};
+  if(req.query.partyId) {
+    where.partyId = req.query.partyId;
+  }
   db.Inward.findAll({
     order: [['gatepass', 'DESC']],
+    where: where,
     raw: true,
   }).then((data)=>{
     res.status(200).json(data);
