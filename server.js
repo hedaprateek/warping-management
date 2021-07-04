@@ -24,6 +24,7 @@ module.exports = (port) => {
   app.use('/', indexRouter);
   app.use('/api/parties', require('./routers/parties'));
   app.use('/api/qualities', require('./routers/qualities'));
+  app.use('/api/companies', require('./routers/companies'));
   app.use('/api/inward', require('./routers/inward'));
   app.use('/api/warping', require('./routers/warping'));
   app.use('/api/outward', require('./routers/outward'));
