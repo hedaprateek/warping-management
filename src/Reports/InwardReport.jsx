@@ -139,7 +139,7 @@ export default function InwardReport(props) {
 
   return (
     <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Box p={1} paddingTop={0.5}>
+      <Box p={1} paddingBottom={0.5}>
         <Grid container spacing={1}>
           <Grid item md={4} xs={12}>
             <InputSelectSearch
