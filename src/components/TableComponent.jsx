@@ -78,7 +78,7 @@ function TableComponent(props) {
     state,
     setGlobalFilter,
   } = useTable(
-    { columns: props.columns, data: props.data },
+    { columns: props.columns, data: props.data, initialState:{sortBy: props.sortBy || []}},
     useFilters,
     useGlobalFilter, useSortBy);
 

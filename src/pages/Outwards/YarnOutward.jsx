@@ -680,6 +680,12 @@ class YarnOutward extends React.Component {
             columns={this.state.columns}
             data={this.state.outwards}
             filterText={this.state.filter}
+            sortBy={[
+              {
+                  id: 'setNo',
+                  desc: false
+              },
+            ]}
           />
         </Box>
         <YarnOutwardDialog

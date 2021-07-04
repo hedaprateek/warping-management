@@ -775,6 +775,16 @@ class Warping extends React.Component {
             columns={this.state.columns}
             data={this.state.warpings}
             filterText={this.state.filter}
+            sortBy={[
+              {
+                  id: 'setNo',
+                  desc: false
+              },
+              {
+                id: 'beamNo',
+                desc: false
+              },
+            ]}
           />
         </Box>
         <WarpingDialog

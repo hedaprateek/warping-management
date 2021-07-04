@@ -472,6 +472,12 @@ class Inwards extends React.Component {
           columns={this.state.columns}
           data={this.state.inward}
           filterText={this.state.filter}
+          sortBy={[
+            {
+                id: 'date',
+                desc: false
+            }
+          ]}
         />
         <InwardDialog
           open={this.state.dialogOpen}
