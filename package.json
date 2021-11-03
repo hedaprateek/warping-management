@@ -34,6 +34,7 @@
     ]
   },
   "dependencies": {
+    "@tauri-apps/api": "^1.0.0-beta.8",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-handlebars": "^5.3.0",
@@ -57,7 +58,8 @@
     "pack": "electron-builder --win",
     "dist": "yarn run build && yarn run pack",
     "rebuild": "yarn run electron-rebuild -f -w",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "tauri": "tauri"
   },
   "eslintConfig": {
     "extends": [
@@ -83,6 +85,7 @@
     "@material-ui/icons": "^4.11.2",
     "@material-ui/lab": "^4.0.0-alpha.58",
     "@material-ui/pickers": "^3.3.10",
+    "@tauri-apps/cli": "^1.0.0-beta.10",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
