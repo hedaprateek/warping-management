@@ -307,7 +307,7 @@ function FinalReport({data, getWeaver, getQuality}) {
       {Object.keys(programData).length === 0 && <NoData />}
       {Object.keys(programData).length > 0 &&
       <>
-      {Object.keys(programData).map((weaverId, wi)=>{
+      {Object.keys(programData).map((weaverId)=>{
         let weaver = programData[weaverId];
         return (
           <>

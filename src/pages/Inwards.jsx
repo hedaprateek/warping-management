@@ -231,7 +231,7 @@ class Inwards extends React.Component {
       .get(`/api/parties`)
       .then((res) => {
         const parties = res.data;
-        const partiesOpts = parties.map((p)=>({label: p.name, value: p.id}));
+        const partiesOpts = parties.filter((a)=>a.isWeaver=='Party').map((p)=>({label: p.name, value: p.id}));
         this.setState({ parties, partiesOpts });
       })
       .catch((err) => {
