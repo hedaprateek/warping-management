@@ -23,7 +23,11 @@ router.get('/inward', function(req, res) {
   db.Inward.findAll({
     attributes: ['date', [Sequelize.col('PartyDetails.name'), 'party'],
       'gatepass', [Sequelize.col('QualityDetails.name'), 'quality'], 'lotNo', 'netWt', 'notes'],
-    order: [['gatepass', 'DESC']],
+    order: [
+      [Sequelize.col('PartyDetails.name'), 'ASC'],
+      [Sequelize.col('QualityDetails.name'), 'ASC'],
+      ['date', 'ASC']
+    ],
     raw: true,
     where: where,
     include: ["PartyDetails", "QualityDetails"],
@@ -80,6 +84,9 @@ router.get('/outward', async function(req, res) {
 
   let outwardReport = await db.Outward.findAll({
     attributes: ['weaverId', 'qualityId', 'netWt', 'date'],
+    order: [
+      ['date', 'ASC']
+    ],
     raw: false,
     where: where,
     include: [{model: db.OutwardBags, as: 'bags'}],

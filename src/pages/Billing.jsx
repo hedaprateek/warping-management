@@ -220,7 +220,7 @@ export default function Billing() {
   ],[]);
 
   return (
-    <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box style={{height: '100%'}}>
       <Box p={1}>
         <Grid container spacing={2}>
           <Grid item md={3} xs={12}>
