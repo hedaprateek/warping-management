@@ -24,7 +24,7 @@ import TableComponent from '../../components/TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
-import { getAxiosErr } from '../../utils';
+import { commonUniqueChecker, getAxiosErr } from '../../utils';
 
 function QualitiesDialog({ open, ...props }) {
   const defaults = {};
@@ -32,9 +32,8 @@ function QualitiesDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
   const [isEdit, setIsEdit] = useState(false);
   const editModeQuality = props.editModeQualityValue;
-  const isUniqueName = props.isUniqueName;
-
   const [qualityValue, setQualityValue] = useState(defaults);
+  const [isNameUnique, setIsNameUnique] = useState(true);
 
   useEffect(() => {
     if (editModeQuality && editModeQuality.id) {
@@ -60,12 +59,17 @@ function QualitiesDialog({ open, ...props }) {
     <DraggableDialog
       open={open}
       sectionTitle="Quality"
+      isEdit={isEdit}
       {...props}
       onSave={() => {
-        props.onSave(qualityValue, validator, isEdit);
+        if(props.isUnique(qualityValue.name, isEdit)) {
+          props.onSave(qualityValue, validator, isEdit);
+        } else {
+          setIsNameUnique(false);
+        }
       }}
     >
-      {isUniqueName == 'false' && <h4>Quality name should be unique</h4>}
+      {!isNameUnique && <h4>Quality name should be unique</h4>}
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <InputText
@@ -132,7 +136,7 @@ class Qualities extends React.Component {
   }
 
   state = {
-    editModeQualityValue: [],
+    editModeQualityValue: null,
     radioValue: 'Yes',
     qualities: [],
     filter: '',
@@ -170,34 +174,16 @@ class Qualities extends React.Component {
   };
 
   showDialog(show) {
-    this.state.isUniqueName = 'true';
-
     if (!show) {
-      this.state.editModeQualityValue = [];
+      this.setState({
+        editModeQualityValue: null,
+      });
     }
     this.setState({ dialogOpen: show });
   }
 
   saveDetails(qualityValue, validator, isEdit) {
-    let editQualityName = '';
-    if (isEdit) {
-      editQualityName = qualityValue.name;
-    }
-    this.state.isUniqueName = 'true';
-    let isUniqueNameList = this.state.qualities.filter((quality) => {
-      if (editQualityName) {
-        return quality?.name?.toUpperCase() === editQualityName.toUpperCase();
-      } else {
-        return (
-          quality?.name?.toUpperCase() === qualityValue?.name?.toUpperCase()
-        );
-      }
-    });
-
-    if (isUniqueNameList && isUniqueNameList.length > 0) {
-      this.state.isUniqueName = 'false';
-    }
-    if (validator.allValid() && this.state.isUniqueName === 'true') {
+    if (validator.allValid()) {
       console.log(qualityValue);
 
       if (isEdit) {
@@ -291,7 +277,7 @@ class Qualities extends React.Component {
           onSave={(qualityValue, validator, isEdit) =>
             this.saveDetails(qualityValue, validator, isEdit)
           }
-          isUniqueName={this.state.isUniqueName}
+          isUnique={(name, isEdit)=>commonUniqueChecker(name, this.state.qualities, isEdit, this.state.editModeQualityValue.name)}
           editModeQualityValue={this.state.editModeQualityValue}
         />
       </Box>

@@ -17,7 +17,7 @@ function PaperComponent(props) {
   );
 }
 
-export default function DraggableDialog({children, sectionTitle, extraButtons, isSaving, ...props}) {
+export default function DraggableDialog({children, sectionTitle, extraButtons, isSaving, isEdit=false, ...props}) {
   return (
     <Dialog
       PaperComponent={PaperComponent}
@@ -25,7 +25,7 @@ export default function DraggableDialog({children, sectionTitle, extraButtons, i
       {...props}
     >
       <DialogTitle style={{ cursor: 'move' }} id="draggable-dialog-title">
-        Add New {sectionTitle}
+        {isEdit ? 'Edit ' : 'Add New '}{sectionTitle}
       </DialogTitle>
       <DialogContent dividers={true}>
         {children}

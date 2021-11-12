@@ -140,3 +140,13 @@ export function getAxiosErr(err) {
   }
   return message;
 }
+
+export function commonUniqueChecker(name, collection, isEdit=false, origName='', nameKey='name') {
+  if(isEdit) {
+    return !Boolean(_.find(collection, (r)=>(
+      r[nameKey].toUpperCase() == name.toUpperCase() && r[nameKey].toUpperCase() != origName.toUpperCase()
+    )));
+  } else {
+    return !Boolean(_.find(collection, (r)=>(r[nameKey].toUpperCase() == name.toUpperCase())));
+  }
+}
