@@ -13,13 +13,13 @@ import TableComponent from '../../components/TableComponent';
 import EditIcon from '@material-ui/icons/Edit';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
-import { getAxiosErr } from '../../utils';
+import { commonUniqueChecker, getAxiosErr } from '../../utils';
 
 function PartiesDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
   const [isEdit, setIsEdit] = useState(false);
   const editModeParty = props.editModePartyValue;
-  const isUniqueName = props.isUniqueName;
+  const [isNameUnique, setIsNameUnique] = useState(true);
   const defaults = {
     isWeaver: 'Party',
     name: '',
@@ -56,11 +56,14 @@ function PartiesDialog({ open, ...props }) {
       sectionTitle="Account"
       {...props}
       onSave={() => {
-        props.onSave(partyValue, validator, isEdit);
+        if(props.isUnique(partyValue.name, isEdit)) {
+          props.onSave(partyValue, validator, isEdit);
+        } else {
+          setIsNameUnique(false);
+        }
       }}
     >
-      {isUniqueName == 'false' && <h4>Party name should be unique</h4>}
-
+      {!isNameUnique && <h4>Party name should be unique</h4>}
       <Grid container spacing={2}>
         <Grid item lg={6} md={6} sm={12} xs={12}>
           <InputText
@@ -147,8 +150,7 @@ class Parties extends React.Component {
     if (row && row.values) this.state.editModePartyValue = row.original;
   }
   state = {
-    isUniqueName: 'true',
-    editModePartyValue: [],
+    editModePartyValue: null,
     radioValue: 'Yes',
     parties: [],
     filter: '',
@@ -194,33 +196,17 @@ class Parties extends React.Component {
   };
 
   showDialog(show) {
-    this.state.isUniqueName = 'true';
     if (!show) {
-      this.state.editModePartyValue = [];
+      this.setState({
+        editModePartyValue: null,
+      })
     }
     this.setState({ dialogOpen: show });
   }
 
   saveDetails(partyValue, validator, isEdit) {
-    let editPartyName = '';
-    if (isEdit) {
-      editPartyName = partyValue.name;
-    }
-    this.state.isUniqueName = 'true';
-    let isUniqueNameList = this.state.parties.filter((party) => {
-      if (editPartyName) {
-        return party?.name?.toUpperCase() === editPartyName.toUpperCase();
-      } else {
-        return party?.name?.toUpperCase() === partyValue?.name?.toUpperCase();
-      }
-    });
-
-    if (isUniqueNameList && isUniqueNameList.length > 0) {
-      this.state.isUniqueName = 'false';
-    }
-    if (validator.allValid() && this.state.isUniqueName === 'true') {
+    if (validator.allValid()) {
       console.log(partyValue);
-      this.state.isUniqueName = 'true';
       if (isEdit) {
         axios
           .put(`/api/parties/` + partyValue.id, partyValue, {
@@ -309,7 +295,7 @@ class Parties extends React.Component {
           onSave={(partyValue, validator, isEdit) =>
             this.saveDetails(partyValue, validator, isEdit)
           }
-          isUniqueName={this.state.isUniqueName}
+          isUnique={(name, isEdit)=>commonUniqueChecker(name, this.state.parties, isEdit, this.state.editModePartyValue.name)}
           editModePartyValue={this.state.editModePartyValue}
         />
       </Box>
