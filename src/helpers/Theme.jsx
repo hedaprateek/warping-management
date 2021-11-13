@@ -24,7 +24,11 @@ const globalTheme = createMuiTheme({
   },
   typography: {
     fontSize: 14,
+    // htmlFontSize: 16,
   },
+  shape: {
+      borderRadius: 0,
+  }
 });
 
 export const theme = createMuiTheme({
@@ -51,9 +55,11 @@ export const theme = createMuiTheme({
         MuiButton: {
             size: 'small',
             disableTouchRipple: true,
+            disableElevation: true,
         },
         MuiTab: {
             size: 'small',
+            disableFocusRipple: true,
         },
         MuiIconButton: {
             size: 'small',
@@ -61,7 +67,7 @@ export const theme = createMuiTheme({
         },
         MuiCard: {
             variant: 'outlined',
-        }
+        },
     },
     overrides: {
         MuiTabs: {
@@ -69,12 +75,15 @@ export const theme = createMuiTheme({
                 minHeight: 0,
             },
             indicator: {
-                height: '3px',
+                height: '2px',
+                transition: 'none',
             }
         },
         MuiTab: {
             root: {
                 minHeight: 0,
+                lineHeight: 1.5,
+                padding: '4px 10px',
                 [defaultTheme.breakpoints.up('sm')]: {
                     minWidth: '80px',
                 },
@@ -86,7 +95,14 @@ export const theme = createMuiTheme({
         },
         MuiButton: {
             root: {
-                textTransform: 'none'
+                textTransform: 'none',
+                lineHeight: 1.5,
+            },
+            containedSizeSmall: {
+                fontSize: 'inherit',
+            },
+            sizeSmall: {
+                padding: '3px 9px',
             }
         },
         MuiFormLabel: {
@@ -100,10 +116,13 @@ export const theme = createMuiTheme({
         },
         MuiToolbar: {
             dense: {
-                minHeight: '34px',
+                minHeight: '30px',
             }
         },
         MuiOutlinedInput: {
+            root: {
+                fontSize: '14px',
+            },
             input: {
                 '&[readonly]':{
                     backgroundColor: defaultTheme.palette.grey[200],
@@ -117,6 +136,11 @@ export const theme = createMuiTheme({
             },
             adornedEnd: {
                 paddingRight: defaultTheme.spacing(0.5),
+            },
+            notchedOutline: {
+                '.MuiOutlinedInput-root.Mui-focused &': {
+                    borderWidth: '1px',
+                }
             }
         },
         MuiAutocomplete: {
@@ -153,11 +177,11 @@ export const theme = createMuiTheme({
             root: {
                 padding: defaultTheme.spacing(1, 2)
             }
-        }
+        },
     },
     otherVars: {
         reactSelect: {
-            padding: '5px 8px',
+            padding: '4px 8px',
         }
     }
 }, globalTheme);

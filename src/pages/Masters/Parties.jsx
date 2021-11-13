@@ -295,7 +295,7 @@ class Parties extends React.Component {
           onSave={(partyValue, validator, isEdit) =>
             this.saveDetails(partyValue, validator, isEdit)
           }
-          isUnique={(name, isEdit)=>commonUniqueChecker(name, this.state.parties, isEdit, this.state.editModePartyValue.name)}
+          isUnique={(name, isEdit)=>commonUniqueChecker(name, this.state.parties, isEdit, this.state.editModePartyValue?.name)}
           editModePartyValue={this.state.editModePartyValue}
         />
       </Box>

@@ -277,7 +277,7 @@ class Qualities extends React.Component {
           onSave={(qualityValue, validator, isEdit) =>
             this.saveDetails(qualityValue, validator, isEdit)
           }
-          isUnique={(name, isEdit)=>commonUniqueChecker(name, this.state.qualities, isEdit, this.state.editModeQualityValue.name)}
+          isUnique={(name, isEdit)=>commonUniqueChecker(name, this.state.qualities, isEdit, this.state.editModeQualityValue?.name)}
           editModeQualityValue={this.state.editModeQualityValue}
         />
       </Box>

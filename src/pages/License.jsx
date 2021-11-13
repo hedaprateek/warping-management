@@ -5,6 +5,8 @@ import axios from 'axios';
 import { defaults } from 'lodash';
 import { Grid } from '@material-ui/core';
 import { InputText } from '../components/FormElements';
+const { REACT_APP_VERSION } = process.env;
+
 
 function License({activation, onActivate, ...props}) {
   const [activationid, setActivationid] = useState('');
@@ -30,6 +32,7 @@ function License({activation, onActivate, ...props}) {
   return (
   <Box style={{padding: '0.5rem'}}>
     <Typography>
+      <Typography component="span" color="primary" style={{fontWeight: "bold"}}>Warping Management - App version : {REACT_APP_VERSION || 'Unknown'}</Typography>
       <Typography>This software is made by team at <Typography component="span" color="primary" style={{fontWeight: "bold"}}>Yantra</Typography> with a lot of R&D and user feedbacks. We believe that a software should be very easy to use and should not be boring.</Typography>
       <Typography>If you want a custom software for your needs and do not want to use the same old crap, then mail us at <Link href = "mailto: yantra.contact@gmail.com">yantra.contact@gmail.com</Link></Typography>
       <Typography>We'll reach out soon !!</Typography>

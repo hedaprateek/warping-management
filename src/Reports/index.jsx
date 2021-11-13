@@ -17,7 +17,7 @@ export default function Reports() {
     <Box display="flex" flexDirection="column" height="100%" style={{minHeight: 0}}>
       <Box>
         <Tabs value={tabvalue} onChange={tabChange} aria-label="simple tabs example">
-          <Tab label="Outward Report" />
+          <Tab label="Outward Report" size="small" />
           <Tab label="Inward Report" />
           <Tab label="Set Report" />
         </Tabs>

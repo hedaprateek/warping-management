@@ -1,4 +1,4 @@
-import { makeStyles } from "@material-ui/core";
+import { Box, makeStyles } from "@material-ui/core";
 import { matchSorter } from "match-sorter";
 import React, { useEffect } from "react";
 import { useAsyncDebounce, useFilters, useGlobalFilter, useSortBy, useTable } from 'react-table';
@@ -14,7 +14,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     overflowY: 'scroll',
-    borderRadius: theme.spacing(0.5),
   },
   rootMargin: {
     margin: theme.spacing(1),
@@ -52,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: 'left',
   },
   actionBtn: {
-    width: '30px',
+    width: '15px',
   },
 }));
 
@@ -109,19 +108,19 @@ function TableComponent({margin=true, ...props}) {
                   >
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <div>{column.render('Header')}</div>
-                      <div>
+                      <Box display="flex">
                         {column.isSorted ? (
                           column.isSortedDesc ? (
-                            <KeyboardArrowDownIcon />
+                            <KeyboardArrowDownIcon style={{ fontSize: '1.2rem' }} />
                           ) : (
-                            <KeyboardArrowUpIcon />
+                            <KeyboardArrowUpIcon style={{ fontSize: '1.2rem' }}  />
                           )
                         ) : (
                           <KeyboardArrowDownIcon
-                            style={{ visibility: 'hidden' }}
+                            style={{ visibility: 'hidden', fontSize: '1.2rem' }}
                           />
                         )}
-                      </div>
+                      </Box>
                     </div>
                   </th>
                 );

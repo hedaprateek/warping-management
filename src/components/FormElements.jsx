@@ -14,7 +14,8 @@ import { KeyboardDatePicker } from '@material-ui/pickers';
 const useStyles = makeStyles((theme) => ({
   formLabel: {
     color: theme.palette.text.primary,
-  },
+    fontSize: theme.typography.fontSize,
+  }
 }));
 
 export function FormField({ label, isRequired, children }) {
@@ -83,11 +84,13 @@ const customReactSelectStyles = (theme, readonly)=>({
   },
   control: (provided, state) => ({
     ...provided,
-    minHeight: '32px',
+    minHeight: '27px',
+    borderRadius: '0px',
+    fontSize: theme.typography.fontSize,
     backgroundColor: readonly ? theme.otherVars.inputDisabledBg : theme.palette.background.default,
     ...(state.isFocused ? {
       borderColor: theme.palette.primary.main,
-      boxShadow: 'inset 0 0 0 1px '+theme.palette.primary.main,
+      boxShadow: 'inset 0 0 0 0px '+theme.palette.primary.main,
       '&:hover': {
         borderColor: theme.palette.primary.main,
       }
@@ -110,9 +113,10 @@ const customReactSelectStyles = (theme, readonly)=>({
     padding: state.isMulti ? '2px' : theme.otherVars.reactSelect.padding,
   }),
   menuPortal: (provided)=>({ ...provided, zIndex: 9999 }),
-  option: (provided)=>({
+  option: (provided, state)=>({
     ...provided,
     padding: '0.5rem',
+    ...(state.isSelected ? {backgroundColor: theme.palette.primary.main} : {})
   }),
   multiValue: (provided)=>({
     ...provided,
@@ -131,6 +135,11 @@ const customReactSelectStyles = (theme, readonly)=>({
       color: theme.palette.error.main,
     },
     ...(readonly ? {display: 'none'} : {})
+  }),
+  menu: (provided)=>({
+    ...provided,
+    marginTop: '2px',
+    borderRadius: 0,
   }),
   menuPortal: (provided) => ({
     ...provided,
