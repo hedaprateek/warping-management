@@ -27,6 +27,7 @@ const useStyles = makeStyles((theme)=>({
     backgroundColor: '#fff',
     // padding: '5mm',
     color: '#000',
+    fontFamily: 'm1',
   },
   toolButton: {
     marginRight: '0.5rem',
@@ -38,27 +39,20 @@ export function ReportHeader({reportName, getReportDetails, compHeader}) {
 
   return (
     <>
-    <Box>
-      <Typography
-        style={{
-          fontWeight: 'bold',
-          textAlign: 'center',
-        }}
-      >
-        {reportName}
-      </Typography>
+    <Box fontWeight="bold" textAlign="center">
+      {reportName}
     </Box>
     <Box borderBottom={1} borderTop={1}>
 
       <Grid container borderBottom={1} spacing={1}>
-        <Grid item xs>
-          <Typography style={{fontWeight: 'bold', lineHeight: 1.3, fontSize: 14}}>{compHeader.name}</Typography>
-          <Typography style={{lineHeight: 1.3}} variant="subtitle2">{compHeader.address}</Typography>
-          <Typography style={{fontWeight: 'bold', lineHeight: 1.3, fontSize: 12}} variant="subtitle2">GSTIN: {compHeader.gst}</Typography>
-          <Typography style={{lineHeight: 1.3}} variant="subtitle2">{compHeader.contact}, {compHeader.email}</Typography>
+        <Grid item xs style={{lineHeight: 1.3}}>
+          <div style={{fontWeight: 'bold', fontSize: 14}}>{compHeader.name}</div>
+          <div variant="subtitle2">{compHeader.address}</div>
+          <div style={{fontWeight: 'bold', fontSize: 12}} variant="subtitle2">GSTIN: {compHeader.gst}</div>
+          <div variant="subtitle2">{compHeader.contact}, {compHeader.email}</div>
         </Grid>
-        <Grid item xs>
-          <ReportField name="Generated On" value={Moment(new Date()).format('DD-MM-YYYY')} />
+        <Grid item xs style={{lineHeight: 1.3}}>
+          <ReportField name="Generated On" value={Moment(new Date()).format('DD/MM/YYYY')} />
           {reportDetails}
         </Grid>
       </Grid>

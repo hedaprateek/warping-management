@@ -26,6 +26,9 @@ const useStyles = makeStyles((theme)=>({
     verticalAlign: 'top',
     borderBottom: '1px dotted '+theme.palette.grey[400],
   },
+  textRight: {
+    textAlign: 'right',
+  },
   tf: {
     margin: 0,
     padding: '0.25rem',
@@ -63,12 +66,13 @@ export function ReportTableRow(props) {
   );
 }
 
-export function ReportTableData({footer=false, header=false, last=false, lastRow=false, ...props}) {
+export function ReportTableData({footer=false, header=false, last=false, lastRow=false, column=null, ...props}) {
   const classes = useStyles();
   let finalClasses = null;
   if(footer) {
     finalClasses = [classes.tf];
     last && finalClasses.push(classes.noBorderRight);
+    column?.alignRight && finalClasses.push(classes.textRight);
   } else if(header) {
     finalClasses = [classes.th];
     last && finalClasses.push(classes.noBorderRight);
@@ -76,6 +80,7 @@ export function ReportTableData({footer=false, header=false, last=false, lastRow
     finalClasses = [classes.td];
     last && finalClasses.push(classes.noBorderRight);
     lastRow && finalClasses.push(classes.noBorderBottom);
+    column?.alignRight && finalClasses.push(classes.textRight);
   }
   if(header) {
     return (
@@ -143,7 +148,7 @@ function ReactTable({ columns, data, showFooter, style }) {
           return (
             <ReportTableRow {...row.getRowProps()} >
               {row.cells.map((cell, j) => {
-                return <ReportTableData {...cell.getCellProps()} last={j===row.cells.length-1} lastRow={i==rows.length-1}>
+                return <ReportTableData {...cell.getCellProps()} last={j===row.cells.length-1} lastRow={i==rows.length-1} column={cell.column}>
                   {cell.render('Cell')}
                 </ReportTableData>
               })}
@@ -156,7 +161,7 @@ function ReactTable({ columns, data, showFooter, style }) {
           {footerGroups.map(group => (
             <ReportTableRow {...group.getFooterGroupProps()}>
               {group.headers.map((column, i) => {
-                return <ReportTableData footer last={i==group.headers.length-1} {...column.getFooterProps()}>
+                return <ReportTableData footer last={i==group.headers.length-1} {...column.getFooterProps()} column={column}>
                   {column.render('Footer')}
                 </ReportTableData>
               })}
@@ -176,34 +181,19 @@ export function DashedDivider() {
 
 export function ReportField({name, value, margin, style}) {
   return (
-    <Typography component="div" style={margin ? {marginRight: '0.5rem', ...style} : style}>
+    <div style={margin ? {marginRight: '0.5rem', ...style} : style}>
       <span style={{fontWeight: 'bold'}}>{name}: </span>{value}
-    </Typography>
+    </div>
   )
 }
 
 export function NoData() {
   return (
     <Box textAlign="center">
-      <Typography>---- No Data ----</Typography>
+      <span>---- No Data ----</span>
     </Box>
   )
 }
-
-const headerProps = (props, { column }) => getStyles(props, column.align)
-
-const cellProps = (props, { cell }) => getStyles(props, cell.column.align)
-
-const getStyles = (props, align = 'left') => [
-  props,
-  {
-    style: {
-      justifyContent: align === 'right' ? 'flex-end' : 'flex-start',
-      alignItems: 'flex-start',
-      display: 'flex',
-    },
-  },
-]
 
 const useBillStyles = makeStyles((theme)=>({
   table: {
@@ -279,7 +269,7 @@ export function BillTable({ columns, data, style }) {
             className={classes.tr}
           >
             {headerGroup.headers.map(column => (
-              <div {...column.getHeaderProps(headerProps)} className={classes.th}>
+              <div {...column.getHeaderProps()} className={classes.th}>
                 {column.render('Header')}
               </div>
             ))}
@@ -294,7 +284,7 @@ export function BillTable({ columns, data, style }) {
             <div {...row.getRowProps()} className={clsx(classes.tr, i==rows.length-1 ? null : classes.tdNogrow)}>
               {row.cells.map(cell => {
                 return (
-                  <div {...cell.getCellProps(cellProps)} className={classes.td}>
+                  <div {...cell.getCellProps()} className={clsx(classes.td, cell.column.alignRight ? classes.textRight : null)}>
                     {cell.render('Cell')}
                   </div>
                 )
@@ -311,7 +301,7 @@ export function BillTable({ columns, data, style }) {
             className={classes.tr}
           >
             {footerGroup.headers.map(column => (
-              <div {...column.getFooterProps(headerProps)} className={classes.th}>
+              <div {...column.getFooterProps()} className={classes.th}>
                 {column.render('Footer')}
               </div>
             ))}

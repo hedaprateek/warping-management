@@ -223,7 +223,7 @@ export default function InwardReport(props) {
         </Button>
       </Box>
       <ReportViewer reportName={REPORT_NAME} getReportDetails={()=>(<>
-          <ReportField name="Date" value={Moment(filter.from_date).format('DD-MM-YYYY') + " to " + Moment(filter.to_date).format('DD-MM-YYYY')} />
+          <ReportField name="Date" value={Moment(filter.from_date).format('DD/MM/YYYY') + " to " + Moment(filter.to_date).format('DD/MM/YYYY')} />
         </>)
       }>
         <FinalReport data={data} />
@@ -273,14 +273,15 @@ function FinalReport({data}) {
                         },
                         {
                           Header: 'Net Wt.',
-                          accessor: 'netWt',
+                          accessor: (row)=>round(row.netWt, true),
                           width: 120,
+                          alignRight: true,
                           Footer: (info)=>{
                             let total = info.rows.reduce((sum, row) => {
                                 return (parse(row.values[info.column.id]) || 0) + sum
                               }, 0
                             );
-                            total = round(total);
+                            total = round(total, true);
                             return <span style={{fontWeight: 'bold'}}>{total}</span>
                           }
                         },

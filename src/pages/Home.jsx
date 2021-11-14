@@ -1,4 +1,5 @@
 import { Grid, Card, CardContent, Box, Button, CardHeader } from '@material-ui/core';
+import { PDFViewer, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import axios from 'axios';
 import _ from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -67,14 +68,38 @@ export default function Home() {
       setQualities(res.data);
       res = await axios.get('/api/parties');
       setAccounts(res.data);
-    }, [])
+    }, []);
+
+    const styles = StyleSheet.create({
+      page: {
+        flexDirection: 'row',
+        backgroundColor: '#E4E4E4'
+      },
+      section: {
+        margin: 10,
+        padding: 10,
+        flexGrow: 1
+      }
+    });
     return (
-      <Box p={1}>
+      <Box p={1} height="100%">
         <Grid container>
           <Grid item lg={4} md={4} sm={12} xs={12}>
             <LiveBalance accounts={accounts} qualities={qualities}/>
           </Grid>
         </Grid>
+        <PDFViewer showToolbar={true} width="100%" height="100%">
+          <Document>
+            <Page size="A4" style={styles.page}>
+              <View style={styles.section}>
+                <Text>Section #1</Text>
+              </View>
+              <View style={styles.section}>
+                <Text>Section #2</Text>
+              </View>
+            </Page>
+          </Document>
+        </PDFViewer>
       </Box>
     );
 };

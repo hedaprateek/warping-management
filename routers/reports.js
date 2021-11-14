@@ -5,6 +5,10 @@ const Op = Sequelize.Op;
 const _ = require('lodash');
 const { getInwardOpenBalance } = require('./utils');
 
+function formatDate(dateCol) {
+  return [Sequelize.fn('strftime', '%d/%m/%Y', Sequelize.col(dateCol)), dateCol];
+}
+
 router.get('/inward', function(req, res) {
   let where = {
     date: {
@@ -21,7 +25,7 @@ router.get('/inward', function(req, res) {
     }
   }
   db.Inward.findAll({
-    attributes: ['date', [Sequelize.col('PartyDetails.name'), 'party'],
+    attributes: [formatDate('date'), [Sequelize.col('PartyDetails.name'), 'party'],
       'gatepass', [Sequelize.col('QualityDetails.name'), 'quality'], 'lotNo', 'netWt', 'notes'],
     order: [
       [Sequelize.col('PartyDetails.name'), 'ASC'],
