@@ -41,6 +41,7 @@
     "lodash": "^4.17.21",
     "match-sorter": "^6.3.0",
     "moment": "^2.29.1",
+    "react-data-grid": "^7.0.0-beta.7",
     "sequelize": "^6.6.2",
     "sequelize-cli": "^6.2.0",
     "sqlite3": "^5.0.2",

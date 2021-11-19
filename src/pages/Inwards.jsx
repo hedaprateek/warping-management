@@ -10,11 +10,11 @@ import {
   InputText,
 } from '../components/FormElements';
 import TableComponent from '../components/TableComponent';
-import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 import { NOTIFICATION_TYPE, setNotification } from '../store/reducers/notification';
 import { connect } from 'react-redux';
 import { getAxiosErr, getDatesForType } from '../utils';
+import { ResultsTable } from '../components/ResultsTable';
 
 function InwardDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
@@ -266,8 +266,10 @@ class Inwards extends React.Component {
   }
 
   editInward(row) {
+    if (row) {
+      this.setState({editModeInwardValue: row});
+    }
     this.showDialog(true);
-    if (row && row.values) this.state.editModeInwardValue = row.original;
   }
 
   getInwards() {
@@ -297,32 +299,17 @@ class Inwards extends React.Component {
     to_date: new Date(),
     columns: [
       {
-        Header: '',
-        accessor: 'editButton',
-        id: 'btn-edit',
-        Cell: ({ row }) => {
-          return (
-            <IconButton
-              onClick={() => {
-                this.editInward(row);
-              }}
-            >
-              <EditIcon />
-            </IconButton>
-          );
+        name: 'Date',
+        key: 'date',
+        formatter: ({row, column})=>{
+          return Moment(row[column.key]).format('DD/MM/YYYY');
         },
+        sortable: true
       },
       {
-        Header: 'Date',
-        accessor: 'date',
-        Cell:({value})=>{
-          return Moment(value).format('DD-MM-YYYY');
-        },
-        width: 100,
-      },
-      {
-        Header: 'Party Name',
-        accessor: (row) => {
+        name: 'Party Name',
+        key: 'partyId',
+        formatter: ({row})=>{
           let partyName = [];
           if (row.partyId) {
             partyName = this.state.parties.filter((party) => {
@@ -334,15 +321,19 @@ class Inwards extends React.Component {
           return partyName[0] ? partyName[0].name : '-';
         },
         width: 300,
+        resizable: true,
+        sortable: true,
       },
       {
-        Header: 'Gatepass No.',
-        accessor: 'gatepass',
-        width: 130,
+        name: 'Gatepass No.',
+        key: 'gatepass',
+        resizable: true,
+        sortable: true
       },
       {
-        Header: 'Quality Name',
-        accessor: (row) => {
+        name: 'Quality Name',
+        key: 'qualityId',
+        formatter: ({row}) => {
           let qualityName = [];
           if (row.qualityId) {
             qualityName = this.state.qualities.filter((quality) => {
@@ -353,32 +344,40 @@ class Inwards extends React.Component {
           }
           return qualityName[0] ? qualityName[0].name : '-';
         },
-        width: 180,
+        width: 250,
+        resizable: true,
+        sortable: true
       },
       {
-        Header: 'Quality Company',
-        accessor: 'qualityComp',
-        width: 130,
+        name: 'Quality Company',
+        key: 'qualityComp',
+        width: 200,
+        resizable: true,
+        sortable: true,
       },
       {
-        Header: 'Bags/Boxes',
-        accessor: 'qtyBags',
-        width: 130,
+        name: 'Bags/Boxes',
+        key: 'qtyBags',
+        resizable: true,
+        sortable: true
       },
       {
-        Header: 'No of Cones',
-        accessor: 'qtyCones',
-        width: 130,
+        name: 'No of Cones',
+        key: 'qtyCones',
+        resizable: true,
+        sortable: true
       },
       {
-        Header: 'Lot No.',
-        accessor: 'lotNo',
-        width: 130,
+        name: 'Lot No.',
+        key: 'lotNo',
+        resizable: true,
+        sortable: true
       },
       {
-        Header: 'Net Weight (Kg)',
-        accessor: 'netWt',
-        width: 130,
+        name: 'Net Weight (Kg)',
+        key: 'netWt',
+        resizable: true,
+        sortable: true,
       },
     ],
   };
@@ -523,7 +522,7 @@ class Inwards extends React.Component {
             </Button>
           </Box>
         </Box>
-        <TableComponent
+        {/* <TableComponent
           columns={this.state.columns}
           data={this.state.inward}
           filterText={this.state.filter}
@@ -533,7 +532,13 @@ class Inwards extends React.Component {
                 desc: false
             }
           ]}
-        />
+        /> */}
+        <Box flexGrow="1" p={1}>
+          <ResultsTable
+            columns={this.state.columns}
+            rows={this.state.inward}
+            onEditClick={this.editInward.bind(this)}/>
+        </Box>
         <InwardDialog
           open={this.state.dialogOpen}
           onClose={() => this.showDialog(false)}

@@ -11098,6 +11098,13 @@ react-app-polyfill@^2.0.0:
     regenerator-runtime "^0.13.7"
     whatwg-fetch "^3.4.1"
 
+react-data-grid@^7.0.0-beta.7:
+  version "7.0.0-beta.7"
+  resolved "https://registry.yarnpkg.com/react-data-grid/-/react-data-grid-7.0.0-beta.7.tgz#8ba471175a0ee63ec6ecaa7ba83422e8c894892a"
+  integrity sha512-RlU8JW3GCnKSNq8sr0f59qTjiSx0ArhWcBv5K5+ksklgJ+gQnFc5oVXOXu1aWgtqhiEzvov6Cn6vEi7Jczdwaw==
+  dependencies:
+    clsx "^1.1.1"
+
 react-dev-utils@^11.0.3:
   version "11.0.4"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.4.tgz#a7ccb60257a1ca2e0efe7a83e38e6700d17aa37a"
