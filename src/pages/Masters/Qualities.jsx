@@ -42,6 +42,7 @@ function QualitiesDialog({ open, ...props }) {
       setIsEdit(false);
       setQualityValue(defaults);
     }
+    setIsNameUnique(true);
     setValidator(new SimpleReactValidator());
   }, [open]);
   function updateQualityValues(e) {

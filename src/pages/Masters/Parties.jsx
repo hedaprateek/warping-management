@@ -36,6 +36,7 @@ function PartiesDialog({ open, ...props }) {
       setIsEdit(false);
       setPartyValue(defaults);
     }
+    setIsNameUnique(true);
     setValidator(new SimpleReactValidator());
   }, [open]);
 
