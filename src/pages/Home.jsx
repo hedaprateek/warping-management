@@ -3,19 +3,18 @@ import axios from 'axios';
 import _ from 'lodash';
 import React, { useEffect, useMemo, useState } from 'react';
 import { InputSelectSearch } from '../components/FormElements';
-import TableComponent from '../components/TableComponent';
+import { ResultsTable } from '../components/ResultsTable';
 
 function LiveBalance({accounts, qualities}) {
   const columns = useMemo(()=>[
     {
-      Header: 'Quality',
-      accessor: 'quality',
-      width: 200,
+      name: 'Quality',
+      key: 'quality',
+      width: 300,
     },
     {
-      Header: 'Balance yarn (Kg)',
-      accessor: 'balance',
-      width: 100,
+      name: 'Balance yarn (Kg)',
+      key: 'balance',
     },
   ], []);
   const [partyId, setPartyId] = useState();
@@ -51,8 +50,12 @@ function LiveBalance({accounts, qualities}) {
             <Button variant="outlined" color="primary" onClick={onGetClick}>Get Balance</Button>
           </Box>
         </Box>
-        <Box marginTop={1} maxHeight="250px" overflow="auto">
-          <TableComponent data={balanceData} columns={columns} margin={false}/>
+        <Box marginTop={1} height="250px" overflow="auto">
+          <ResultsTable
+            columns={columns}
+            rows={balanceData}
+            hasEdit={false}
+          />
         </Box>
       </CardContent>
     </Card>

@@ -20,11 +20,10 @@ import React, { useEffect, useState } from 'react';
 import SimpleReactValidator from 'simple-react-validator';
 import DraggableDialog from '../../helpers/DraggableDialog';
 import { FormField, InputSelect, InputText } from '../../components/FormElements';
-import TableComponent from '../../components/TableComponent';
-import EditIcon from '@material-ui/icons/Edit';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
 import { commonUniqueChecker, getAxiosErr } from '../../utils';
+import { ResultsTable } from '../../components/ResultsTable';
 
 function QualitiesDialog({ open, ...props }) {
   const defaults = {};
@@ -131,8 +130,8 @@ class Qualities extends React.Component {
   }
 
   editQuality(row) {
+    this.setState({editModeQualityValue: row});
     this.showDialog(true);
-    if (row && row.values) this.state.editModeQualityValue = row.original;
   }
 
   state = {
@@ -143,32 +142,16 @@ class Qualities extends React.Component {
     dialogOpen: false,
     columns: [
       {
-        Header: '',
-        accessor: 'editButton',
-        id: 'btn-edit',
-        Cell: ({ row }) => {
-          return (
-            <IconButton
-              onClick={() => {
-                this.editQuality(row);
-              }}
-            >
-              <EditIcon />
-            </IconButton>
-          );
-        },
+        name: 'Quality Name',
+        key: 'name',
       },
       {
-        Header: 'Quality Name',
-        accessor: 'name',
+        name: 'Min Count',
+        key: 'minCount',
       },
       {
-        Header: 'Min Count',
-        accessor: 'minCount',
-      },
-      {
-        Header: 'Max Count',
-        accessor: 'maxCount',
+        name: 'Max Count',
+        key: 'maxCount',
       },
     ],
   };
@@ -245,7 +228,7 @@ class Qualities extends React.Component {
 
   render() {
     return (
-      <Box>
+      <>
         <Box p={1}>
           <Box display="flex">
             <InputText
@@ -264,10 +247,11 @@ class Qualities extends React.Component {
             </Button>
           </Box>
         </Box>
-        <Box>
-          <TableComponent
+        <Box flexGrow="1" p={1}>
+          <ResultsTable
             columns={this.state.columns}
-            data={this.state.qualities}
+            rows={this.state.qualities}
+            onEditClick={this.editQuality.bind(this)}
             filterText={this.state.filter}
           />
         </Box>
@@ -280,7 +264,7 @@ class Qualities extends React.Component {
           isUnique={(name, isEdit)=>commonUniqueChecker(name, this.state.qualities, isEdit, this.state.editModeQualityValue?.name)}
           editModeQualityValue={this.state.editModeQualityValue}
         />
-      </Box>
+      </>
     );
   }
 }

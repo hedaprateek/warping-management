@@ -8,11 +8,10 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import DraggableDialog from '../../helpers/DraggableDialog';
 import { FormField, InputSelect, InputText } from '../../components/FormElements'
-import TableComponent from '../../components/TableComponent';
-import EditIcon from '@material-ui/icons/Edit';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
 import { getAxiosErr } from '../../utils';
+import { ResultsTable } from '../../components/ResultsTable';
 
 function CompaniesDialog({ open, ...props }) {
   const [isEdit, setIsEdit] = useState(false);
@@ -122,9 +121,10 @@ class CompanyAccounts extends React.Component {
   }
 
   editCompany(row) {
+    this.setState({editModeCompanyValue: row});
     this.showDialog(true);
-    if (row && row.values) this.state.editModeCompanyValue = row.original;
   }
+
   state = {
     isUniqueName: 'true',
     editModeCompanyValue: [],
@@ -134,40 +134,24 @@ class CompanyAccounts extends React.Component {
     dialogOpen: false,
     columns: [
       {
-        Header: '',
-        accessor: 'editButton',
-        id: 'btn-edit',
-        Cell: ({ row }) => {
-          return (
-            <IconButton
-              onClick={() => {
-                this.editCompany(row);
-              }}
-            >
-              <EditIcon />
-            </IconButton>
-          );
-        },
+        name: 'Company Name',
+        key: 'name', // key is the "key" in the data
       },
       {
-        Header: 'Company Name',
-        accessor: 'name', // accessor is the "key" in the data
+        name: 'Address',
+        key: 'address',
       },
       {
-        Header: 'Address',
-        accessor: 'address',
+        name: 'GSTIN',
+        key: 'gst', // key is the "key" in the data
       },
       {
-        Header: 'GSTIN',
-        accessor: 'gst', // accessor is the "key" in the data
+        name: 'Contact No.',
+        key: 'contact',
       },
       {
-        Header: 'Contact No.',
-        accessor: 'contact',
-      },
-      {
-        Header: 'Email',
-        accessor: 'email',
+        name: 'Email',
+        key: 'email',
       },
     ],
   };
@@ -249,7 +233,7 @@ class CompanyAccounts extends React.Component {
 
   render() {
     return (
-      <Box>
+      <>
         <Box p={1}>
           <Box display="flex">
             <InputText
@@ -268,10 +252,11 @@ class CompanyAccounts extends React.Component {
             </Button>
           </Box>
         </Box>
-        <Box>
-          <TableComponent
+        <Box flexGrow="1" p={1}>
+          <ResultsTable
             columns={this.state.columns}
-            data={this.state.companies}
+            rows={this.state.companies}
+            onEditClick={this.editCompany.bind(this)}
             filterText={this.state.filter}
           />
         </Box>
@@ -284,7 +269,7 @@ class CompanyAccounts extends React.Component {
           isUniqueName={this.state.isUniqueName}
           editModeCompanyValue={this.state.editModeCompanyValue}
         />
-      </Box>
+      </>
     );
   }
 }

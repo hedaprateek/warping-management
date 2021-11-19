@@ -9,11 +9,10 @@ import React, { useEffect, useState } from 'react';
 import SimpleReactValidator from 'simple-react-validator';
 import DraggableDialog from '../../helpers/DraggableDialog';
 import { FormField, InputSelect, InputText } from '../../components/FormElements'
-import TableComponent from '../../components/TableComponent';
-import EditIcon from '@material-ui/icons/Edit';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
 import { commonUniqueChecker, getAxiosErr } from '../../utils';
+import { ResultsTable } from '../../components/ResultsTable';
 
 function PartiesDialog({ open, ...props }) {
   const [validator, setValidator] = useState(new SimpleReactValidator());
@@ -145,9 +144,8 @@ class Parties extends React.Component {
   }
 
   editParty(row) {
-    console.log('Prateek', row);
+    this.setState({editModePartyValue: row});
     this.showDialog(true);
-    if (row && row.values) this.state.editModePartyValue = row.original;
   }
   state = {
     editModePartyValue: null,
@@ -157,40 +155,24 @@ class Parties extends React.Component {
     dialogOpen: false,
     columns: [
       {
-        Header: '',
-        accessor: 'editButton',
-        id: 'btn-edit',
-        Cell: ({ row }) => {
-          return (
-            <IconButton
-              onClick={() => {
-                this.editParty(row);
-              }}
-            >
-              <EditIcon />
-            </IconButton>
-          );
-        },
+        name: 'Party Name',
+        key: 'name', // key is the "key" in the data
       },
       {
-        Header: 'Party Name',
-        accessor: 'name', // accessor is the "key" in the data
+        name: 'Address',
+        key: 'address',
       },
       {
-        Header: 'Address',
-        accessor: 'address',
+        name: 'GSTIN',
+        key: 'gstin', // key is the "key" in the data
       },
       {
-        Header: 'GSTIN',
-        accessor: 'gstin', // accessor is the "key" in the data
+        name: 'Contact No.',
+        key: 'contact',
       },
       {
-        Header: 'Contact No.',
-        accessor: 'contact',
-      },
-      {
-        Header: 'Party Type',
-        accessor: 'isWeaver', // accessor is the "key" in the data
+        name: 'Party Type',
+        key: 'isWeaver', // key is the "key" in the data
       },
     ],
   };
@@ -263,7 +245,7 @@ class Parties extends React.Component {
 
   render() {
     return (
-      <Box>
+      <>
         <Box p={1}>
           <Box display="flex">
             <InputText
@@ -282,10 +264,11 @@ class Parties extends React.Component {
             </Button>
           </Box>
         </Box>
-        <Box>
-          <TableComponent
+        <Box flexGrow="1" p={1}>
+          <ResultsTable
             columns={this.state.columns}
-            data={this.state.parties}
+            rows={this.state.parties}
+            onEditClick={this.editParty.bind(this)}
             filterText={this.state.filter}
           />
         </Box>
@@ -298,7 +281,7 @@ class Parties extends React.Component {
           isUnique={(name, isEdit)=>commonUniqueChecker(name, this.state.parties, isEdit, this.state.editModePartyValue?.name)}
           editModePartyValue={this.state.editModePartyValue}
         />
-      </Box>
+      </>
     );
   }
 }

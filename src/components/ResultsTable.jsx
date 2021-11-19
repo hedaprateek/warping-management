@@ -50,15 +50,19 @@ const useStyles = makeStyles((theme)=>({
   },
 }));
 
-export function ResultsTable({rows, columns, rowKey='id', hasEdit=true, onEditClick}) {
+export function ResultsTable({rows, columns, rowKey='id', hasEdit=true, onEditClick, defaultSort=[], filterText=''}) {
   const classes = useStyles();
   const [formattedColumns, setColumns] = useState([]);
-  const [sortColumns, setSortColumns] = useState([]);
+  const [sortColumns, setSortColumns] = useState(defaultSort||[]);
   const onSortColumnsChange = useCallback((sortColumns) => {
     setSortColumns(sortColumns.slice(-1));
   }, []);
   useEffect(()=>{
-    let newColumns = [...columns];
+    let newColumns = columns.map((c)=>({
+      ...c,
+      sortable: c.sortable ?? true,
+      resizable: c.resizable ?? true,
+    }));
     if(hasEdit) {
       newColumns.unshift({
         key: 'btn-edit',
@@ -91,7 +95,7 @@ export function ResultsTable({rows, columns, rowKey='id', hasEdit=true, onEditCl
     let sortedRows = [...rows];
     sortedRows = sortedRows.sort((a, b) => {
       let aVal = a[columnKey], bVal = b[columnKey];
-      if(_.isFunction(column.formatter)) {
+      if(_.isFunction(column?.formatter)) {
         aVal = column.formatter({row: a, column: column});
         bVal = column.formatter({row: b, column: column});
       }
@@ -106,9 +110,30 @@ export function ResultsTable({rows, columns, rowKey='id', hasEdit=true, onEditCl
     return direction === 'DESC' ? sortedRows.reverse() : sortedRows;
   }, [rows, sortColumns, formattedColumns]);
 
+
+  const filteredRows = useMemo(()=>{
+    if(!filterText) {
+      return sortedRows;
+    }
+    let filteredRows = [...sortedRows];
+    filteredRows = sortedRows.filter((r) => {
+      return Object.keys(r).some((key)=>{
+        const column = _.find(formattedColumns, (c)=>c.key==key);
+        let cellValue = r[key];
+        if(!column) return false;
+        if(column.formatter) {
+          cellValue = column.formatter({row: r, column: column});
+        }
+        if(_.isNull(cellValue) || _.isUndefined(cellValue)) return false;
+        return cellValue.toString().toLowerCase().indexOf(filterText.toLowerCase()) > -1;
+      });
+    });
+    return filteredRows;
+  }, [sortedRows, filterText])
+
   return <DataGrid
     rowKeyGetter={(row)=>row[rowKey]}
-    rows={sortedRows}
+    rows={filteredRows}
     columns={formattedColumns}
     sortColumns={sortColumns}
     onSortColumnsChange={onSortColumnsChange}

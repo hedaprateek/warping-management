@@ -9,7 +9,6 @@ import {
   InputSelectSearch,
   InputText,
 } from '../components/FormElements';
-import TableComponent from '../components/TableComponent';
 import Moment from 'moment';
 import { NOTIFICATION_TYPE, setNotification } from '../store/reducers/notification';
 import { connect } from 'react-redux';
@@ -304,7 +303,6 @@ class Inwards extends React.Component {
         formatter: ({row, column})=>{
           return Moment(row[column.key]).format('DD/MM/YYYY');
         },
-        sortable: true
       },
       {
         name: 'Party Name',
@@ -322,13 +320,11 @@ class Inwards extends React.Component {
         },
         width: 300,
         resizable: true,
-        sortable: true,
       },
       {
         name: 'Gatepass No.',
         key: 'gatepass',
         resizable: true,
-        sortable: true
       },
       {
         name: 'Quality Name',
@@ -346,38 +342,32 @@ class Inwards extends React.Component {
         },
         width: 250,
         resizable: true,
-        sortable: true
       },
       {
         name: 'Quality Company',
         key: 'qualityComp',
         width: 200,
         resizable: true,
-        sortable: true,
       },
       {
         name: 'Bags/Boxes',
         key: 'qtyBags',
         resizable: true,
-        sortable: true
       },
       {
         name: 'No of Cones',
         key: 'qtyCones',
         resizable: true,
-        sortable: true
       },
       {
         name: 'Lot No.',
         key: 'lotNo',
         resizable: true,
-        sortable: true
       },
       {
         name: 'Net Weight (Kg)',
         key: 'netWt',
         resizable: true,
-        sortable: true,
       },
     ],
   };
@@ -522,17 +512,6 @@ class Inwards extends React.Component {
             </Button>
           </Box>
         </Box>
-        {/* <TableComponent
-          columns={this.state.columns}
-          data={this.state.inward}
-          filterText={this.state.filter}
-          sortBy={[
-            {
-                id: 'date',
-                desc: false
-            }
-          ]}
-        /> */}
         <Box flexGrow="1" p={1}>
           <ResultsTable
             columns={this.state.columns}

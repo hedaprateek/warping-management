@@ -12,18 +12,16 @@ import axios from 'axios';
 import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import DraggableDialog from '../../helpers/DraggableDialog';
 import { FormField, InputDate, InputSelect, InputSelectSearch, InputText } from '../../components/FormElements'
-import TableComponent from '../../components/TableComponent';
-import Select from 'react-select';
 import DataGrid from '../../components/DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
-import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 import {getAxiosErr, parse, round} from './../../utils';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
 import { getSetNo } from './Warping';
 import ConfirmDialog from '../../helpers/ConfirmDialog';
+import { ResultsTable } from '../../components/ResultsTable';
 
 const outwardValueReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
@@ -502,7 +500,7 @@ class YarnOutward extends React.Component {
   }
 
   editOutward(row) {
-    this.setState({editOutwardValue: row.original});
+    this.setState({editOutwardValue: row});
     this.showDialog(true);
   }
 
@@ -518,37 +516,21 @@ class YarnOutward extends React.Component {
     dialogOpen: false,
     columns: [
       {
-        Header: '',
-        accessor: 'editButton',
-        id: 'btn-edit',
-        Cell: ({ row }) => {
-          return (
-            <IconButton
-            onClick={() => {
-              this.editOutward(row);
-            }}
-            >
-              <EditIcon />
-            </IconButton>
-          );
+        name: 'Set No',
+        key: 'setNo',
+        width: 100,
+      },
+      {
+        name: 'Date',
+        key: 'date',
+        formatter:({row})=>{
+          return Moment(row['date']).format('DD-MM-YYYY');
         },
+        width: 120,
       },
       {
-        Header: 'Set No',
-        accessor: 'setNo',
-        width: 50,
-      },
-      {
-        Header: 'Date',
-        accessor: 'date',
-        Cell:({value})=>{
-          return Moment(value).format('DD-MM-YYYY');
-        },
-        width: 70,
-      },
-      {
-        Header: 'Party Name',
-        accessor: (row) => {
+        name: 'Party Name',
+        formatter: ({row}) => {
           let partyName = [];
           if (row.partyId) {
             partyName = this.state.accounts.filter((party) => {
@@ -559,11 +541,12 @@ class YarnOutward extends React.Component {
           }
           return partyName[0] ? partyName[0].name : '-';
         },
-        width: 200,
+        width: 300,
       },
       {
-        Header: 'Weaver Name',
-        accessor: (row) => {
+        name: 'Weaver Name',
+        key: 'weaverId',
+        formatter: ({row}) => {
           let weaverName = [];
           if (row.weaverId) {
             weaverName = this.state.accounts.filter((party) => {
@@ -574,11 +557,12 @@ class YarnOutward extends React.Component {
           }
           return weaverName[0] ? weaverName[0].name : '-';
         },
-        width: 200,
+        width: 300,
       },
       {
-        Header: 'Quality Name',
-        accessor: (row) => {
+        name: 'Quality Name',
+        key: 'qualityId',
+        formatter: ({row}) => {
           let qualityName = [];
           if (row.qualityId) {
             qualityName = this.state.qualities.filter((quality) => {
@@ -589,12 +573,10 @@ class YarnOutward extends React.Component {
           }
           return qualityName[0] ? qualityName[0].name : '-';
         },
-        width: 130,
       },
       {
-        Header: 'Net Weight (Kg)',
-        accessor: 'netWt',
-        width: 130,
+        name: 'Net Weight (Kg)',
+        key: 'netWt',
       },
     ],
     editOutwardValue: null,
@@ -604,8 +586,22 @@ class YarnOutward extends React.Component {
     this.setState({ dialogOpen: show });
   }
 
-  saveDetails() {
+  saveDetails(outwardValue, isEdit) {
     this.showDialog(false);
+    if(isEdit) {
+      this.setState((prevState) => {
+        let indx = prevState.outwards.findIndex(
+          (i) => i.id === outwardValue.id
+        );
+        return {
+          outwards: [
+            ...prevState.outwards.slice(0, indx),
+            outwardValue,
+            ...prevState.outwards.slice(indx + 1),
+          ],
+        };
+      });
+    }
   }
 
   deleteRecord(outwardValue) {
@@ -681,15 +677,15 @@ class YarnOutward extends React.Component {
             </Button>
           </Box>
         </Box>
-        <Box flexGrow="1" overflow="auto">
-          <TableComponent
+        <Box flexGrow="1" p={1}>
+          <ResultsTable
             columns={this.state.columns}
-            data={this.state.outwards}
-            filterText={this.state.filter}
-            sortBy={[
+            rows={this.state.outwards}
+            onEditClick={this.editOutward.bind(this)}
+            defaultSort={[
               {
-                  id: 'setNo',
-                  desc: false
+                  columnKey: 'setNo',
+                  direction: 'ASC',
               },
             ]}
           />

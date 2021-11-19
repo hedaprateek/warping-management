@@ -13,8 +13,6 @@ import axios from 'axios';
 import React, { useEffect, useMemo, useReducer, useState } from 'react';
 import DraggableDialog from '../../helpers/DraggableDialog';
 import { FormField, InputDate, InputSelect, InputSelectSearch, InputText } from '../../components/FormElements';
-import TableComponent from '../../components/TableComponent';
-import Select from 'react-select';
 import DataGrid from '../../components/DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
@@ -24,6 +22,7 @@ import Moment from 'moment';
 import { connect } from 'react-redux';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import ConfirmDialog from '../../helpers/ConfirmDialog';
+import { ResultsTable } from '../../components/ResultsTable';
 
 const warpingReducer = (state, action)=>{
   let newState = _.cloneDeep(state);
@@ -583,7 +582,7 @@ class Warping extends React.Component {
   }
 
   editWarping(row) {
-    this.setState({editWarpingValue: row.original});
+    this.setState({editWarpingValue: row});
     this.showDialog(true);
   }
 
@@ -599,41 +598,27 @@ class Warping extends React.Component {
     dialogOpen: false,
     columns: [
       {
-        Header: '',
-        id: 'btn-edit',
-        Cell: ({ row }) => {
-          return (
-            <IconButton
-              onClick={() => {
-                this.editWarping(row);
-              }}
-            >
-              <EditIcon />
-            </IconButton>
-          );
+        name: 'Set No',
+        key: 'setNo',
+        width: 100,
+      },
+      {
+        name: 'Beam No',
+        key: 'beamNo',
+        width: 100,
+      },
+      {
+        name: 'Date',
+        key: 'date',
+        formatter:({row})=>{
+          return Moment(row['date']).format('DD/MM/YYYY');
         },
+        width: 120,
       },
       {
-        Header: 'Set No',
-        accessor: 'setNo',
-        width: 70,
-      },
-      {
-        Header: 'Beam No',
-        accessor: 'beamNo',
-        width: 70,
-      },
-      {
-        Header: 'Date',
-        accessor: 'date',
-        Cell:({value})=>{
-          return Moment(value).format('DD-MM-YYYY');
-        },
-        width: 90,
-      },
-      {
-        Header: 'Party Name',
-        accessor: (row) => {
+        name: 'Party Name',
+        key: 'partyId',
+        formatter: ({row}) => {
           let partyName = [];
           if (row.partyId) {
             partyName = this.state.accounts.filter((party) => {
@@ -644,11 +629,12 @@ class Warping extends React.Component {
           }
           return partyName[0] ? partyName[0].name : '-';
         },
-        width: 200,
+        width: 300,
       },
       {
-        Header: 'Weaver Name',
-        accessor: (row) => {
+        name: 'Weaver Name',
+        key: 'weaverId',
+        formatter: ({row}) => {
           let weaverName = [];
           if (row.weaverId) {
             weaverName = this.state.accounts.filter((party) => {
@@ -659,29 +645,26 @@ class Warping extends React.Component {
           }
           return weaverName[0] ? weaverName[0].name : '-';
         },
-        width: 200,
+        width: 300,
       },
       {
-        Header: 'Design No.',
-        accessor: 'design',
-        width: 130,
+        name: 'Design No.',
+        key: 'design',
       },
       {
-        Header: 'Total Meters',
-        accessor: 'totalMeter',
-        width: 130,
+        name: 'Total Meters',
+        key: 'totalMeter',
       },
       {
-        Header: 'Total Ends',
-        accessor: 'totalEnds',
-        width: 130,
+        name: 'Total Ends',
+        key: 'totalEnds',
       },
       {
-        Header: 'Net Used Yarn (Kg)',
-        accessor: (row)=>{
+        name: 'Net Used Yarn (Kg)',
+        key: 'cal-yarn',
+        formatter: ({row})=>{
           return round(_.sum(row.qualities.map((q)=>parse(q.usedYarn)||0)));
         },
-        width: 130,
       },
     ],
     editWarpingValue: null,
@@ -705,6 +688,20 @@ class Warping extends React.Component {
 
   saveDetails(warpingValue, isEdit) {
     this.showDialog(false);
+    if(isEdit) {
+      this.setState((prevState) => {
+        let indx = prevState.warpings.findIndex(
+          (i) => i.id === warpingValue.id
+        );
+        return {
+          warpings: [
+            ...prevState.warpings.slice(0, indx),
+            warpingValue,
+            ...prevState.warpings.slice(indx + 1),
+          ],
+        };
+      });
+    }
   }
 
   deleteRecord(warpingValue) {
@@ -779,19 +776,19 @@ class Warping extends React.Component {
             </Button>
           </Box>
         </Box>
-        <Box flexGrow="1" overflow="auto">
-          <TableComponent
+        <Box flexGrow="1" p={1}>
+          <ResultsTable
             columns={this.state.columns}
-            data={this.state.warpings}
-            filterText={this.state.filter}
-            sortBy={[
+            rows={this.state.warpings}
+            onEditClick={this.editWarping.bind(this)}
+            defaultSort={[
               {
-                  id: 'setNo',
-                  desc: false
+                  columnKey: 'setNo',
+                  direction: 'ASC',
               },
               {
-                id: 'beamNo',
-                desc: false
+                columnKey: 'beamNo',
+                direction: 'ASC',
               },
             ]}
           />

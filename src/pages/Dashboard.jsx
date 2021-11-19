@@ -104,7 +104,7 @@ function Dashboard(props) {
           <Box>
             <Toolbar variant="dense" />
           </Box>
-          <Box flexGrow="1" style={{ minHeight: 0 }}>
+          <Box flexGrow="1" minHeight="0" display="flex" flexDirection="column">
             <Switch>
               {navItems.map((item) => {
                 return (
