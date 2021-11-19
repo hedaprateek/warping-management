@@ -1,4 +1,4 @@
-import { Box, Button, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect, Typography, Table } from '@material-ui/core';
+import { Box, Button, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect } from '@material-ui/core';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { DashedDivider, NoData, ReportField, ReportTable, ReportTableSection, ReportTableData, ReportTableRow } from './ReportComponents';
 import axios from 'axios';
@@ -303,7 +303,7 @@ function FinalReport({data, getWeaver, getQuality}) {
 
   return (
     <>
-      <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Beam details</Typography>
+      <div style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Beam details</div>
       {Object.keys(programData).length === 0 && <NoData />}
       {Object.keys(programData).length > 0 &&
       <>
@@ -348,7 +348,7 @@ function FinalReport({data, getWeaver, getQuality}) {
       </Box>
       </>}
       <DashedDivider />
-      <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Outward</Typography>
+      <div style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Outward</div>
       {Object.keys(outwardData).length === 0 && <NoData />}
       {Object.keys(outwardData).length > 0 &&
       <>
@@ -382,7 +382,7 @@ function FinalReport({data, getWeaver, getQuality}) {
       </Box>
       </>}
       <DashedDivider />
-      <Typography style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Summary</Typography>
+      <div style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Yarn Summary</div>
       <ReportTable data={
           Object.keys(inwardOpeningBalance).map(
             (qualityId)=>({
