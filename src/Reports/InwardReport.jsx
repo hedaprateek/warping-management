@@ -5,7 +5,7 @@ import axios from 'axios';
 import ReportViewer from './ReportViewer';
 import Select from 'react-select';
 import {FormField, InputDate, InputSelectSearch} from '../components/FormElements';
-import { parse, round } from '../utils';
+import { getDatesForType, parse, round } from '../utils';
 import Moment from 'moment';
 
 
@@ -34,32 +34,7 @@ export default function InwardReport(props) {
   const [qualityOpts, setQualityOpts] = useState([]);
 
   useEffect(()=>{
-    let today = new Date();
-    let from_date = new Date();
-    let to_date = new Date();
-
-    if(dateType === 'current' || dateType === 'last-f') {
-      from_date.setMonth(3);
-      from_date.setDate(1);
-      to_date.setMonth(2);
-      to_date.setDate(31);
-
-      if(today.getMonth()+1 <= 3) {
-        let yearDiff = dateType === 'current' ? 0 : 1;
-        from_date.setFullYear(today.getFullYear()-1-yearDiff);
-        to_date.setFullYear(today.getFullYear()-yearDiff);
-      } else {
-        let yearDiff = dateType === 'current' ? 1 : 0;
-        from_date.setFullYear(today.getFullYear()-1+yearDiff);
-        to_date.setFullYear(today.getFullYear()+yearDiff);
-      }
-    } else if(dateType === 'last-m') {
-      let year = today.getMonth() === 0 ? today.getFullYear() -1 : today.getFullYear();
-      let month = today.getMonth() === 0 ? 11 : today.getMonth() - 1;
-      from_date = new Date(year, month, 1);
-      to_date = new Date(year, month + 1, 0);
-    }
-
+    let [from_date, to_date] = getDatesForType(dateType);
     setFilter((prev)=>({
       ...prev,
       from_date: from_date,
@@ -185,7 +160,7 @@ export default function InwardReport(props) {
                 margin="dense"
                 fullWidth
               >
-                <MenuItem value={'current'}>Current financial year</MenuItem>
+                <MenuItem value={'current-f'}>Current financial year</MenuItem>
                 <MenuItem value={'last-m'}>Last month</MenuItem>
                 <MenuItem value={'custom-date'}>Custom date range</MenuItem>
                 <MenuItem value={'last-f'}>Last financial year</MenuItem>

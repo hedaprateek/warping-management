@@ -150,3 +150,38 @@ export function commonUniqueChecker(name, collection, isEdit=false, origName='',
     return !Boolean(_.find(collection, (r)=>(r[nameKey].toUpperCase() == name.toUpperCase())));
   }
 }
+
+export function getDatesForType(dateType) {
+  let today = new Date();
+  let from_date = new Date();
+  let to_date = new Date();
+
+  if(dateType === 'current-f' || dateType === 'last-f') {
+    from_date.setMonth(3);
+    from_date.setDate(1);
+    to_date.setMonth(2);
+    to_date.setDate(31);
+
+    if(today.getMonth()+1 <= 3) {
+      let yearDiff = dateType === 'current-f' ? 0 : 1;
+      from_date.setFullYear(today.getFullYear()-1-yearDiff);
+      to_date.setFullYear(today.getFullYear()-yearDiff);
+    } else {
+      let yearDiff = dateType === 'current-f' ? 1 : 0;
+      from_date.setFullYear(today.getFullYear()-1+yearDiff);
+      to_date.setFullYear(today.getFullYear()+yearDiff);
+    }
+  } else if(dateType === 'current-m') {
+    let year = today.getFullYear();
+    let month = today.getMonth();
+    from_date = new Date(year, month, 1);
+    to_date = new Date(year, month + 1, 0);
+  } else if(dateType === 'last-m') {
+    let year = today.getMonth() === 0 ? today.getFullYear() -1 : today.getFullYear();
+    let month = today.getMonth() === 0 ? 11 : today.getMonth() - 1;
+    from_date = new Date(year, month, 1);
+    to_date = new Date(year, month + 1, 0);
+  }
+
+  return [from_date, to_date];
+}
