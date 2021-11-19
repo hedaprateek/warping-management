@@ -303,6 +303,7 @@ class Inwards extends React.Component {
         formatter: ({row, column})=>{
           return Moment(row[column.key]).format('DD/MM/YYYY');
         },
+        sortFormatter: false,
       },
       {
         name: 'Party Name',

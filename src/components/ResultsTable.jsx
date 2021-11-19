@@ -95,7 +95,7 @@ export function ResultsTable({rows, columns, rowKey='id', hasEdit=true, onEditCl
     let sortedRows = [...rows];
     sortedRows = sortedRows.sort((a, b) => {
       let aVal = a[columnKey], bVal = b[columnKey];
-      if(_.isFunction(column?.formatter)) {
+      if(_.isFunction(column?.formatter) && (column.sortFormatter ?? true)) {
         aVal = column.formatter({row: a, column: column});
         bVal = column.formatter({row: b, column: column});
       }

@@ -6,7 +6,8 @@ import {
   CardHeader,
   Grid,
   IconButton,
-  OutlinedInput,
+  MenuItem,
+  Select as MUISelect
 } from '@material-ui/core';
 import axios from 'axios';
 import React, { useEffect, useMemo, useReducer, useState } from 'react';
@@ -16,7 +17,7 @@ import DataGrid from '../../components/DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
 import Moment from 'moment';
-import {getAxiosErr, parse, round} from './../../utils';
+import {getAxiosErr, getDatesForType, parse, round} from './../../utils';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
 import { getSetNo } from './Warping';
@@ -464,8 +465,8 @@ class YarnOutward extends React.Component {
     super();
     this.getOutwards = this.getOutwards.bind(this);
   }
-  componentDidMount() {
-    let p1 = axios.get(`/api/parties`).then((res) => {
+  async componentDidMount() {
+    await axios.get(`/api/parties`).then((res) => {
       const accounts = res.data;
       this.setState({
         accounts,
@@ -474,12 +475,28 @@ class YarnOutward extends React.Component {
     }).catch((err)=>{
       console.log(err);
     });
-    let p2 = axios.get('/api/qualities').then((res)=>{
+    await axios.get('/api/qualities').then((res)=>{
       const qualities = res.data;
       this.setState({ qualities });
     }).catch((err)=>{
       console.log(err);
     });
+
+    let [from_date, to_date] = getDatesForType(this.state.date_type);
+    this.setState({
+      from_date: from_date, to_date: to_date,
+    }, ()=>{
+      this.getOutwards();
+    });
+  }
+
+  componentDidUpdate(_prevProps, prevState) {
+    if(prevState.date_type != this.state.date_type) {
+      let [from_date, to_date] = getDatesForType(this.state.date_type);
+      this.setState({
+        from_date: from_date, to_date: to_date,
+      });
+    }
   }
 
   getOutwards() {
@@ -488,6 +505,8 @@ class YarnOutward extends React.Component {
         params: {
           partyId: this.state.partyId,
           setNo: this.state.setNo,
+          from_date: this.state.from_date,
+          to_date: this.state.to_date,
         }
       })
       .then((res) => {
@@ -514,6 +533,7 @@ class YarnOutward extends React.Component {
     qualities: [],
     filter: '',
     dialogOpen: false,
+    date_type: 'current-m',
     columns: [
       {
         name: 'Set No',
@@ -527,6 +547,7 @@ class YarnOutward extends React.Component {
           return Moment(row['date']).format('DD-MM-YYYY');
         },
         width: 120,
+        sortFormatter: false,
       },
       {
         name: 'Party Name',
@@ -633,7 +654,7 @@ class YarnOutward extends React.Component {
     return (
       <>
         <Box p={1}>
-          <Grid container spacing={2}>
+          <Grid container spacing={1}>
             <Grid item md={3} xs={12}>
               <InputSelectSearch
                 value={this.state.partiesOpts.filter(
@@ -654,13 +675,51 @@ class YarnOutward extends React.Component {
             </Grid>
           </Grid>
         </Box>
+        <Box p={1} paddingTop={0.5}>
+          <Grid container spacing={1}>
+            <Grid item md={3} xs={12}>
+              <FormField label="Date Type">
+                <MUISelect
+                  value={this.state.date_type}
+                  onChange={(e) => this.setState({date_type:  e.target.value})}
+                  variant="outlined"
+                  name="date_type"
+                  margin="dense"
+                  fullWidth
+                >
+                  <MenuItem value={'current-f'}>Current financial year</MenuItem>
+                  <MenuItem value={'current-m'}>Current month</MenuItem>
+                  <MenuItem value={'last-m'}>Last month</MenuItem>
+                  <MenuItem value={'custom-date'}>Custom date range</MenuItem>
+                </MUISelect>
+              </FormField>
+            </Grid>
+            <Grid item md={2} xs={12}>
+              <InputDate
+                label="From Date"
+                value={this.state.from_date}
+                onChange={(value) => {
+                  this.setState({from_date: value});
+                }}
+              />
+            </Grid>
+            <Grid item md={2} xs={12}>
+              <InputDate
+                label="To Date"
+                value={this.state.to_date}
+                onChange={(value) => {
+                  this.setState({to_date: value});
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Box>
         <Box p={1}>
           <Box display="flex">
             <Button
               variant="outlined"
               color="primary"
               onClick={this.getOutwards}
-              disabled={!this.state.partyId && !this.state.setNo}
             >
               Get data
             </Button>

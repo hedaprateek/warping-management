@@ -28,7 +28,11 @@ const globalTheme = createMuiTheme({
   },
   shape: {
       borderRadius: 0,
-  }
+  },
+  transitions: {
+    // So we have `transition: none;` everywhere
+    create: () => 'none',
+  },
 });
 
 export const theme = createMuiTheme({
@@ -178,6 +182,11 @@ export const theme = createMuiTheme({
                 padding: defaultTheme.spacing(1, 2)
             }
         },
+        MuiMenuItem: {
+            root: {
+                fontSize: '14px',
+            }
+        }
     },
     otherVars: {
         reactSelect: {

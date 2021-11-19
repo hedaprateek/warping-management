@@ -2,9 +2,15 @@ const Sequelize = require('sequelize');
 var router = require('express').Router();
 const db = require('../db/models');
 const { addSetNo, deleteSetNo } = require('./utils');
+const Op = Sequelize.Op;
 
 router.get('/', function(req, res) {
-  let where = {};
+  let where = {
+    date: {
+      [Op.gte]: req.query.from_date,
+      [Op.lte]: req.query.to_date,
+    }
+  };
   if(req.query.partyId) {
     where.partyId = req.query.partyId;
   }

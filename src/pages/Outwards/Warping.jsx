@@ -6,8 +6,8 @@ import {
   CardHeader,
   Grid,
   IconButton,
-  OutlinedInput,
-  Paper,
+  MenuItem,
+  Select as MUISelect
 } from '@material-ui/core';
 import axios from 'axios';
 import React, { useEffect, useMemo, useReducer, useState } from 'react';
@@ -16,7 +16,7 @@ import { FormField, InputDate, InputSelect, InputSelectSearch, InputText } from 
 import DataGrid from '../../components/DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
-import { getAxiosErr, parse, round } from '../../utils';
+import { getAxiosErr, getDatesForType, parse, round } from '../../utils';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 import { connect } from 'react-redux';
@@ -571,14 +571,31 @@ class Warping extends React.Component {
     super();
     this.getWarpings = this.getWarpings.bind(this);
   }
-  componentDidMount() {
-    axios.get(`/api/parties`).then((res) => {
+  async componentDidMount() {
+    await axios.get(`/api/parties`).then((res) => {
       const accounts = res.data;
       this.setState({
         accounts,
         partiesOpts: accounts.filter((a)=>a.isWeaver=='Party').map((p)=>({label: p.name, value: p.id})),
       });
     });
+
+    let [from_date, to_date] = getDatesForType(this.state.date_type);
+    this.setState({
+      from_date: from_date, to_date: to_date,
+    }, ()=>{
+      this.getWarpings();
+    });
+  }
+
+
+  componentDidUpdate(_prevProps, prevState) {
+    if(prevState.date_type != this.state.date_type) {
+      let [from_date, to_date] = getDatesForType(this.state.date_type);
+      this.setState({
+        from_date: from_date, to_date: to_date,
+      });
+    }
   }
 
   editWarping(row) {
@@ -596,6 +613,7 @@ class Warping extends React.Component {
     weavers: [],
     filter: '',
     dialogOpen: false,
+    date_type: 'current-m',
     columns: [
       {
         name: 'Set No',
@@ -613,6 +631,7 @@ class Warping extends React.Component {
         formatter:({row})=>{
           return Moment(row['date']).format('DD/MM/YYYY');
         },
+        sortFormatter: false,
         width: 120,
       },
       {
@@ -675,6 +694,8 @@ class Warping extends React.Component {
       params: {
         partyId: this.state.partyId,
         setNo: this.state.setNo,
+        from_date: this.state.from_date,
+        to_date: this.state.to_date,
       }
     }).then((res) => {
       const warpings = res.data;
@@ -732,7 +753,7 @@ class Warping extends React.Component {
     return (
       <>
         <Box p={1}>
-          <Grid container spacing={2}>
+          <Grid container spacing={1}>
             <Grid item md={3} xs={12}>
               <InputSelectSearch
                 value={this.state.partiesOpts.filter(
@@ -753,13 +774,51 @@ class Warping extends React.Component {
             </Grid>
           </Grid>
         </Box>
+        <Box p={1} paddingTop={0.5}>
+          <Grid container spacing={1}>
+            <Grid item md={3} xs={12}>
+              <FormField label="Date Type">
+                <MUISelect
+                  value={this.state.date_type}
+                  onChange={(e) => this.setState({date_type:  e.target.value})}
+                  variant="outlined"
+                  name="date_type"
+                  margin="dense"
+                  fullWidth
+                >
+                  <MenuItem value={'current-f'}>Current financial year</MenuItem>
+                  <MenuItem value={'current-m'}>Current month</MenuItem>
+                  <MenuItem value={'last-m'}>Last month</MenuItem>
+                  <MenuItem value={'custom-date'}>Custom date range</MenuItem>
+                </MUISelect>
+              </FormField>
+            </Grid>
+            <Grid item md={2} xs={12}>
+              <InputDate
+                label="From Date"
+                value={this.state.from_date}
+                onChange={(value) => {
+                  this.setState({from_date: value});
+                }}
+              />
+            </Grid>
+            <Grid item md={2} xs={12}>
+              <InputDate
+                label="To Date"
+                value={this.state.to_date}
+                onChange={(value) => {
+                  this.setState({to_date: value});
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Box>
         <Box p={1}>
           <Box display="flex">
             <Button
               variant="outlined"
               color="primary"
               onClick={this.getWarpings}
-              disabled={!this.state.partyId && !this.state.setNo}
             >
               Get data
             </Button>
