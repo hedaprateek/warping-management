@@ -16,7 +16,7 @@ import { FormField, InputDate, InputSelect, InputSelectSearch, InputText } from 
 import DataGrid from '../../components/DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
-import { getAxiosErr, getDatesForType, parse, round } from '../../utils';
+import { DECIMAL_MULTIPLIER, getAxiosErr, getDatesForType, parse, round, ROUND_DECIMAL } from '../../utils';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 import { connect } from 'react-redux';
@@ -34,10 +34,14 @@ const warpingReducer = (state, action)=>{
     case 'set_value':
       _.set(newState, action.path, action.value);
       let changedKey = action.path[action.path.length-1];
+      let qualityIdx = null;
+      if(action.path.indexOf('qualities') > -1) {
+        qualityIdx = action.path[action.path.indexOf('qualities')+1];
+      }
       if(action.path.indexOf('beams') > -1) {
-        newState = beamReducer(newState, _.slice(action.path, 0, action.path.indexOf('beams')+2), changedKey);
+        newState = beamReducer(newState, _.slice(action.path, 0, action.path.indexOf('beams')+2), changedKey, qualityIdx);
       } else {
-        newState = beamReducer(newState, [], changedKey);
+        newState = beamReducer(newState, [], changedKey, qualityIdx);
       }
       break;
     case 'add_grid_row':
@@ -46,6 +50,10 @@ const warpingReducer = (state, action)=>{
         ...action.value,
       });
       _.set(newState, action.path, rows);
+      if(action.path.indexOf('qualities') > -1) {
+        let qualityIdx = action.path[action.path.indexOf('qualities')+1];
+        newState = beamReducer(newState, _.slice(action.path, 0, action.path.indexOf('beams')+2), null, qualityIdx);
+      }
       break;
     case 'remove_grid_row':
       rows = _.get(newState, action.path, []);
@@ -62,7 +70,7 @@ const warpingReducer = (state, action)=>{
   return newState;
 }
 
-function beamReducer(state, path, changedKey) {
+function beamReducer(state, path, changedKey, qualityIdx) {
   let beamData = _.get(state, path, state);
 
   if(changedKey === 'totalMeter') {
@@ -72,18 +80,46 @@ function beamReducer(state, path, changedKey) {
   }
 
   beamData.totalEnds = 0;
-  (beamData.qualities || []).forEach((q)=>{
+  (beamData.qualities || []).forEach((q, i)=>{
     beamData.totalEnds += parse(q.ends);
     if(changedKey == 'usedYarn') {
       q.count = round(parse(beamData.totalMeter)*parse(q.ends)/1693.333/parse(q.usedYarn));
+      qualityIdx == i && (q._touched = true);
     } else if(changedKey === 'count') {
       q.usedYarn = round(parse(beamData.totalMeter)*parse(q.ends)/1693.333/parse(q.count));
+      qualityIdx == i && (q._touched = true);
     }
   });
 
-  beamData.actualUsedYarn = parse(beamData.filledBeamWt) - parse(beamData.emptyBeamWt);
+  if(beamData.actualUsedYarn) {
+    let untouchedCount = 0;
+    let touchedTotal = beamData.qualities.reduce((prevTotal, q)=>{
+      if(q._touched) {
+        return prevTotal+parse(q.usedYarn)
+      } else {
+        untouchedCount++;
+      }
+      return prevTotal;
+    }, 0);
+    let untouchedUsedYarn = (parse(beamData.actualUsedYarn)*DECIMAL_MULTIPLIER - touchedTotal*DECIMAL_MULTIPLIER)/DECIMAL_MULTIPLIER;
+    let aprxPart = Math.floor(untouchedUsedYarn*DECIMAL_MULTIPLIER/untouchedCount)/DECIMAL_MULTIPLIER;
+
+    /* Distribute */
+    (beamData.qualities || []).forEach((q, i)=>{
+      if(!q._touched) {
+        /* Last available untouched yarn */
+        if(((untouchedUsedYarn*DECIMAL_MULTIPLIER - aprxPart*DECIMAL_MULTIPLIER)/DECIMAL_MULTIPLIER) >= aprxPart) {
+          untouchedUsedYarn = (untouchedUsedYarn*DECIMAL_MULTIPLIER - aprxPart*DECIMAL_MULTIPLIER)/DECIMAL_MULTIPLIER;
+          q.usedYarn = aprxPart;
+        } else {
+          q.usedYarn = untouchedUsedYarn;
+        }
+      }
+    });
+  }
 
   _.set(state, path, beamData);
+  console.log(beamData.qualities);
   return state;
 }
 
@@ -180,7 +216,7 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
       Header: 'Count',
       accessor: 'count',
       Cell: getNumberCell(dataDispatch, accessPath.concat('qualities')),
-      Footer: ()=>'Net Used Yarn (Kg)',
+      Footer: ()=>'Actual Used Yarn (Kg)',
     },
     {
       Header: 'Used Yarn (Kg)',
@@ -267,17 +303,16 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
             />
           </Grid>
         </Grid>
-        <Box p={1}></Box>
-        <DataGrid columns={qualityCols} data={data.qualities || []} showFooter={true} />
-        <Button variant="outlined" color="primary" onClick={()=>{
-          dataDispatch({
-            type: 'add_grid_row',
-            path: accessPath.concat('qualities'),
-            value: {},
-          });
-        }}>Add quality</Button>
         <Grid container spacing={1}>
-          <Grid item lg={3} md={3} sm={12} xs={12}>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
+            <InputText
+              label="Actual Used Yarn (Kg)"
+              name="actualUsedYarn"
+              value={data.actualUsedYarn}
+              onChange={onChange}
+            />
+          </Grid>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputText
               label="Filled Beam Weight (Kg)"
               name="filledBeamWt"
@@ -286,7 +321,7 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
               type="number"
             />
           </Grid>
-          <Grid item lg={3} md={3} sm={12} xs={12}>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputText
               label="Empty Beam Weight (Kg)"
               name="emptyBeamWt"
@@ -295,16 +330,25 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
               type="number"
             />
           </Grid>
-          <Grid item lg={3} md={3} sm={12} xs={12}>
+          <Grid item lg={2} md={2} sm={12} xs={12}>
             <InputText
-              label="Actual Used Yarn (Kg)"
-              name="actualUsedYarn"
-              value={data.actualUsedYarn}
+              label="Gatepass No."
+              name="gatepass"
+              value={data.gatepass}
               onChange={onChange}
               readOnly
             />
           </Grid>
         </Grid>
+        <Box p={1}></Box>
+        <DataGrid columns={qualityCols} data={data.qualities || []} showFooter={true} />
+        <Button variant="outlined" color="primary" onClick={()=>{
+          dataDispatch({
+            type: 'add_grid_row',
+            path: accessPath.concat('qualities'),
+            value: {_touched: false},
+          });
+        }}>Add quality</Button>
       </CardContent>
     </Card>
   );
@@ -344,7 +388,7 @@ function WarpingDialog({ open, accounts, editWarpingValue, ...props }) {
     cuts: 0,
     totalMeter: 0,
     totalEnds: 0,
-    qualities: [{}],
+    qualities: [{_touched: false,}],
     date: new Date(),
   };
   const defaults = {

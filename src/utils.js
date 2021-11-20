@@ -1,6 +1,7 @@
 import _ from 'lodash';
 
-const ROUND_DECIMAL = 3;
+export const ROUND_DECIMAL = 3;
+export const DECIMAL_MULTIPLIER = 1000;
 
 export function parse(num) {
   if(!isNaN(num) && num) {

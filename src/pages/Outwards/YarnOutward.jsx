@@ -180,7 +180,16 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
               options={qualityOpts}
             />
           </Grid>
-          <Grid item lg={6} md={2} sm={12} xs={12}>
+          <Grid item lg={3} md={3} sm={12} xs={12}>
+            <InputText
+              label="Gatepass No."
+              name="gatepass"
+              value={data.gatepass}
+              onChange={onChange}
+              readOnly
+            />
+          </Grid>
+          <Grid item lg={3} md={3} sm={12} xs={12}>
             <InputDate
               label="Date"
               name="date"
