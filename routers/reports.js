@@ -147,14 +147,32 @@ router.get('/set', async function(req, res) {
 
   try {
     let retVal = {};
+    // let programReport = await db.WarpingProgram.findAll({
+    //   attributes: [
+    //     'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter',
+    //       [Sequelize.literal("DENSE_RANK() OVER (PARTITION BY `WarpingProgram`.`setNo` ORDER BY `WarpingProgram`.`date`, `WarpingProgram`.`id`)"), 'beamNo']
+    //   ],
+    //   raw: true,
+    //   where: where,
+    //   nest: true,
+    //   include: [
+    //     {model: db.WarpingQualities, as: 'qualities'},
+    //   ],
+    // });
+
     let programReport = await db.WarpingProgram.findAll({
-      attributes: [
-        'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter'],
       raw: false,
       where: where,
-      nest: true,
-      include: [{model: db.WarpingQualities, as: 'qualities'}],
-    });
+      include: [
+        {model: db.WarpingQualities, as: 'qualities'},
+      ],
+      attributes: {
+        include: [
+          [Sequelize.literal("DENSE_RANK() OVER (PARTITION BY `WarpingProgram`.`setNo` ORDER BY `WarpingProgram`.`date`, `WarpingProgram`.`id`)"), 'beamNo']
+        ]
+      },
+      // order: [['setNo', 'ASC']]
+    })
 
     let partyId = null;
     let programData = retVal['programData'] = {};
@@ -167,6 +185,7 @@ router.get('/set', async function(req, res) {
         lassa: row.lassa,
         totalMeter: row.totalMeter,
         cuts: row.cuts,
+        beamNo: row.dataValues.beamNo,
         qualities: row.qualities,
       });
     }

@@ -93,82 +93,7 @@ export default function SetReport() {
         </Grid>
       </Box>
       <Box flexGrow="1">
-        <PDFViewer style={{height: '99%', width: '99%'}}>
-          <Document title="Set Report - Warping Inventory" onRender={async (props)=>{
-          }}>
-              <Page size="A4" orientation="landscape" style={{fontSize: '11px', fontFamily: 'm1', padding: '5mm'}}>
-                <ReportTable columns={[
-                  {name: 'Beam No', key: 'beamNo', width: '12mm'},
-                  {name: 'Date', key: 'date', width: '22mm'},
-                  {name: 'Gatepass No', key: 'gatepass', width: '20mm'},
-                  {name: 'Meters', key: 'meters', width: '18mm'},
-                  {name: 'Cuts', key: 'cuts', width: '18mm'},
-                  {
-                    pivot: [
-                      {name: 'Quality', key: 'quality', width: '19mm'},
-                      {name: 'Ends', key: 'ends', width: '19mm'},
-                      {name: 'Net Wt.', key: 'netWt', width: '19mm'},
-                    ],
-                    columns: [
-                      {name: 'Beam Yarn Details', width: '171mm', key: 'beamYarnDetails', pivotDataLength: 8},
-                      {name: 'Total', width: '25mm', key: 'total'},
-                    ],
-                  },
-                ]} rows={[
-                  {beamNo: 1, date: '01/01/2021', beamYarnDetails: [
-                    {quality: '151 roto roto roto', ends: '5292', netWt: '390.89'},
-                  ], total: {quality: '', ends: '754322', netWt: '971.44'}},
-                  {beamNo: 2, date: '01/01/2021', beamYarnDetails: [
-                    {quality: '152 roto', ends: '5292', netWt: '390.89'},
-                  ]},
-                  {beamNo: 3, date: '01/01/2021', beamYarnDetails: [
-                    {quality: '153 roto', ends: '5292', netWt: '390.89'},
-                  ]},
-                  {beamNo: 4, date: '01/01/2021', beamYarnDetails: [
-                    {quality: '154 roto', ends: '5292', netWt: '390.89'},
-                  ]},
-                ]}>
-                </ReportTable>
-                  {/* <Table
-                      data={[
-                          {firstName: "John", lastName: "Smith", dob: new Date(2000, 1, 1), country: "Australia", phoneNumber: "xxx-0000-0000"}
-                      ]}
-
-                  >
-                      <TableHeader>
-                          <TableCell style={reportStyles.cell}>
-                              Beam No
-                          </TableCell>
-                          <TableCell>
-                              Date
-                          </TableCell>
-                          <TableCell>
-                              Gatepass No
-                          </TableCell>
-                          <TableCell>
-                              Meters
-                          </TableCell>
-                          <TableCell>
-                              Cuts
-                          </TableCell>
-                          <TableCell>
-                              Beam Yarn Details
-                          </TableCell>
-                          <TableCell>
-                              Total
-                          </TableCell>
-                      </TableHeader>
-                      <TableBody>
-                          <DataTableCell getContent={(r) => r.firstName}/>
-                          <DataTableCell getContent={(r) => r.lastName}/>
-                          <DataTableCell getContent={(r) => r.dob.toLocaleString()}/>
-                          <DataTableCell getContent={(r) => r.country}/>
-                          <DataTableCell getContent={(r) => r.phoneNumber}/>
-                      </TableBody>
-                  </Table> */}
-              </Page>
-          </Document>
-        </PDFViewer>
+        <FinalReport data={data} getParty={getParty} getQuality={getQuality} />
       </Box>
       {/* <ReportViewer reportName={REPORT_NAME}
         getReportDetails={()=>(<>
@@ -260,6 +185,149 @@ export default function SetReport() {
 //   );
 // }
 
+function BeamDetails({weaver, getQuality}) {
+  let beamRows = [];
+  weaver.map((beam, i)=>{
+    let beamRow = {
+      beamNo: beam.beamNo,
+      date: '01/01/2021',
+      totalMeter: beam.totalMeter,
+      cuts: beam.cuts,
+      beamYarnDetails: [],
+      total: {
+        quality: '',
+        ends: 0,
+        netWt: 0,
+      },
+    }
+
+    beam.qualities.map((row)=>{
+      beamRow.total.ends += parse(row.ends);
+      beamRow.total.netWt += parse(row.usedYarn);
+      beamRow.beamYarnDetails.push({
+        quality: getQuality(row.qualityId), ends: row.ends, netWt: row.usedYarn
+      })
+    })
+    beamRows.push(beamRow);
+  })
+  // [
+  //   {beamNo: 1, date: '01/01/2021', beamYarnDetails: [
+  //     {quality: '151 roto roto roto', ends: '5292', netWt: '390.89'},
+  //   ], total: {quality: '', ends: '754322', netWt: '971.44'}},
+  //   {beamNo: 2, date: '01/01/2021', beamYarnDetails: [
+  //     {quality: '152 roto', ends: '5292', netWt: '390.89'},
+  //   ]},
+  //   {beamNo: 3, date: '01/01/2021', beamYarnDetails: [
+  //     {quality: '153 roto', ends: '5292', netWt: '390.89'},
+  //   ]},
+  //   {beamNo: 4, date: '01/01/2021', beamYarnDetails: [
+  //     {quality: '154 roto', ends: '5292', netWt: '390.89'},
+  //   ]},
+  // ]
+  return (
+    <ReportTable columns={[
+      {name: 'Beam No', key: 'beamNo', width: '12mm'},
+      {name: 'Date', key: 'date', width: '22mm'},
+      {name: 'Gatepass No', key: 'gatepass', width: '20mm'},
+      {name: 'Meters', key: 'meters', width: '18mm'},
+      {name: 'Cuts', key: 'cuts', width: '18mm'},
+      {
+        pivot: [
+          {name: 'Quality', key: 'quality', width: '19mm'},
+          {name: 'Ends', key: 'ends', width: '19mm'},
+          {name: 'Net Wt.', key: 'netWt', width: '19mm'},
+        ],
+        columns: [
+          {name: 'Beam Yarn Details', width: '171mm', key: 'beamYarnDetails', pivotDataLength: 8},
+          {name: 'Total', width: '27mm', key: 'total'},
+        ],
+      },
+    ]} rows={beamRows} />
+  )
+}
+
+function FinalReport({data, getParty, getQuality}) {
+  let programData = data['programData'] || {};
+  let outwardData = data['outwardData'] || {};
+  let inwardOpeningBalance = data['inwardOpeningBalance'] || {};
+
+  /* Calculate the beam details summary */
+  let beamDetailsSummary = {
+    qualities: {},
+    overall: {
+      totalMeter: 0,
+      totalCuts: 0,
+      netWeight: 0,
+    }
+  };
+  Object.keys(programData).forEach((weaverId, i)=>{
+    let weaver = programData[weaverId];
+    weaver.forEach((beam)=>{
+      beamDetailsSummary.overall.totalMeter += beam.totalMeter;
+      beamDetailsSummary.overall.totalCuts += beam.cuts;
+      beam.qualities.forEach((q)=>{
+        beamDetailsSummary.qualities[q.qualityId] = beamDetailsSummary.qualities[q.qualityId] || 0;
+        beamDetailsSummary.qualities[q.qualityId] += q.usedYarn;
+        beamDetailsSummary.overall.netWeight += q.usedYarn;
+      });
+    });
+
+    // [
+    //   {beamNo: 1, date: '01/01/2021', beamYarnDetails: [
+    //     {quality: '151 roto roto roto', ends: '5292', netWt: '390.89'},
+    //   ], total: {quality: '', ends: '754322', netWt: '971.44'}},
+    //   {beamNo: 2, date: '01/01/2021', beamYarnDetails: [
+    //     {quality: '152 roto', ends: '5292', netWt: '390.89'},
+    //   ]},
+    //   {beamNo: 3, date: '01/01/2021', beamYarnDetails: [
+    //     {quality: '153 roto', ends: '5292', netWt: '390.89'},
+    //   ]},
+    //   {beamNo: 4, date: '01/01/2021', beamYarnDetails: [
+    //     {quality: '154 roto', ends: '5292', netWt: '390.89'},
+    //   ]},
+    // ]
+  });
+  Object.keys(beamDetailsSummary.qualities).map((qualityId)=>{
+    beamDetailsSummary.qualities[qualityId] = round(beamDetailsSummary.qualities[qualityId]);
+  });
+  beamDetailsSummary.overall.totalMeter = round(beamDetailsSummary.overall.totalMeter);
+  beamDetailsSummary.overall.totalCuts = round(beamDetailsSummary.overall.totalCuts);
+  beamDetailsSummary.overall.netWeight = round(beamDetailsSummary.overall.netWeight);
+
+  /* Calculate the yarn outward summary */
+  let yarnOutwardSummary = {
+    qualities: {},
+  }
+  Object.keys(outwardData).forEach((weaverId, i)=>{
+    let weaver = outwardData[weaverId] || {};
+    weaver.forEach((outward)=>{
+      yarnOutwardSummary.qualities[outward.qualityId] = yarnOutwardSummary.qualities[outward.qualityId] || 0;
+      yarnOutwardSummary.qualities[outward.qualityId] += outward.netWt;
+    });
+  });
+  Object.keys(yarnOutwardSummary.qualities).map((qualityId)=>{
+    yarnOutwardSummary.qualities[qualityId] = round(yarnOutwardSummary.qualities[qualityId]);
+  });
+
+  let allQualities =
+    (_.union(Object.keys(beamDetailsSummary.qualities),
+      Object.keys(yarnOutwardSummary.qualities)) || []).map((v)=>({qualityId: v}));
+
+  return(<PDFViewer style={{height: '99%', width: '99%'}}>
+    <Document title="Set Report - Warping Inventory" onRender={async (props)=>{
+    }}>
+        <Page size="A4" orientation="landscape" style={{fontSize: '11px', fontFamily: 'm1', padding: '5mm'}}>
+        {Object.keys(programData).map((weaverId, wi)=>{
+          let weaver = programData[weaverId];
+          return <>
+            <Text>{getParty(weaverId)||''}</Text>
+            <BeamDetails weaver={weaver} getQuality={getQuality} />
+          </>
+        })}
+        </Page>
+    </Document>
+  </PDFViewer>);
+}
 
 // function FinalReport({data, getParty, getQuality}) {
 //   let programData = data['programData'] || {};
@@ -423,3 +491,4 @@ export default function SetReport() {
 //     </>
 //   )
 // }
+

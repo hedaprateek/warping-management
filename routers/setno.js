@@ -11,7 +11,7 @@ router.get('/check/:id', async function(req, res) {
     },
   });
   if(result) {
-    rres.status(200).json('Y');
+    res.status(200).json('Y');
   }
   res.status(200).json('N');
 });

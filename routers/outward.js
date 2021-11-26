@@ -72,7 +72,7 @@ router.post('/', async function(req, res) {
         return;
       }
 
-      result = await db.Outward.create({
+      let result = await db.Outward.create({
         setNo: reqJson.setNo,
         partyId: reqJson.partyId,
         weaverId: reqJson.weaverId,

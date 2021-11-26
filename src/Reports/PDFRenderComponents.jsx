@@ -6,21 +6,25 @@ const useReportTableStyles = (theme)=>StyleSheet.create({
   table: {
     flexDirection: 'column',
     border: '1px solid #999999',
+    boxSizing: 'border-box',
   },
   header: {
     fontWeight: 'bold',
+    boxSizing: 'border-box',
   },
   row: {
     // flexDirection: 'row'
     flexDirection: 'row',
     borderBottomColor: '#bff0fd',
+    boxSizing: 'border-box',
   },
   cell: {
-    padding: '0.125rem 0.25rem',
+    padding: '0.25rem 0.25rem',
     borderRight: '1px solid #999999',
     wordBreak: 'break-all',
     verticalAlign: 'top',
     borderBottom: '1px dotted #999999',
+    boxSizing: 'border-box',
   },
   noBorderBottom: {
     borderBottom: 0,
@@ -44,7 +48,7 @@ export function ReportTable({columns=[], rows=[], children}) {
     <View style={styles.table}>
       <ReportTableRow>
         {headerCols.map((col, ci)=>{
-          return <ReportTableCell column={col} header last={ci===columns.length-1} />
+          return <ReportTableCell column={col} header last={ci===headerCols.length-1} />
         })}
       </ReportTableRow>
       {rows.map((row, ri)=>{
@@ -68,33 +72,35 @@ function ReportTableRow({children}) {
 }
 
 function ReportTableCell({column=null, row=null, header=false, last=false, lastRow=false}) {
-  const theme = useTheme();
-  const styles = useReportTableStyles(theme);
-
-
   /* Spanned */
   if(column.columns) {
     if(header) {
       return <ReportTableRow>
-        {column.columns.map((sCol)=><Cell column={sCol} value={sCol.name} header={header}/>)}
+        {column.columns.map((sCol, ci)=><Cell column={sCol} value={sCol.name} header={header}
+          last={last && ci==column.columns.length-1}/>)}
       </ReportTableRow>
     } else {
       let pivotCols = column.pivot;
       let pivotValue = row[column.columns[0].key];
       let otherCols = column.columns.slice(1);
-      let dummyLen = 7;
+      let dummyLen = column.columns[0].pivotDataLength - pivotValue.length;
       return <View>
-        {pivotCols.map((col, ci)=>{
+        {pivotCols.map((col, pi)=>{
+          let cells = [];
+          cells.push([col, col.name]);
+          pivotValue?.map((row, ri)=>{
+            cells.push([col, row[col.key]]);
+          });
+          (new Array(dummyLen).fill(0)).map(()=>{
+            cells.push([col, '']);
+          })
+          otherCols.map((ocol)=>{
+            cells.push([ocol, row?.[ocol.key]?.[col.key]]);
+          });
           return <ReportTableRow>
-            <Cell header column={col} value={col.name} />
-            {pivotValue?.map((row, ri)=>{
-              return <Cell column={col} value={row[col.key]} />
-            })}
-            {(new Array(dummyLen).fill(0)).map(()=>{
-              return <Cell column={col} value={''} />
-            })}
-            {otherCols.map((ocol)=>{
-              return <Cell column={ocol} value={row?.[ocol.key]?.[col.key]} />
+            {cells.map((cell, ci)=>{
+              return <Cell header={ci==0} column={cell[0]} value={cell[1]}
+                last={last && ci==cells.length-1} lastRow={lastRow && pi==pivotCols.length-1}/>
             })}
           </ReportTableRow>
         })}
@@ -119,6 +125,6 @@ function Cell({header=false, last=false, lastRow=false, column, value=''}) {
     header ? styles.header : null,
     column.width ? {width: column.width} : null,
   ]}>
-    {value}
+    {value||''}
   </Text>
 }
