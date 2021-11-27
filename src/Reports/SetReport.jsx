@@ -6,9 +6,9 @@ import {FormField, InputDate, InputSelectSearch, InputText} from '../components/
 import { parse, round } from '../utils';
 import { _ } from 'globalthis/implementation';
 import Moment from 'moment';
-import { Page, Text, View, Document, StyleSheet, PDFViewer } from '@react-pdf/renderer';
+import { Page, Document, PDFViewer, View, Text } from '@react-pdf/renderer';
 import { useTheme } from '@material-ui/styles';
-import {ReportTable} from './PDFRenderComponents';
+import {ReportTable, ReportField} from './PDFRenderComponents';
 
 const useStyles = makeStyles((theme)=>({
   reportContainer: {
@@ -185,7 +185,7 @@ export default function SetReport() {
 //   );
 // }
 
-function BeamDetails({weaver, getQuality}) {
+function WeaverDetails({weaver, weaverName, getQuality}) {
   let beamRows = [];
   weaver.map((beam, i)=>{
     let beamRow = {
@@ -210,21 +210,9 @@ function BeamDetails({weaver, getQuality}) {
     })
     beamRows.push(beamRow);
   })
-  // [
-  //   {beamNo: 1, date: '01/01/2021', beamYarnDetails: [
-  //     {quality: '151 roto roto roto', ends: '5292', netWt: '390.89'},
-  //   ], total: {quality: '', ends: '754322', netWt: '971.44'}},
-  //   {beamNo: 2, date: '01/01/2021', beamYarnDetails: [
-  //     {quality: '152 roto', ends: '5292', netWt: '390.89'},
-  //   ]},
-  //   {beamNo: 3, date: '01/01/2021', beamYarnDetails: [
-  //     {quality: '153 roto', ends: '5292', netWt: '390.89'},
-  //   ]},
-  //   {beamNo: 4, date: '01/01/2021', beamYarnDetails: [
-  //     {quality: '154 roto', ends: '5292', netWt: '390.89'},
-  //   ]},
-  // ]
   return (
+    <>
+    <ReportField name="Weaver" value={weaverName} style={{marginTop: '3mm', marginBottom: '1mm'}}/>
     <ReportTable columns={[
       {name: 'Beam No', key: 'beamNo', width: '12mm'},
       {name: 'Date', key: 'date', width: '22mm'},
@@ -245,6 +233,7 @@ function BeamDetails({weaver, getQuality}) {
     ]}
     rows={beamRows}
     />
+    </>
   )
 }
 
@@ -322,8 +311,7 @@ function FinalReport({data, getParty, getQuality}) {
         {Object.keys(programData).map((weaverId, wi)=>{
           let weaver = programData[weaverId];
           return <>
-            <Text>{getParty(weaverId)||''}</Text>
-            <BeamDetails weaver={weaver} getQuality={getQuality} />
+            <WeaverDetails weaver={weaver} weaverName={getParty(weaverId)||''} getQuality={getQuality} />
           </>
         })}
         </Page>

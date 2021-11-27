@@ -19,7 +19,7 @@ const useReportTableStyles = (theme)=>StyleSheet.create({
     boxSizing: 'border-box',
   },
   cell: {
-    padding: '0.25rem 0.25rem',
+    padding: '0.5mm',
     borderRight: '1px solid #999999',
     wordBreak: 'break-all',
     verticalAlign: 'top',
@@ -128,4 +128,15 @@ function Cell({header=false, last=false, lastRow=false, column, value=''}) {
   return <Text style={finalStyle}>
     {value ?? ''}
   </Text>
+}
+
+export function ReportField({name, value, margin, style}) {
+  let styles = [{flexDirection: 'row'}];
+  style && styles.push(style);
+  margin && styles.push({marginRight: '0.5rem'});
+  return (
+    <View style={styles}>
+      <Text style={{fontWeight: 'bold'}}>{name}: </Text><Text>{value}</Text>
+    </View>
+  );
 }
