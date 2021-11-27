@@ -190,7 +190,7 @@ function BeamDetails({weaver, getQuality}) {
   weaver.map((beam, i)=>{
     let beamRow = {
       beamNo: beam.beamNo,
-      date: '01/01/2021',
+      date: beam.date,
       totalMeter: beam.totalMeter,
       cuts: beam.cuts,
       beamYarnDetails: [],
@@ -229,7 +229,7 @@ function BeamDetails({weaver, getQuality}) {
       {name: 'Beam No', key: 'beamNo', width: '12mm'},
       {name: 'Date', key: 'date', width: '22mm'},
       {name: 'Gatepass No', key: 'gatepass', width: '20mm'},
-      {name: 'Meters', key: 'meters', width: '18mm'},
+      {name: 'Meters', key: 'totalMeter', width: '18mm'},
       {name: 'Cuts', key: 'cuts', width: '18mm'},
       {
         pivot: [
@@ -242,7 +242,9 @@ function BeamDetails({weaver, getQuality}) {
           {name: 'Total', width: '27mm', key: 'total'},
         ],
       },
-    ]} rows={beamRows} />
+    ]}
+    rows={beamRows}
+    />
   )
 }
 

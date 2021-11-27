@@ -34,7 +34,7 @@ const useReportTableStyles = (theme)=>StyleSheet.create({
   },
 });
 
-export function ReportTable({columns=[], rows=[], children}) {
+export function ReportTable({columns=[], rows=[]}) {
   const theme = useTheme();
   const styles = useReportTableStyles(theme);
   const headerCols = _.flatMap(columns, (column)=>{
@@ -51,12 +51,14 @@ export function ReportTable({columns=[], rows=[], children}) {
           return <ReportTableCell column={col} header last={ci===headerCols.length-1} />
         })}
       </ReportTableRow>
-      {rows.map((row, ri)=>{
-        return (<ReportTableRow>
-        {columns.map((col, ci)=>{
-          return <ReportTableCell column={col} row={row} last={ci===columns.length-1} lastRow={ri==rows.length-1} />
-        })}
-        </ReportTableRow>)
+      {(rows||[]).map((row, ri)=>{
+        return (
+          <ReportTableRow>
+          {columns.map((col, ci)=>{
+            return <ReportTableCell column={col} row={row} last={ci===columns.length-1} lastRow={ri==rows.length-1} />
+          })}
+          </ReportTableRow>
+        );
       })}
       {/* {children} */}
     </View>
@@ -118,13 +120,12 @@ function ReportTableCell({column=null, row=null, header=false, last=false, lastR
 function Cell({header=false, last=false, lastRow=false, column, value=''}) {
   const theme = useTheme();
   const styles = useReportTableStyles(theme);
-  return <Text style={[
-    styles.cell,
-    last ? styles.noBorderRight : null,
-    lastRow ? styles.noBorderBottom : null,
-    header ? styles.header : null,
-    column.width ? {width: column.width} : null,
-  ]}>
-    {value||''}
+  const finalStyle = [styles.cell];
+  last && finalStyle.push(styles.noBorderRight);
+  lastRow && finalStyle.push(styles.noBorderBottom);
+  header && finalStyle.push(styles.header);
+  column.width && finalStyle.push({width: column.width});
+  return <Text style={finalStyle}>
+    {value ?? ''}
   </Text>
 }

@@ -166,12 +166,16 @@ router.get('/set', async function(req, res) {
       include: [
         {model: db.WarpingQualities, as: 'qualities'},
       ],
-      attributes: {
-        include: [
+      attributes: [
+        'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter', formatDate('date'),
           [Sequelize.literal("DENSE_RANK() OVER (PARTITION BY `WarpingProgram`.`setNo` ORDER BY `WarpingProgram`.`date`, `WarpingProgram`.`id`)"), 'beamNo']
-        ]
-      },
-      // order: [['setNo', 'ASC']]
+      ],
+      // attributes: {
+      //   include: [
+      //     [Sequelize.literal("DENSE_RANK() OVER (PARTITION BY `WarpingProgram`.`setNo` ORDER BY `WarpingProgram`.`date`, `WarpingProgram`.`id`)"), 'beamNo']
+      //   ]
+      // },
+      order: [['weaverId', 'ASC'], ['date', 'ASC']]
     })
 
     let partyId = null;
@@ -185,6 +189,7 @@ router.get('/set', async function(req, res) {
         lassa: row.lassa,
         totalMeter: row.totalMeter,
         cuts: row.cuts,
+        date: row.date,
         beamNo: row.dataValues.beamNo,
         qualities: row.qualities,
       });
