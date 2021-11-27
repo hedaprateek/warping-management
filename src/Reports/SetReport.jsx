@@ -1,14 +1,13 @@
 import { Box, Button, Grid, InputLabel, makeStyles, MenuItem, TextField, Select as MUISelect, Typography } from '@material-ui/core';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
-import ReportViewer from './ReportViewer';
 import {FormField, InputDate, InputSelectSearch, InputText} from '../components/FormElements';
 import { parse, round } from '../utils';
 import { _ } from 'globalthis/implementation';
 import Moment from 'moment';
 import { Page, Document, PDFViewer, View, Text } from '@react-pdf/renderer';
 import { useTheme } from '@material-ui/styles';
-import {ReportTable, ReportField} from './PDFRenderComponents';
+import {ReportTable, ReportField, ReportViewer} from './PDFRenderComponents';
 
 const useStyles = makeStyles((theme)=>({
   reportContainer: {
@@ -25,7 +24,7 @@ export default function SetReport() {
   const [filter, setFilter] = useState({
     set_no: null,
   });
-  const [data, setData] = useState([]);
+  const [data, setData] = useState(null);
 
   /* Used by report */
   const [parties, setParties] = useState([]);
@@ -93,7 +92,21 @@ export default function SetReport() {
         </Grid>
       </Box>
       <Box flexGrow="1">
-        <FinalReport data={data} getParty={getParty} getQuality={getQuality} />
+        {useMemo(()=>{
+          if(!data) {
+            return <></>
+          }
+          return (
+            <ReportViewer reportName={REPORT_NAME} orientation="landscape"
+              getReportDetails={()=>(<>
+                <ReportField name="Set No" value={filter.set_no} />
+                <ReportField name="Party" value={(_.find(parties,(o)=>o.id==data.partyId)||{name: 'No party'}).name} />
+              </>)}
+            >
+              <FinalReport data={data} getParty={getParty} getQuality={getQuality} />
+            </ReportViewer>
+          )
+        }, [data])}
       </Box>
       {/* <ReportViewer reportName={REPORT_NAME}
         getReportDetails={()=>(<>
@@ -106,84 +119,6 @@ export default function SetReport() {
     </Box>
   );
 }
-
-// function BeamDetails({beam, beamNo, getQuality}) {
-//   return (
-//     <>
-//     <ReportTable>
-//       <ReportTableSection>
-//         <ReportTableRow>
-//           <ReportTableData width='30%' style={{verticalAlign: 'top'}} lastRow>
-//             <Box>
-//               <ReportField name="Beam No" value={beamNo} margin/>
-//             </Box>
-//             <Box display="flex"  flexWrap="wrap">
-//               <ReportField name="Lassa" value={beam.lassa} margin/>
-//               <ReportField name="Cuts" value={beam.cuts} margin/>
-//               <ReportField name="Total meters" value={beam.totalMeter}/>
-//             </Box>
-//           </ReportTableData>
-//           <ReportTableData style={{padding: 0}} last lastRow>
-//             <ReportTable style={{border: 'none'}} showFooter data={beam.qualities} columns={[
-//               {
-//                 Header: 'Quality',
-//                 accessor: (row)=>getQuality(row.qualityId),
-//                 width: '50%'
-//               },
-//               {
-//                 Header: 'Ends',
-//                 accessor: 'ends',
-//               },
-//               {
-//                 Header: 'Net Wt.',
-//                 accessor: 'usedYarn',
-//                 Footer: (info)=>{
-//                   let total = info.rows.reduce((sum, row) => {
-//                       return (parse(row.values[info.column.id]) || 0) + sum
-//                     }, 0
-//                   );
-//                   total = round(total);
-//                   return <span style={{fontWeight: 'bold'}}>{total}</span>
-//                 }
-//               },
-//             ]}/>
-//           </ReportTableData>
-//         </ReportTableRow>
-//       </ReportTableSection>
-//     </ReportTable>
-//     </>
-//   );
-// }
-
-// function QualityDetails({qualities, getQuality}) {
-//   return (
-//     <>
-//     <ReportTable showFooter data={qualities} columns={[
-//       {
-//         Header: 'Date',
-//         accessor: 'date',
-//       },
-//       {
-//         Header: 'Quality',
-//         accessor: (row)=>getQuality(row.qualityId),
-//         width: '50%'
-//       },
-//       {
-//         Header: 'Net Wt.',
-//         accessor: 'netWt',
-//         Footer: (info)=>{
-//           let total = info.rows.reduce((sum, row) => {
-//               return (parse(row.values[info.column.id]) || 0) + sum
-//             }, 0
-//           );
-//           total = round(total);
-//           return <span style={{fontWeight: 'bold'}}>{total}</span>
-//         }
-//       },
-//     ]}/>
-//     </>
-//   );
-// }
 
 function WeaverDetails({weaver, weaverName, getQuality}) {
   let beamRows = [];
@@ -262,21 +197,6 @@ function FinalReport({data, getParty, getQuality}) {
         beamDetailsSummary.overall.netWeight += q.usedYarn;
       });
     });
-
-    // [
-    //   {beamNo: 1, date: '01/01/2021', beamYarnDetails: [
-    //     {quality: '151 roto roto roto', ends: '5292', netWt: '390.89'},
-    //   ], total: {quality: '', ends: '754322', netWt: '971.44'}},
-    //   {beamNo: 2, date: '01/01/2021', beamYarnDetails: [
-    //     {quality: '152 roto', ends: '5292', netWt: '390.89'},
-    //   ]},
-    //   {beamNo: 3, date: '01/01/2021', beamYarnDetails: [
-    //     {quality: '153 roto', ends: '5292', netWt: '390.89'},
-    //   ]},
-    //   {beamNo: 4, date: '01/01/2021', beamYarnDetails: [
-    //     {quality: '154 roto', ends: '5292', netWt: '390.89'},
-    //   ]},
-    // ]
   });
   Object.keys(beamDetailsSummary.qualities).map((qualityId)=>{
     beamDetailsSummary.qualities[qualityId] = round(beamDetailsSummary.qualities[qualityId]);
@@ -304,19 +224,16 @@ function FinalReport({data, getParty, getQuality}) {
     (_.union(Object.keys(beamDetailsSummary.qualities),
       Object.keys(yarnOutwardSummary.qualities)) || []).map((v)=>({qualityId: v}));
 
-  return(<PDFViewer style={{height: '99%', width: '99%'}}>
-    <Document title="Set Report - Warping Inventory" onRender={async (props)=>{
-    }}>
-        <Page size="A4" orientation="landscape" style={{fontSize: '11px', fontFamily: 'm1', padding: '5mm'}}>
-        {Object.keys(programData).map((weaverId, wi)=>{
-          let weaver = programData[weaverId];
-          return <>
-            <WeaverDetails weaver={weaver} weaverName={getParty(weaverId)||''} getQuality={getQuality} />
-          </>
-        })}
-        </Page>
-    </Document>
-  </PDFViewer>);
+  return (
+    <>
+    {Object.keys(programData).map((weaverId, wi)=>{
+      let weaver = programData[weaverId];
+      return <>
+        <WeaverDetails weaver={weaver} weaverName={getParty(weaverId)||''} getQuality={getQuality} />
+      </>
+    })}
+    </>
+  )
 }
 
 // function FinalReport({data, getParty, getQuality}) {

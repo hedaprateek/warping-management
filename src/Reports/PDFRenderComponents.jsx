@@ -1,6 +1,9 @@
 import { useTheme } from '@material-ui/core';
 import { Page, Text, View, Document, StyleSheet, PDFViewer } from '@react-pdf/renderer';
 import _ from 'lodash';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import Moment from 'moment';
 
 const useReportTableStyles = (theme)=>StyleSheet.create({
   table: {
@@ -138,5 +141,66 @@ export function ReportField({name, value, margin, style}) {
     <View style={styles}>
       <Text style={{fontWeight: 'bold'}}>{name}: </Text><Text>{value}</Text>
     </View>
+  );
+}
+
+function ReportHeader({reportName, getReportDetails, compHeader}) {
+  let reportDetails = getReportDetails && getReportDetails();
+
+  return (
+    <>
+    <Text style={{fontWeight:"bold", textAlign:"center"}}>
+      {reportName}
+    </Text>
+    <View style={{border: '1px solid #999999', borderRight: 0, borderLeft: 0, paddingTop: 1, paddingBottom: 1, flexDirection: 'row'}}>
+      <View style={{flexBasis: '50%'}}>
+        <Text style={{fontWeight: 'bold'}}>{compHeader.name}</Text>
+        <Text>{compHeader.address}</Text>
+        <Text style={{fontWeight: 'bold'}} variant="subtitle2">GSTIN: {compHeader.gst}</Text>
+        <Text>{compHeader.contact}, {compHeader.email}</Text>
+      </View>
+      <View style={{flexBasis: '50%'}}>
+        <ReportField name="Generated On" value={Moment(new Date()).format('DD/MM/YYYY')} />
+        {reportDetails}
+      </View>
+    </View>
+    {/* <Box borderBottom={1} borderTop={1}>
+      <Grid container borderBottom={1} spacing={1}>
+        <Grid item xs style={{lineHeight: 1.3}}>
+          <div style={{fontWeight: 'bold', fontSize: 14}}>{compHeader.name}</div>
+          <div variant="subtitle2">{compHeader.address}</div>
+          <div style={{fontWeight: 'bold', fontSize: 12}} variant="subtitle2">GSTIN: {compHeader.gst}</div>
+          <div variant="subtitle2">{compHeader.contact}, {compHeader.email}</div>
+        </Grid>
+        <Grid item xs style={{lineHeight: 1.3}}>
+          <ReportField name="Generated On" value={Moment(new Date()).format('DD/MM/YYYY')} />
+          {reportDetails}
+        </Grid>
+      </Grid>
+    </Box> */}
+    </>
+  );
+}
+
+export function ReportViewer({reportName, getReportDetails, withHeader=true, orientation="potrait", children}) {
+  const [compHeaders, setCompHeaders] = useState([]);
+
+  useEffect(()=>{
+    axios.get(`/api/companies`).then((res) => {
+      setCompHeaders(res.data.map((c)=>({label: c.name, value: c.id, data: c})));
+    });
+  }, []);
+
+  const compHeader = _.find(compHeaders, (c) => c.value === 1)?.data || {};
+
+  return(
+    <PDFViewer style={{height: '99%', width: '99%'}}>
+      <Document title={reportName}>
+        <Page size="A4" orientation={orientation} style={{fontSize: '11px', fontFamily: 'm1', padding: '5mm'}}>
+          {withHeader && <ReportHeader reportName={reportName} getReportDetails={getReportDetails} compHeader={compHeader}/>}
+          {children}
+        </Page>
+      </Document>
+    </PDFViewer>
   );
 }
