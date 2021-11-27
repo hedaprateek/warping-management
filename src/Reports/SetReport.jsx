@@ -264,25 +264,27 @@ function FinalReport({data, getParty, getQuality}) {
         <WeaverBeamDetails weaver={weaver} weaverName={getParty(weaverId)||''} getQuality={getQuality} />
       </>
     })}
-    <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline', margin: '2mm'}}>Beam yarn summary</Text>
-    <View style={{flexDirection: 'row'}}>
-      <ReportTable columns={[
-        {name: 'Sr No', key: 'srNo', width: '12mm'},
-        {name: 'Quality', key: 'quality', width: '75mm'},
-        {name: 'Net Wt.', key: 'netWt', width: '25mm'},
-      ]}
-      rows={
-        Object.keys(beamDetailsSummary.qualities).map(
-          (qualityId, i)=>({
-            srNo: i+1, quality: getQuality(qualityId), netWt: beamDetailsSummary.qualities[qualityId]
-          })
-        )
-      }
-      />
-      <View style={{paddingLeft: '5mm'}}>
-        <ReportField name="Overall Total Meter" value={beamDetailsSummary.overall.totalMeter} />
-        <ReportField name="Overall Total Cuts" value={beamDetailsSummary.overall.totalCuts} />
-        <ReportField name="Overall Net Wt" value={beamDetailsSummary.overall.netWeight} />
+    <View wrap={false}>
+      <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline', margin: '2mm'}}>Beam yarn summary</Text>
+      <View style={{flexDirection: 'row'}}>
+        <ReportTable columns={[
+          {name: 'Sr No', key: 'srNo', width: '12mm'},
+          {name: 'Quality', key: 'quality', width: '75mm'},
+          {name: 'Net Wt.', key: 'netWt', width: '25mm'},
+        ]}
+        rows={
+          Object.keys(beamDetailsSummary.qualities).map(
+            (qualityId, i)=>({
+              srNo: i+1, quality: getQuality(qualityId), netWt: beamDetailsSummary.qualities[qualityId]
+            })
+          )
+        }
+        />
+        <View style={{paddingLeft: '5mm'}}>
+          <ReportField name="Overall Total Meter" value={beamDetailsSummary.overall.totalMeter} />
+          <ReportField name="Overall Total Cuts" value={beamDetailsSummary.overall.totalCuts} />
+          <ReportField name="Overall Net Wt" value={beamDetailsSummary.overall.netWeight} />
+        </View>
       </View>
     </View>
     <DashedDivider />

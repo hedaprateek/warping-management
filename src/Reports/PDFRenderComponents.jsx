@@ -56,7 +56,7 @@ export function ReportTable({columns=[], rows=[]}) {
       </ReportTableRow>
       {(rows||[]).map((row, ri)=>{
         return (
-          <ReportTableRow>
+          <ReportTableRow wrap={false}>
           {columns.map((col, ci)=>{
             return <ReportTableCell column={col} row={row} last={ci===columns.length-1} lastRow={ri==rows.length-1} />
           })}
@@ -68,10 +68,10 @@ export function ReportTable({columns=[], rows=[]}) {
   );
 }
 
-function ReportTableRow({children}) {
+function ReportTableRow({children, wrap=true}) {
   const theme = useTheme();
   const styles = useReportTableStyles(theme);
-  return <View style={styles.row}>
+  return <View style={styles.row} wrap={wrap}>
     {children}
   </View>
 }
