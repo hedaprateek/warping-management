@@ -5,8 +5,8 @@ const Op = Sequelize.Op;
 const _ = require('lodash');
 const { getInwardOpenBalance } = require('./utils');
 
-function formatDate(dateCol) {
-  return [Sequelize.fn('strftime', '%d/%m/%Y', Sequelize.col(dateCol)), dateCol];
+function formatDate(dateCol, alias) {
+  return [Sequelize.fn('strftime', '%d/%m/%Y', Sequelize.col(dateCol)), alias ?? dateCol];
 }
 
 router.get('/inward', function(req, res) {
@@ -147,19 +147,6 @@ router.get('/set', async function(req, res) {
 
   try {
     let retVal = {};
-    // let programReport = await db.WarpingProgram.findAll({
-    //   attributes: [
-    //     'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter',
-    //       [Sequelize.literal("DENSE_RANK() OVER (PARTITION BY `WarpingProgram`.`setNo` ORDER BY `WarpingProgram`.`date`, `WarpingProgram`.`id`)"), 'beamNo']
-    //   ],
-    //   raw: true,
-    //   where: where,
-    //   nest: true,
-    //   include: [
-    //     {model: db.WarpingQualities, as: 'qualities'},
-    //   ],
-    // });
-
     let programReport = await db.WarpingProgram.findAll({
       raw: false,
       where: where,
@@ -170,11 +157,6 @@ router.get('/set', async function(req, res) {
         'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter', formatDate('date'),
           [Sequelize.literal("DENSE_RANK() OVER (PARTITION BY `WarpingProgram`.`setNo` ORDER BY `WarpingProgram`.`date`, `WarpingProgram`.`id`)"), 'beamNo']
       ],
-      // attributes: {
-      //   include: [
-      //     [Sequelize.literal("DENSE_RANK() OVER (PARTITION BY `WarpingProgram`.`setNo` ORDER BY `WarpingProgram`.`date`, `WarpingProgram`.`id`)"), 'beamNo']
-      //   ]
-      // },
       order: [['weaverId', 'ASC'], ['date', 'ASC']]
     })
 
@@ -200,10 +182,11 @@ router.get('/set', async function(req, res) {
     }
 
     let outwardReport = await db.Outward.findAll({
-      attributes: ['partyId', 'weaverId', 'qualityId', 'netWt', 'date'],
-      raw: false,
+      attributes: ['partyId', 'weaverId', 'qualityId', 'netWt', formatDate('Outward.date', 'date'), 'emptyConeWt'],
+      raw: true,
       where: where,
       include: [{model: db.OutwardBags, as: 'bags'}],
+      order: [['weaverId', 'ASC'], ['date', 'ASC']]
     });
 
     let outwardData = retVal['outwardData'] = {};
@@ -213,10 +196,7 @@ router.get('/set', async function(req, res) {
       }
       let weaver = outwardData[row.weaverId] = outwardData[row.weaverId] || [];
       weaver.push({
-        qualityId: row.qualityId,
-        netWt: row.netWt,
-        date: row.date,
-        bags: row.bags,
+        ...row
       });
     }
     retVal.partyId = partyId;

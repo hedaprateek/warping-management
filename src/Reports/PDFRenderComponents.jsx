@@ -144,6 +144,12 @@ export function ReportField({name, value, margin, style}) {
   );
 }
 
+export function DashedDivider() {
+  return (
+    <View style={{borderBottom: '1px dashed #999999', margin: '2mm'}}></View>
+  );
+}
+
 function ReportHeader({reportName, getReportDetails, compHeader}) {
   let reportDetails = getReportDetails && getReportDetails();
 
@@ -152,7 +158,7 @@ function ReportHeader({reportName, getReportDetails, compHeader}) {
     <Text style={{fontWeight:"bold", textAlign:"center"}}>
       {reportName}
     </Text>
-    <View style={{border: '1px solid #999999', borderRight: 0, borderLeft: 0, paddingTop: 1, paddingBottom: 1, flexDirection: 'row'}}>
+    <View style={{border: '1px solid #999999', borderRight: 0, borderLeft: 0, paddingTop: 1, paddingBottom: 1, marginBottom: 5, flexDirection: 'row'}}>
       <View style={{flexBasis: '50%'}}>
         <Text style={{fontWeight: 'bold'}}>{compHeader.name}</Text>
         <Text>{compHeader.address}</Text>
@@ -164,20 +170,6 @@ function ReportHeader({reportName, getReportDetails, compHeader}) {
         {reportDetails}
       </View>
     </View>
-    {/* <Box borderBottom={1} borderTop={1}>
-      <Grid container borderBottom={1} spacing={1}>
-        <Grid item xs style={{lineHeight: 1.3}}>
-          <div style={{fontWeight: 'bold', fontSize: 14}}>{compHeader.name}</div>
-          <div variant="subtitle2">{compHeader.address}</div>
-          <div style={{fontWeight: 'bold', fontSize: 12}} variant="subtitle2">GSTIN: {compHeader.gst}</div>
-          <div variant="subtitle2">{compHeader.contact}, {compHeader.email}</div>
-        </Grid>
-        <Grid item xs style={{lineHeight: 1.3}}>
-          <ReportField name="Generated On" value={Moment(new Date()).format('DD/MM/YYYY')} />
-          {reportDetails}
-        </Grid>
-      </Grid>
-    </Box> */}
     </>
   );
 }

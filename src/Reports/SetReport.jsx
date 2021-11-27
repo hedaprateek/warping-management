@@ -7,7 +7,7 @@ import { _ } from 'globalthis/implementation';
 import Moment from 'moment';
 import { Page, Document, PDFViewer, View, Text } from '@react-pdf/renderer';
 import { useTheme } from '@material-ui/styles';
-import {ReportTable, ReportField, ReportViewer} from './PDFRenderComponents';
+import {ReportTable, ReportField, ReportViewer, DashedDivider} from './PDFRenderComponents';
 
 const useStyles = makeStyles((theme)=>({
   reportContainer: {
@@ -120,7 +120,7 @@ export default function SetReport() {
   );
 }
 
-function WeaverDetails({weaver, weaverName, getQuality}) {
+function WeaverBeamDetails({weaver, weaverName, getQuality}) {
   let beamRows = [];
   weaver.map((beam, i)=>{
     let beamRow = {
@@ -167,6 +167,37 @@ function WeaverDetails({weaver, weaverName, getQuality}) {
       },
     ]}
     rows={beamRows}
+    />
+    </>
+  )
+}
+
+function WeaverOutwardDetails({bags, weaverName, getQuality, getParty}) {
+  let bagRows = bags.map((bag, i)=>({
+    bagNo: i+1,
+    date: bag.date,
+    gatepass: bag.gatepass,
+    party: getParty(bag.partyId),
+    quality: getQuality(bag.qualityId),
+    cones: bag['bags.cones'],
+    grossWt: bag['bags.grossWt'],
+    emptyConeWt: `${bag.emptyConeWt||0}x${bag['bags.cones']}`,
+    netWt: 0,
+  }));
+  return (
+    <>
+    <ReportField name="Weaver" value={weaverName} style={{marginTop: '3mm', marginBottom: '1mm'}}/>
+    <ReportTable columns={[
+      {name: 'Bag No', key: 'bagNo', width: '22mm'},
+      {name: 'Date', key: 'date', width: '22mm'},
+      {name: 'Gatepass No', key: 'gatepass', width: '40mm'},
+      {name: 'Quality', key: 'quality', width: '95mm'},
+      {name: 'Cones', key: 'cones', width: '20mm'},
+      {name: 'Gross Wt', key: 'grossWt', width: '30mm'},
+      {name: 'Empty Cone Wt', key: 'emptyConeWt', width: '30mm'},
+      {name: 'Net Wt.', key: 'netWt', width: '30mm'},
+    ]}
+    rows={bagRows}
     />
     </>
   )
@@ -226,10 +257,40 @@ function FinalReport({data, getParty, getQuality}) {
 
   return (
     <>
+    <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Beam details</Text>
     {Object.keys(programData).map((weaverId, wi)=>{
       let weaver = programData[weaverId];
       return <>
-        <WeaverDetails weaver={weaver} weaverName={getParty(weaverId)||''} getQuality={getQuality} />
+        <WeaverBeamDetails weaver={weaver} weaverName={getParty(weaverId)||''} getQuality={getQuality} />
+      </>
+    })}
+    <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline', margin: '2mm'}}>Beam yarn summary</Text>
+    <View style={{flexDirection: 'row'}}>
+      <ReportTable columns={[
+        {name: 'Sr No', key: 'srNo', width: '12mm'},
+        {name: 'Quality', key: 'quality', width: '75mm'},
+        {name: 'Net Wt.', key: 'netWt', width: '25mm'},
+      ]}
+      rows={
+        Object.keys(beamDetailsSummary.qualities).map(
+          (qualityId, i)=>({
+            srNo: i+1, quality: getQuality(qualityId), netWt: beamDetailsSummary.qualities[qualityId]
+          })
+        )
+      }
+      />
+      <View style={{paddingLeft: '5mm'}}>
+        <ReportField name="Overall Total Meter" value={beamDetailsSummary.overall.totalMeter} />
+        <ReportField name="Overall Total Cuts" value={beamDetailsSummary.overall.totalCuts} />
+        <ReportField name="Overall Net Wt" value={beamDetailsSummary.overall.netWeight} />
+      </View>
+    </View>
+    <DashedDivider />
+    <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline', margin: '2mm'}}>Yarn Outward</Text>
+    {Object.keys(outwardData).map((weaverId, wi)=>{
+      let bags = outwardData[weaverId];
+      return <>
+        <WeaverOutwardDetails bags={bags} weaverName={getParty(weaverId)||''} getQuality={getQuality} getParty={getParty}/>
       </>
     })}
     </>
