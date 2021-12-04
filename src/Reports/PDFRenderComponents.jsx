@@ -10,6 +10,7 @@ const useReportTableStyles = (theme)=>StyleSheet.create({
     flexDirection: 'column',
     border: '1px solid #999999',
     boxSizing: 'border-box',
+    width: 'auto'
   },
   header: {
     fontWeight: 'bold',
@@ -37,7 +38,7 @@ const useReportTableStyles = (theme)=>StyleSheet.create({
   },
 });
 
-export function ReportTable({columns=[], rows=[]}) {
+export function ReportTable({columns=[], rows=[], style}) {
   const theme = useTheme();
   const styles = useReportTableStyles(theme);
   const headerCols = _.flatMap(columns, (column)=>{
@@ -48,21 +49,23 @@ export function ReportTable({columns=[], rows=[]}) {
     }
   });
   return (
-    <View style={styles.table}>
-      <ReportTableRow>
-        {headerCols.map((col, ci)=>{
-          return <ReportTableCell column={col} header last={ci===headerCols.length-1} />
-        })}
-      </ReportTableRow>
-      {(rows||[]).map((row, ri)=>{
-        return (
-          <ReportTableRow wrap={false}>
-          {columns.map((col, ci)=>{
-            return <ReportTableCell column={col} row={row} last={ci===columns.length-1} lastRow={ri==rows.length-1} />
+    <View style={style}>
+      <View style={[styles.table]}>
+        <ReportTableRow>
+          {headerCols.map((col, ci)=>{
+            return <ReportTableCell column={col} header last={ci===headerCols.length-1} />
           })}
-          </ReportTableRow>
-        );
-      })}
+        </ReportTableRow>
+        {(rows||[]).map((row, ri)=>{
+          return (
+            <ReportTableRow wrap={false}>
+            {columns.map((col, ci)=>{
+              return <ReportTableCell column={col} row={row} last={ci===columns.length-1} lastRow={ri==rows.length-1} />
+            })}
+            </ReportTableRow>
+          );
+        })}
+      </View>
       {/* {children} */}
     </View>
   );

@@ -35,8 +35,8 @@ export function MyMath(num) {
       let calcVal = new Decimal(this._num.toFixed(ROUND_DECIMAL, Decimal.ROUND_DOWN));
       return wrapper(calcVal);
     },
-    toString: function() {
-      if(this._num.isInteger()){
+    toString: function(decimals=false) {
+      if(this._num.isInteger() && !decimals){
         return this._num.toString();
       }
       return this._num.toFixed(ROUND_DECIMAL);

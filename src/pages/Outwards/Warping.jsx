@@ -355,7 +355,7 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
             path: accessPath.concat('qualities'),
             value: {_touched: false},
           });
-        }}>Add quality</Button>
+        }} disabled={data.qualities.length >= 8}>Add quality</Button>
       </CardContent>
     </Card>
   );
