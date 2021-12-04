@@ -16,7 +16,7 @@ import { FormField, InputDate, InputSelect, InputSelectSearch, InputText } from 
 import DataGrid from '../../components/DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
-import { DECIMAL_MULTIPLIER, getAxiosErr, getDatesForType, parse, round, ROUND_DECIMAL } from '../../utils';
+import { DECIMAL_MULTIPLIER, getAxiosErr, getDatesForType, MyMath, parse, round, ROUND_DECIMAL } from '../../utils';
 import EditIcon from '@material-ui/icons/Edit';
 import Moment from 'moment';
 import { connect } from 'react-redux';
@@ -74,52 +74,59 @@ function beamReducer(state, path, changedKey, qualityIdx) {
   let beamData = _.get(state, path, state);
 
   if(changedKey === 'totalMeter') {
-    beamData.cuts = round(parse(beamData.totalMeter) / parse(beamData.lassa));
+    // beamData.cuts = round(parse(beamData.totalMeter) / parse(beamData.lassa));
+    beamData.cuts = MyMath(beamData.totalMeter).div(beamData.lassa).toString();
   } else if(changedKey === 'cuts') {
-    beamData.totalMeter = round(parse(beamData.lassa)*parse(beamData.cuts));
+    // beamData.totalMeter = round(parse(beamData.lassa)*parse(beamData.cuts));
+    beamData.totalMeter = MyMath(beamData.lassa).mul(beamData.cuts).toString();
   }
 
-  beamData.totalEnds = 0;
+  beamData.totalEnds = MyMath(0);
   (beamData.qualities || []).forEach((q, i)=>{
-    beamData.totalEnds += parse(q.ends);
+    beamData.totalEnds = beamData.totalEnds.add(q.ends);
     if(changedKey == 'usedYarn') {
-      q.count = round(parse(beamData.totalMeter)*parse(q.ends)/1693.333/parse(q.usedYarn));
+      // q.count = round(parse(beamData.totalMeter)*parse(q.ends)/1693.333/parse(q.usedYarn));
+      q.count = MyMath(beamData.totalMeter).mul(q.ends).div(1693.333).div(q.usedYarn).toString();
       qualityIdx == i && (q._touched = true);
     } else if(changedKey === 'count') {
-      q.usedYarn = round(parse(beamData.totalMeter)*parse(q.ends)/1693.333/parse(q.count));
+      // q.usedYarn = round(parse(beamData.totalMeter)*parse(q.ends)/1693.333/parse(q.count));
+      q.usedYarn = MyMath(beamData.totalMeter).mul(q.ends).div(1693.333).div(q.count).toString();
       qualityIdx == i && (q._touched = true);
     }
   });
+  beamData.totalEnds = beamData.totalEnds.toString();
 
   if(beamData.actualUsedYarn) {
     let untouchedCount = 0;
     let touchedTotal = beamData.qualities.reduce((prevTotal, q)=>{
       if(q._touched) {
-        return prevTotal+parse(q.usedYarn)
+        return prevTotal.add(q.usedYarn);
       } else {
         untouchedCount++;
       }
       return prevTotal;
-    }, 0);
-    let untouchedUsedYarn = (parse(beamData.actualUsedYarn)*DECIMAL_MULTIPLIER - touchedTotal*DECIMAL_MULTIPLIER)/DECIMAL_MULTIPLIER;
-    let aprxPart = Math.floor(untouchedUsedYarn*DECIMAL_MULTIPLIER/untouchedCount)/DECIMAL_MULTIPLIER;
+    }, MyMath(0)).toString();
+
+    let untouchedUsedYarn = MyMath(beamData.actualUsedYarn).sub(touchedTotal);
+    let aprxPart = untouchedUsedYarn.div(untouchedCount).floor().toString();
+    // let untouchedUsedYarn = (parse(beamData.actualUsedYarn)*DECIMAL_MULTIPLIER - touchedTotal*DECIMAL_MULTIPLIER)/DECIMAL_MULTIPLIER;
+    // let aprxPart = Math.floor(untouchedUsedYarn*DECIMAL_MULTIPLIER/untouchedCount)/DECIMAL_MULTIPLIER;
 
     /* Distribute */
     (beamData.qualities || []).forEach((q, i)=>{
       if(!q._touched) {
         /* Last available untouched yarn */
-        if(((untouchedUsedYarn*DECIMAL_MULTIPLIER - aprxPart*DECIMAL_MULTIPLIER)/DECIMAL_MULTIPLIER) >= aprxPart) {
-          untouchedUsedYarn = (untouchedUsedYarn*DECIMAL_MULTIPLIER - aprxPart*DECIMAL_MULTIPLIER)/DECIMAL_MULTIPLIER;
-          q.usedYarn = aprxPart;
+        if(untouchedUsedYarn.sub(aprxPart).greaterThanOrEqualTo(aprxPart)) {
+          untouchedUsedYarn = untouchedUsedYarn.sub(aprxPart);
+          q.usedYarn = aprxPart.toString();
         } else {
-          q.usedYarn = untouchedUsedYarn;
+          q.usedYarn = untouchedUsedYarn.toString();
         }
       }
     });
   }
 
   _.set(state, path, beamData);
-  console.log(beamData.qualities);
   return state;
 }
 
@@ -224,9 +231,9 @@ function BeamDetails({data, beamNo, accessPath, dataDispatch, onRemove, onCopy, 
       Cell: getNumberCell(dataDispatch, accessPath.concat('qualities')),
       Footer: (info)=>{
         let total = info.rows.reduce((sum, row) => {
-            return (parse(row.values[info.column.id]) || 0) + sum
-          }, 0
-        );
+            return sum.add(row.values[info.column.id])
+          }, MyMath(0)
+        ).toString();
         total = round(total);
         return (
           <InputText

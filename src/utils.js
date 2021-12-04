@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Decimal from 'decimal.js';
 
 export const ROUND_DECIMAL = 3;
 export const DECIMAL_MULTIPLIER = 1000;
@@ -9,6 +10,42 @@ export function parse(num) {
   } else {
     return Number(0.0);
   }
+}
+
+export function MyMath(num) {
+  const wrapper = (onum) => ({
+    _num: onum,
+    add: function(num) {
+      let calcVal = this._num.add(num || '0');
+      return wrapper(calcVal);
+    },
+    sub: function(num) {
+      let calcVal = this._num.sub(num || '0');
+      return wrapper(calcVal);
+    },
+    mul: function(num) {
+      let calcVal = this._num.mul(num || '0');
+      return wrapper(calcVal);
+    },
+    div: function(num) {
+      let calcVal = this._num.div(num || '0');
+      return wrapper(calcVal);
+    },
+    floor: function() {
+      let calcVal = new Decimal(this._num.toFixed(ROUND_DECIMAL, Decimal.ROUND_DOWN));
+      return wrapper(calcVal);
+    },
+    toString: function() {
+      if(this._num.isInteger()){
+        return this._num.toString();
+      }
+      return this._num.toFixed(ROUND_DECIMAL);
+    },
+    greaterThanOrEqualTo: function(num) {
+      return this._num.greaterThanOrEqualTo(num);
+    }
+  });
+  return wrapper(new Decimal(num || '0'));
 }
 
 export function round(num, withLeadingZeros=false, decimals=ROUND_DECIMAL) {
