@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     emptyBeamWt: DataTypes.REAL,
     actualUsedYarn: DataTypes.REAL,
     setNo: DataTypes.INTEGER,
+    gatepass: DataTypes.STRING,
   }, {});
   WarpingProgram.associate = function(models) {
     WarpingProgram.hasMany(models.WarpingQualities, {

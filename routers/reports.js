@@ -3,7 +3,7 @@ var router = require('express').Router();
 const db = require('../db/models');
 const Op = Sequelize.Op;
 const _ = require('lodash');
-const { getInwardOpenBalance } = require('./utils');
+const { getInwardOpenBalance, getSetOpenBalance } = require('./utils');
 
 function formatDate(dateCol, alias) {
   return [Sequelize.fn('strftime', '%d/%m/%Y', Sequelize.col(dateCol)), alias ?? dateCol];
@@ -147,6 +147,10 @@ router.get('/set', async function(req, res) {
 
   try {
     let retVal = {};
+    let to_date = new Date();
+    to_date.setDate(to_date.getDate() + 1);
+    let setOpeningBalance = await getSetOpenBalance(req.query.set_no, to_date);
+    retVal['setOpeningBalance'] = setOpeningBalance;
     let programReport = await db.WarpingProgram.findAll({
       raw: false,
       where: where,
@@ -154,10 +158,10 @@ router.get('/set', async function(req, res) {
         {model: db.WarpingQualities, as: 'qualities'},
       ],
       attributes: [
-        'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter', formatDate('date'),
+        'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter',
           [Sequelize.literal("DENSE_RANK() OVER (PARTITION BY `WarpingProgram`.`setNo` ORDER BY `WarpingProgram`.`date`, `WarpingProgram`.`id`)"), 'beamNo']
       ],
-      order: [['weaverId', 'ASC'], ['date', 'ASC']]
+      order: [['weaverId', 'ASC']]
     })
 
     let partyId = null;

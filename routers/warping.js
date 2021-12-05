@@ -117,6 +117,7 @@ router.post('/', async function(req, res) {
         emptyBeamWt: reqJson.emptyBeamWt,
         actualUsedYarn: reqJson.actualUsedYarn,
         setNo: reqJson.setNo,
+        gatepass: reqJson.gatepass,
       }, {transaction: t});
       retVal = result.toJSON();
 
@@ -163,6 +164,7 @@ router.put('/:id', async function(req, res) {
       emptyBeamWt: reqJson.emptyBeamWt,
       actualUsedYarn: reqJson.actualUsedYarn,
       setNo: reqJson.setNo,
+      gatepass: reqJson.gatepass,
     },{
       transaction: t,
       where: {

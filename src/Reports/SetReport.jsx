@@ -4,7 +4,7 @@ import axios from 'axios';
 import { MyMath} from '../utils';
 import _ from 'lodash';
 import { View, Text } from '@react-pdf/renderer';
-import {ReportTable, ReportField, ReportViewer, DashedDivider} from './PDFRenderComponents';
+import {ReportTable, ReportField, ReportViewer, DashedDivider, NoData, ReportSection} from './PDFRenderComponents';
 import { InputText } from '../components/FormElements';
 
 const REPORT_NAME = 'SET REPORT';
@@ -97,14 +97,6 @@ export default function SetReport() {
           )
         }, [data])}
       </Box>
-      {/* <ReportViewer reportName={REPORT_NAME}
-        getReportDetails={()=>(<>
-          <ReportField name="Set No" value={filter.set_no} />
-          <ReportField name="Party" value={(_.find(parties,(o)=>o.id==data.partyId)||{name: 'No party'}).name} />
-        </>)}
-      >
-        <FinalReport data={data} getParty={getParty} getQuality={getQuality} />
-      </ReportViewer> */}
     </Box>
   );
 }
@@ -113,7 +105,7 @@ function WeaverBeamDetails({weaver, weaverName, getQuality}) {
   let beamRows = [];
   weaver.map((beam, i)=>{
     let beamRow = {
-      beamNo: beam.beamNo,
+      srNo: i+1,
       date: beam.date,
       totalMeter: beam.totalMeter,
       cuts: beam.cuts,
@@ -140,19 +132,18 @@ function WeaverBeamDetails({weaver, weaverName, getQuality}) {
     <>
     <ReportField name="Weaver" value={weaverName} style={{marginTop: '3mm', marginBottom: '1mm'}}/>
     <ReportTable columns={[
-      {name: 'Beam No', key: 'beamNo', width: '12mm'},
-      {name: 'Date', key: 'date', width: '22mm'},
-      {name: 'Gatepass No', key: 'gatepass', width: '20mm'},
-      {name: 'Meters', key: 'totalMeter', width: '18mm'},
-      {name: 'Cuts', key: 'cuts', width: '18mm'},
+      {name: 'Sr No', key: 'srNo', width: '10mm'},
+      {name: 'Gatepass No', key: 'gatepass', width: '22mm'},
+      {name: 'Meters', key: 'totalMeter', width: '16mm'},
+      {name: 'Cuts', key: 'cuts', width: '16mm'},
       {
         pivot: [
-          {name: 'Quality', key: 'quality', width: '19mm'},
-          {name: 'Ends', key: 'ends', width: '19mm'},
-          {name: 'Net Wt.', key: 'netWt', width: '19mm'},
+          {name: 'Quality', key: 'quality', width: '22mm'},
+          {name: 'Ends', key: 'ends', width: '22mm'},
+          {name: 'Net Wt.', key: 'netWt', width: '22mm'},
         ],
         columns: [
-          {name: 'Beam Yarn Details', width: '171mm', key: 'beamYarnDetails', pivotDataLength: 8},
+          {name: 'Beam Yarn Details', width: '198mm', key: 'beamYarnDetails', pivotDataLength: 8},
           {name: 'Total', width: '27mm', key: 'total'},
         ],
       },
@@ -197,22 +188,22 @@ function WeaverOutwardDetails({bags, weaverName, getQuality, getParty}) {
 function FinalReport({data, getParty, getQuality}) {
   let programData = data['programData'] || {};
   let outwardData = data['outwardData'] || {};
+  let setOpeningBalance = data['setOpeningBalance'] || {};
 
   /* Calculate the beam details summary */
   let beamDetailsSummary = {
     qualities: {},
     overall: {
-      totalMeter: 0,
-      totalCuts: 0,
-      netWeight: 0,
+      totalBeams: 0,
+      totalMeter: MyMath(0),
+      totalCuts: MyMath(0),
+      netWeight: MyMath(0),
     }
   };
   Object.keys(programData).forEach((weaverId, i)=>{
     let weaver = programData[weaverId];
-    beamDetailsSummary.overall.totalMeter = MyMath(0);
-    beamDetailsSummary.overall.totalCuts = MyMath(0);
-    beamDetailsSummary.overall.netWeight = MyMath(0);
     weaver.forEach((beam)=>{
+      beamDetailsSummary.overall.totalBeams += 1;
       beamDetailsSummary.overall.totalMeter = beamDetailsSummary.overall.totalMeter.add(beam.totalMeter);
       beamDetailsSummary.overall.totalCuts = beamDetailsSummary.overall.totalCuts.add(beam.cuts);
       beam.qualities.forEach((q)=>{
@@ -246,7 +237,7 @@ function FinalReport({data, getParty, getQuality}) {
 
   return (
     <>
-    <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline'}}>Beam details</Text>
+    <ReportSection text="Beam details" />
     {Object.keys(programData).map((weaverId, wi)=>{
       let weaver = programData[weaverId];
       return <>
@@ -254,39 +245,30 @@ function FinalReport({data, getParty, getQuality}) {
       </>
     })}
     <View wrap={false}>
-      <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline', margin: '2mm'}}>Beam yarn summary</Text>
-      <View style={{flexDirection: 'row'}}>
-        <ReportTable columns={[
-          {name: 'Sr No', key: 'srNo', width: '12mm'},
-          {name: 'Quality', key: 'quality', width: '90mm'},
-          {name: 'Net Wt.', key: 'netWt', width: '50mm'},
-        ]}
-        rows={
-          Object.keys(beamDetailsSummary.qualities).map(
-            (qualityId, i)=>({
-              srNo: i+1, quality: getQuality(qualityId), netWt: beamDetailsSummary.qualities[qualityId]
-            })
-          )
-        }
-        style={{flexBasis: '50%'}}
-        />
-        <View style={{paddingLeft: '5mm'}}>
-          <ReportField name="Overall Total Meter" value={beamDetailsSummary.overall.totalMeter} />
-          <ReportField name="Overall Total Cuts" value={beamDetailsSummary.overall.totalCuts} />
-          <ReportField name="Overall Net Wt" value={beamDetailsSummary.overall.netWeight} />
-        </View>
-      </View>
+      <ReportSection text="Beam yarn summary" />
+      <ReportTable columns={[
+        {name: 'Overall Total Beams', key: 'totalBeams', width: '90mm', align: 'center'},
+        {name: 'Overall Total Meter', key: 'totalMeter', width: '90mm', align: 'center'},
+        {name: 'Overall Total Cuts', key: 'totalCuts', width: '90mm', align: 'center'},
+        {name: 'Overall Net Wt', key: 'netWeight', width: '90mm', align: 'center'},
+      ]}
+      rows={
+        [beamDetailsSummary.overall]
+      }
+      />
     </View>
     <DashedDivider />
-    <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline', margin: '2mm'}}>Yarn Outward</Text>
+    <ReportSection text="Yarn Outward" />
     {Object.keys(outwardData).map((weaverId, wi)=>{
       let bags = outwardData[weaverId];
       return <>
         <WeaverOutwardDetails bags={bags} weaverName={getParty(weaverId)||''} getQuality={getQuality} getParty={getParty}/>
       </>
     })}
+    {Object.keys(outwardData).length==0 && <NoData />}
     <DashedDivider />
-    <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline', margin: '2mm'}}>Yarn Outward Summary</Text>
+    <ReportSection text="Yarn Outward Summary" />
+    {Object.keys(yarnOutwardSummary.qualities).length > 0 &&
     <View style={{flexDirection: 'row'}}>
       <ReportTable columns={[
           {name: 'Sr No', key: 'srNo', width: '12mm'},
@@ -302,24 +284,28 @@ function FinalReport({data, getParty, getQuality}) {
         }
         style={{flexBasis: '50%'}}
       />
-    </View>
+    </View>}
+    {Object.keys(yarnOutwardSummary.qualities).length == 0 &&
+    <NoData />}
     <DashedDivider />
-    <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline', margin: '2mm'}}>Overall Yarn Summary</Text>
+    <ReportSection text="Overall Yarn Summary" />
     <ReportTable columns={[
         {name: 'Sr No', key: 'srNo', width: '12mm'},
         {name: 'Quality', key: 'quality', width: '90mm'},
-        {name: 'Warping', key: 'warping', width: '60mm'},
-        {name: 'Outward', key: 'outward', width: '60mm'},
-        {name: 'Total', key: 'total', width: '65mm'},
+        {name: 'Opening', key: 'opening', width: '90mm', align: 'right'},
+        {name: 'Warping', key: 'warping', width: '60mm', align: 'right'},
+        {name: 'Outward', key: 'outward', width: '60mm', align: 'right'},
+        {name: 'Total', key: 'total', width: '65mm', align: 'right'},
       ]}
       rows={
-        Object.keys(yarnOutwardSummary.qualities).map(
+        Object.keys(setOpeningBalance).map(
           (qualityId, i)=>({
             srNo: i+1,
             quality: getQuality(qualityId),
-            warping: beamDetailsSummary.qualities[qualityId] || 0,
-            outward: yarnOutwardSummary.qualities[qualityId] || 0,
-            total: MyMath(beamDetailsSummary.qualities[qualityId] || 0).add(yarnOutwardSummary.qualities[qualityId]).toString(),
+            opening: MyMath(setOpeningBalance[qualityId] || 0).toString(true),
+            warping: MyMath(beamDetailsSummary.qualities[qualityId] || 0).toString(true),
+            outward: MyMath(yarnOutwardSummary.qualities[qualityId] || 0).toString(true),
+            total: MyMath(setOpeningBalance[qualityId]).sub(beamDetailsSummary.qualities[qualityId] || 0).sub(yarnOutwardSummary.qualities[qualityId]).toString(),
           })
         )
       }

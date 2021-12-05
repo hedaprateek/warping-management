@@ -37,7 +37,8 @@ module.exports = (sequelize, DataTypes) => {
     date: DataTypes.DATEONLY,
     emptyConeWt: DataTypes.REAL,
     emptyBagWt: DataTypes.REAL,
-    netWt: DataTypes.REAL
+    netWt: DataTypes.REAL,
+    gatepass: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Outward',

@@ -80,7 +80,8 @@ router.post('/', async function(req, res) {
         date: reqJson.date,
         emptyConeWt: reqJson.emptyConeWt,
         emptyBagWt: reqJson.emptyBagWt,
-        netWt: reqJson.netWt
+        netWt: reqJson.netWt,
+        gatepass: reqJson.gatepass,
       }, {transaction: t});
 
       await db.OutwardBags.bulkCreate(reqJson.bags.map((bag)=>({
@@ -121,7 +122,8 @@ router.put('/:id', async function(req, res) {
       date: reqJson.date,
       emptyConeWt: reqJson.emptyConeWt,
       emptyBagWt: reqJson.emptyBagWt,
-      netWt: reqJson.netWt
+      netWt: reqJson.netWt,
+      gatepass: reqJson.gatepass,
     },{
       transaction: t,
       where: {

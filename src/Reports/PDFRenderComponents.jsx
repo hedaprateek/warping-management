@@ -15,6 +15,7 @@ const useReportTableStyles = (theme)=>StyleSheet.create({
   header: {
     fontWeight: 'bold',
     boxSizing: 'border-box',
+    textAlign: 'center',
   },
   row: {
     // flexDirection: 'row'
@@ -131,9 +132,12 @@ function Cell({header=false, last=false, lastRow=false, column, value=''}) {
   lastRow && finalStyle.push(styles.noBorderBottom);
   header && finalStyle.push(styles.header);
   column.width && finalStyle.push({width: column.width});
-  return <Text style={finalStyle}>
-    {value ?? ''}
-  </Text>
+  column.align && !header && finalStyle.push({textAlign: column.align});
+  return <View style={finalStyle}>
+    <Text style={{marginTop: 'auto', marginBottom: 'auto'}}>
+      {value ?? ''}
+    </Text>
+  </View>;
 }
 
 export function ReportField({name, value, margin, style}) {
@@ -151,6 +155,16 @@ export function DashedDivider() {
   return (
     <View style={{borderBottom: '1px dashed #999999', margin: '2mm'}}></View>
   );
+}
+
+export function NoData() {
+  return (
+    <Text style={{textAlign: 'center'}}>--- No data ---</Text>
+  );
+}
+
+export function ReportSection({text}) {
+  return <Text style={{fontWeight: 'bold', textAlign: 'center', textDecoration: 'underline', margin: '2mm'}}>{text}</Text>
 }
 
 function ReportHeader({reportName, getReportDetails, compHeader}) {
@@ -191,9 +205,19 @@ export function ReportViewer({reportName, getReportDetails, withHeader=true, ori
   return(
     <PDFViewer style={{height: '99%', width: '99%'}}>
       <Document title={reportName}>
-        <Page size="A4" orientation={orientation} style={{fontSize: '11px', fontFamily: 'm1', padding: '5mm'}}>
+        <Page size="A4" orientation={orientation} style={{fontSize: '10px', fontFamily: 'm1', padding: '5mm', paddingBottom: '10mm'}}>
           {withHeader && <ReportHeader reportName={reportName} getReportDetails={getReportDetails} compHeader={compHeader}/>}
           {children}
+          <Text style={{
+            position: 'absolute',
+            bottom: '5mm',
+            left: 0,
+            right: 0,
+            textAlign: 'center',
+            color: 'grey',
+          }} render={({ pageNumber, totalPages }) => (
+            `${pageNumber} / ${totalPages}`
+          )} fixed />
         </Page>
       </Document>
     </PDFViewer>

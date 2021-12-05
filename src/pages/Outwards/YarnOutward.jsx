@@ -170,6 +170,14 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
       } />
       <CardContent>
         <Grid container spacing={1}>
+          <Grid item lg={3} md={3} sm={12} xs={12}>
+            <InputText
+              label="Gatepass No."
+              name="gatepass"
+              value={data.gatepass}
+              onChange={onChange}
+            />
+          </Grid>
           <Grid item lg={6} md={2} sm={12} xs={12}>
             <InputSelectSearch
               label="Quality"
@@ -178,15 +186,6 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
               )}
               onChange={(op)=>onChange(op?.value, 'qualityId')}
               options={qualityOpts}
-            />
-          </Grid>
-          <Grid item lg={3} md={3} sm={12} xs={12}>
-            <InputText
-              label="Gatepass No."
-              name="gatepass"
-              value={data.gatepass}
-              onChange={onChange}
-              readOnly
             />
           </Grid>
           <Grid item lg={3} md={3} sm={12} xs={12}>
