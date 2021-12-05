@@ -35,11 +35,11 @@ export function MyMath(num) {
       let calcVal = new Decimal(this._num.toFixed(ROUND_DECIMAL, Decimal.ROUND_DOWN));
       return wrapper(calcVal);
     },
-    toString: function(decimals=false) {
-      if(this._num.isInteger() && !decimals){
+    toString: function(toDecimals=false, decimals=ROUND_DECIMAL) {
+      if(this._num.isInteger() && !toDecimals){
         return this._num.toString();
       }
-      return this._num.toFixed(ROUND_DECIMAL);
+      return this._num.toFixed(decimals);
     },
     greaterThanOrEqualTo: function(num) {
       return this._num.greaterThanOrEqualTo(num);

@@ -108,7 +108,7 @@ function WeaverBeamDetails({weaver, weaverName, getQuality}) {
       srNo: i+1,
       date: beam.date,
       totalMeter: beam.totalMeter,
-      cuts: beam.cuts,
+      cuts: MyMath(beam.cuts).toString(true, 2),
       beamYarnDetails: [],
       total: {
         quality: '',
@@ -217,8 +217,8 @@ function FinalReport({data, getParty, getQuality}) {
     beamDetailsSummary.qualities[qualityId] = beamDetailsSummary.qualities[qualityId].toString();
   });
   beamDetailsSummary.overall.totalMeter = beamDetailsSummary.overall.totalMeter.toString();
-  beamDetailsSummary.overall.totalCuts = beamDetailsSummary.overall.totalCuts.toString();
-  beamDetailsSummary.overall.netWeight = beamDetailsSummary.overall.netWeight.toString();
+  beamDetailsSummary.overall.totalCuts = beamDetailsSummary.overall.totalCuts.toString(true, 2);
+  beamDetailsSummary.overall.netWeight = beamDetailsSummary.overall.netWeight.toString(true);
 
   /* Calculate the yarn outward summary */
   let yarnOutwardSummary = {
@@ -232,7 +232,7 @@ function FinalReport({data, getParty, getQuality}) {
     });
   });
   Object.keys(yarnOutwardSummary.qualities).map((qualityId)=>{
-    yarnOutwardSummary.qualities[qualityId] = yarnOutwardSummary.qualities[qualityId].toString();
+    yarnOutwardSummary.qualities[qualityId] = yarnOutwardSummary.qualities[qualityId].toString(true);
   });
 
   return (
