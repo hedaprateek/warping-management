@@ -2,9 +2,7 @@ const Sequelize = require('sequelize');
 var router = require('express').Router();
 const db = require('../db/models');
 const Op = Sequelize.Op;
-const _ = require('lodash');
 const { getInwardOpenBalance, getSetOpenBalance } = require('./utils');
-const { endOfWeek } = require('date-fns');
 
 function formatDate(dateCol, alias) {
   return [Sequelize.fn('strftime', '%d/%m/%Y', Sequelize.col(dateCol)), alias ?? dateCol];
