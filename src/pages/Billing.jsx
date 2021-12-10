@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Billing() {
+export default function Billing(props) {
   const [filter, setFilter] = useState({
     set_no: null,
   });
@@ -238,6 +238,7 @@ export default function Billing() {
               variant="contained"
               style={{ marginTop: 'auto' }}
               onClick={onReportClick}
+              disabled={props.licexpired}
             >
               Fetch details
             </Button>

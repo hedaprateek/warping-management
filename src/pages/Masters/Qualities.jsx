@@ -243,6 +243,7 @@ class Qualities extends React.Component {
               color="primary"
               onClick={() => this.showDialog(true)}
               style={{ marginLeft: '0.5rem' }}
+              disabled={this.props.licexpired}
             >
               Add Quality
             </Button>
@@ -252,7 +253,7 @@ class Qualities extends React.Component {
           <ResultsTable
             columns={this.state.columns}
             rows={this.state.qualities}
-            onEditClick={this.editQuality.bind(this)}
+            onEditClick={this.props.licexpired ? ()=>{} : this.editQuality.bind(this)}
             filterText={this.state.filter}
           />
         </Box>

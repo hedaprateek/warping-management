@@ -247,6 +247,7 @@ class CompanyAccounts extends React.Component {
               color="primary"
               onClick={() => this.showDialog(true)}
               style={{ marginLeft: '0.5rem' }}
+              disabled={this.props.licexpired}
             >
               Add Company
             </Button>
@@ -256,7 +257,7 @@ class CompanyAccounts extends React.Component {
           <ResultsTable
             columns={this.state.columns}
             rows={this.state.companies}
-            onEditClick={this.editCompany.bind(this)}
+            onEditClick={this.props.licexpired ? ()=>{} : this.editCompany.bind(this)}
             filterText={this.state.filter}
           />
         </Box>

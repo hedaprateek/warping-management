@@ -62,21 +62,29 @@ function Dashboard(props) {
   useEffect(()=>{
     axios.post('/api/misc/init')
       .then((res)=>{
-          let data = res.data;
-          console.log(data);
-          setActivation((prev)=>{
-            let usage_days_left = (TRIAL_DAYS - epochDiffDays(getEpoch(), data.install_date));
-            usage_days_left = usage_days_left < 0 ? 0 : usage_days_left;
-            return {
-              ...prev,
-              system_id: data.system_id,
-              is_trial: !Boolean(data.activation_date),
-              usage_days_left: usage_days_left,
-            }
-          });
+        let data = res.data;
+        setActivation((prev)=>{
+          let usage_days_left = (TRIAL_DAYS - epochDiffDays(getEpoch(), data.install_date));
+          usage_days_left = usage_days_left < 0 ? 0 : usage_days_left;
+          return {
+            ...prev,
+            system_id: data.system_id,
+            is_trial: !Boolean(data.activation_date),
+            usage_days_left: usage_days_left,
+          }
+        });
       })
       .catch((err)=>{
         console.log(err);
+        setActivation((prev)=>{
+          let usage_days_left = 0;
+          return {
+            ...prev,
+            is_trial: true,
+            usage_days_left: usage_days_left,
+            tampered: true,
+          }
+        });
       });
   }, []);
 

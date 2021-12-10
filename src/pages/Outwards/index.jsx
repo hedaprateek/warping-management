@@ -4,7 +4,7 @@ import YarnOutward from './YarnOutward';
 import TabPanel from '../../components/TabPanel';
 import Warping from './Warping';
 
-export default function Outwards() {
+export default function Outwards({licexpired}) {
   const [tabvalue, setTabvalue] = React.useState(0);
 
   const tabChange = (event, newValue) => {
@@ -20,10 +20,10 @@ export default function Outwards() {
         </Tabs>
       </Box>
       <TabPanel value={tabvalue} index={0}>
-        <Warping />
+        <Warping licexpired={licexpired}/>
       </TabPanel>
       <TabPanel value={tabvalue} index={1}>
-        <YarnOutward />
+        <YarnOutward licexpired={licexpired}/>
       </TabPanel>
     </Box>
   )

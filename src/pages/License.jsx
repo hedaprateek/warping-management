@@ -8,7 +8,7 @@ import { InputText } from '../components/FormElements';
 const { REACT_APP_VERSION } = process.env;
 
 
-function License({activation, onActivate, ...props}) {
+function License({activation, onActivate}) {
   const [activationid, setActivationid] = useState('');
   const onKeyChange = useCallback((e)=>{
     setActivationid(e.target.value);
@@ -38,12 +38,17 @@ function License({activation, onActivate, ...props}) {
       <Typography>We'll reach out soon !!</Typography>
     </Typography>
     <Divider style={{margin: '0.5rem'}} />
-    {activation.is_trial &&
+    {activation.tampered &&
+      <Typography variant="h5" color="error">
+          You're software database is corrupted or is intentionally tampered. Please contant the software team.
+      </Typography>
+    }
+    {activation.is_trial && !activation.tampered &&
     <>
     <Typography variant="h5" color="error">
       {activation.usage_days_left > 0 ?
         <span>You're using the trial version. Remaining days for the trial are {activation.usage_days_left} days only.</span>:
-        <span>You're trial is expired. Share the system id and get the activation key to activate full version.</span>}
+        <span>You're trial is expired. Share the system id and get the activation key to activate full version and access all features.</span>}
     </Typography>
     <Grid container spacing={2}>
       <Grid item lg={6} md={6} sm={12} xs={12}>

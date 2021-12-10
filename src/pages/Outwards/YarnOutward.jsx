@@ -162,8 +162,8 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
     <Card variant="outlined" style={{marginBottom: '0.5rem'}}>
       <CardHeader title="Outward details" titleTypographyProps={{variant: 'h6'}} action={
         <Box>
-          <Button color="primary" variant="outlined" onClick={onCopy} style={{marginRight:'0.5rem'}}>Copy</Button>
-          <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>
+          {onCopy && <Button color="primary" variant="outlined" onClick={onCopy} style={{marginRight:'0.5rem'}}>Copy</Button>}
+          {onRemove && <Button color="secondary" variant="outlined" onClick={onRemove}>Remove</Button>}
         </Box>
       } />
       <CardContent>
@@ -366,6 +366,7 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
       onSave={saveDetails}
       open={open}
       maxWidth="md"
+      isEdit={isEdit}
       extraButtons={
         <>
           {isEdit && <Button color="secondary" variant="contained" onClick={()=>setConfirmOpen(true)}>Delete</Button>}
@@ -443,13 +444,16 @@ function YarnOutwardDialog({ open, accounts, editOutwardValue, ...props }) {
               qualityOpts={qualityOpts}
             />
           }
-          {!isEdit && <Button color="primary" variant="outlined" onClick={()=>{
-            outwardDispatch({
-              type: 'add_grid_row',
-              path: ['outwards'],
-              value: defaultOutward,
-            });
-          }}>Add Outward</Button>}
+          {!isEdit && <Button color="primary" variant="outlined"
+            onClick={()=>{
+              outwardDispatch({
+                type: 'add_grid_row',
+                path: ['outwards'],
+                value: defaultOutward,
+              });
+            }}>
+              Add Outward
+            </Button>}
         </Grid>
       </Grid>
       <ConfirmDialog
@@ -736,6 +740,7 @@ class YarnOutward extends React.Component {
                 this.setState({ editOutwardValue: null });
                 this.showDialog(true);
               }}
+              disabled={this.props.licexpired}
               style={{ marginLeft: '0.5rem' }}
             >
               Add Yarn Outward

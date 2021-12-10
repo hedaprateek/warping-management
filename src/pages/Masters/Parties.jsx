@@ -260,6 +260,7 @@ class Parties extends React.Component {
               color="primary"
               onClick={() => this.showDialog(true)}
               style={{ marginLeft: '0.5rem' }}
+              disabled={this.props.licexpired}
             >
               Add Account
             </Button>
@@ -269,7 +270,7 @@ class Parties extends React.Component {
           <ResultsTable
             columns={this.state.columns}
             rows={this.state.parties}
-            onEditClick={this.editParty.bind(this)}
+            onEditClick={this.props.licexpired ? ()=>{} : this.editParty.bind(this)}
             filterText={this.state.filter}
           />
         </Box>

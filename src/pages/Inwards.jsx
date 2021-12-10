@@ -508,6 +508,7 @@ class Inwards extends React.Component {
                 this.showDialog(true);
               }}
               style={{ marginLeft: '0.5rem' }}
+              disabled={this.props.licexpired}
             >
               Add Inward
             </Button>
@@ -517,7 +518,8 @@ class Inwards extends React.Component {
           <ResultsTable
             columns={this.state.columns}
             rows={this.state.inward}
-            onEditClick={this.editInward.bind(this)}/>
+            onEditClick={this.editInward.bind(this)}
+          />
         </Box>
         <InwardDialog
           open={this.state.dialogOpen}

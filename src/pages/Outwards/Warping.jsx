@@ -46,6 +46,11 @@ const warpingReducer = (state, action)=>{
       break;
     case 'add_grid_row':
       rows = _.get(newState, action.path, []);
+      if(action.path.indexOf('qualities') == -1) {
+        for(let i=0; i<action.value.qualities?.length; i++) {
+          action.value.qualities[i]._touched = false;
+        }
+      }
       rows.push({
         ...action.value,
       });
@@ -882,6 +887,7 @@ class Warping extends React.Component {
                 this.showDialog(true);
               }}
               style={{ marginLeft: '0.5rem' }}
+              disabled={this.props.licexpired}
             >
               Add Program
             </Button>

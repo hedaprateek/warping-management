@@ -5,7 +5,7 @@ import CompanyAccounts from './CompanyAccounts';
 import Parties from './Parties';
 import Qualities from './Qualities';
 
-export default function Masters() {
+export default function Masters({licexpired}) {
   const [tabvalue, setTabvalue] = React.useState(0);
 
   const tabChange = (event, newValue) => {
@@ -22,13 +22,13 @@ export default function Masters() {
         </Tabs>
       </Box>
       <TabPanel value={tabvalue} index={0}>
-        <Parties />
+        <Parties licexpired={licexpired}/>
       </TabPanel>
       <TabPanel value={tabvalue} index={1}>
-        <Qualities />
+        <Qualities licexpired={licexpired}/>
       </TabPanel>
       <TabPanel value={tabvalue} index={2}>
-        <CompanyAccounts />
+        <CompanyAccounts licexpired={licexpired}/>
       </TabPanel>
     </Box>
   )
