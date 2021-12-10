@@ -189,7 +189,7 @@ router.get('/set', async function(req, res) {
     }
 
     let outwardReport = await db.Outward.findAll({
-      attributes: ['partyId', 'weaverId', 'qualityId', 'netWt', 'gatepass', formatDate('Outward.date', 'date'), 'emptyConeWt'],
+      attributes: ['partyId', 'weaverId', 'qualityId', 'netWt', 'gatepass', formatDate('Outward.date', 'date'), 'emptyConeWt', 'emptyBagWt'],
       raw: false,
       where: where,
       include: [{model: db.OutwardBags, as: 'bags'}],
@@ -210,6 +210,7 @@ router.get('/set', async function(req, res) {
         gatepass: row.gatepass,
         date: row.date,
         emptyConeWt: row.emptyConeWt,
+        emptyBagWt: row.emptyBagWt,
         bags: row.bags,
       });
     }

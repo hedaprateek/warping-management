@@ -177,8 +177,8 @@ function WeaverOutwardDetails({bags, weaverName, getQuality, getParty}) {
       quality: getQuality(bag.qualityId),
       cones: bag.cones,
       grossWt: MyMath(bag.grossWt).toString(true),
-      emptyConeWt: `${bag.emptyConeWtPerCone}x${bag.cones}`,
-      netWt: MyMath(bag.grossWt).sub(MyMath(bag.emptyConeWtPerCone).mul(bag.cones).toString()).toString(),
+      emptyBagConeWt: `${bag.emptyConeWt} + ${bag.emptyBagWt}`,
+      netWt: MyMath(bag.grossWt).sub(bag.emptyConeWt).sub(bag.emptyBagWt).toString(),
     };
   });
   return (
@@ -189,10 +189,10 @@ function WeaverOutwardDetails({bags, weaverName, getQuality, getParty}) {
       {name: 'Date', key: 'date', width: '22mm'},
       {name: 'Gatepass No', key: 'gatepass', width: '40mm'},
       {name: 'Quality', key: 'quality', width: '92mm'},
-      {name: 'Cones', key: 'cones', width: '20mm'},
-      {name: 'Gross Wt', key: 'grossWt', width: '30mm'},
-      {name: 'Empty Cone Wt', key: 'emptyConeWt', width: '40mm'},
-      {name: 'Net Wt.', key: 'netWt', width: '30mm'},
+      {name: 'Cones', key: 'cones', width: '20mm', align: 'right'},
+      {name: 'Gross Wt', key: 'grossWt', width: '30mm', align: 'right'},
+      {name: 'Empty Cone + Bag Wt', key: 'emptyBagConeWt', width: '40mm', align: 'right'},
+      {name: 'Net Wt.', key: 'netWt', width: '30mm', align: 'right'},
     ]}
     rows={bagRows}
     />
@@ -253,13 +253,13 @@ function FinalReport({data, getParty, getQuality}) {
         totalCones = totalCones.add(bag.cones);
       });
       totalCones = totalCones.toString();
-      let emptyConeWtPerCone = MyMath(outward.emptyConeWt).div(totalCones).toString(true);
       outward.bags.forEach((bag)=>{
         flatOutwardData[weaverId].push({
           ...outward,
           cones: bag.cones,
           grossWt: bag.grossWt,
-          emptyConeWtPerCone: emptyConeWtPerCone,
+          emptyConeWt: MyMath(outward.emptyConeWt).div(totalCones).mul(bag.cones).toString(true),
+          emptyBagWt: MyMath(outward.emptyBagWt).div(outward.bags.length).toString(true),
         });
       });
     });
