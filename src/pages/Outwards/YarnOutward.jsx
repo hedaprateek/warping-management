@@ -17,7 +17,7 @@ import DataGrid from '../../components/DataGrid';
 import DeleteForeverRoundedIcon from '@material-ui/icons/DeleteForeverRounded';
 import _ from 'lodash';
 import Moment from 'moment';
-import {getAxiosErr, getDatesForType, parse, round} from './../../utils';
+import {getAxiosErr, getDatesForType, MyMath} from './../../utils';
 import { NOTIFICATION_TYPE, setNotification } from '../../store/reducers/notification';
 import { connect } from 'react-redux';
 import { getSetNo } from './Warping';
@@ -60,13 +60,11 @@ const outwardValueReducer = (state, action)=>{
 
 function outwardReducer(state, path) {
   let qualityData = _.get(state, path, state);
-  let totalGrossWt = 0;
-  let totalCones = 0;
+  let totalGrossWt = MyMath(0);
   (qualityData.bags || []).forEach((q)=>{
-    totalGrossWt += parse(q.grossWt);
-    totalCones += parse(q.cones);
+    totalGrossWt =  totalGrossWt.add(q.grossWt);
   });
-  qualityData.netWt = totalGrossWt - parse(qualityData.emptyConeWt)*totalCones - parse(qualityData.emptyBagWt);
+  qualityData.netWt = totalGrossWt.sub(qualityData.emptyConeWt).sub(qualityData.emptyBagWt).toString(true);
   _.set(state, path, qualityData);
   return state;
 }
@@ -89,10 +87,10 @@ function getNumberCell(dataDispatch, basePath, readOnly=false) {
 
 function TotalFooter(info) {
   let total = info.rows.reduce((sum, row) => {
-      return (parse(row.values[info.column.id]) || 0) + sum
-    }, 0
+      return sum.add(row.values[info.column.id])
+    }, MyMath(0)
   );
-  total = round(total);
+  total = total.toString(info.column.id == 'grossWt');
   return (
     <InputText
       fullWidth type="number" value={total} readOnly
@@ -209,7 +207,7 @@ function QualityDetails({data, accessPath, dataDispatch, onRemove, onCopy, quali
         <Grid container spacing={1}>
           <Grid item lg={4} md={4} sm={12} xs={12}>
             <InputText
-              label="Empty Cone Weight (Kg)"
+              label="Total Empty Cone Weight (Kg)"
               name="emptyConeWt"
               value={data.emptyConeWt}
               onChange={onChange}

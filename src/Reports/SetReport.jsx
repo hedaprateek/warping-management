@@ -168,28 +168,30 @@ function WeaverBeamDetails({weaver, weaverName, getQuality}) {
 }
 
 function WeaverOutwardDetails({bags, weaverName, getQuality, getParty}) {
-  let bagRows = bags.map((bag, i)=>({
-    bagNo: i+1,
-    date: bag.date,
-    gatepass: bag.gatepass,
-    party: getParty(bag.partyId),
-    quality: getQuality(bag.qualityId),
-    cones: bag['bags.cones'],
-    grossWt: MyMath(bag['bags.grossWt']).toString(true),
-    emptyConeWt: `${bag.emptyConeWt||0}x${bag['bags.cones']}`,
-    netWt: MyMath(bag['bags.grossWt']).sub(MyMath(bag.emptyConeWt).mul(bag['bags.cones']).toString()).toString(),
-  }));
+  let bagRows = bags.map((bag, i)=>{
+    return {
+      bagNo: i+1,
+      date: bag.date,
+      gatepass: bag.gatepass,
+      party: getParty(bag.partyId),
+      quality: getQuality(bag.qualityId),
+      cones: bag.cones,
+      grossWt: MyMath(bag.grossWt).toString(true),
+      emptyConeWt: `${bag.emptyConeWtPerCone}x${bag.cones}`,
+      netWt: MyMath(bag.grossWt).sub(MyMath(bag.emptyConeWtPerCone).mul(bag.cones).toString()).toString(),
+    };
+  });
   return (
     <>
     <ReportField name="Weaver" value={weaverName} style={{marginTop: '3mm', marginBottom: '1mm'}}/>
     <ReportTable columns={[
-      {name: 'Bag No', key: 'bagNo', width: '22mm'},
+      {name: 'Bag No', key: 'bagNo', width: '15mm'},
       {name: 'Date', key: 'date', width: '22mm'},
       {name: 'Gatepass No', key: 'gatepass', width: '40mm'},
-      {name: 'Quality', key: 'quality', width: '95mm'},
+      {name: 'Quality', key: 'quality', width: '92mm'},
       {name: 'Cones', key: 'cones', width: '20mm'},
       {name: 'Gross Wt', key: 'grossWt', width: '30mm'},
-      {name: 'Empty Cone Wt', key: 'emptyConeWt', width: '30mm'},
+      {name: 'Empty Cone Wt', key: 'emptyConeWt', width: '40mm'},
       {name: 'Net Wt.', key: 'netWt', width: '30mm'},
     ]}
     rows={bagRows}
@@ -237,11 +239,29 @@ function FinalReport({data, getParty, getQuality}) {
   let yarnOutwardSummary = {
     qualities: {},
   }
+  let flatOutwardData = {};
   Object.keys(outwardData).forEach((weaverId, i)=>{
     let weaver = outwardData[weaverId] || {};
+    flatOutwardData[weaverId] = [];
     weaver.forEach((outward)=>{
       yarnOutwardSummary.qualities[outward.qualityId] = yarnOutwardSummary.qualities[outward.qualityId] || MyMath(0);
       yarnOutwardSummary.qualities[outward.qualityId] = yarnOutwardSummary.qualities[outward.qualityId].add(outward.netWt);
+
+      /* Bags process */
+      let totalCones = MyMath(0);
+      outward.bags.forEach((bag)=>{
+        totalCones = totalCones.add(bag.cones);
+      });
+      totalCones = totalCones.toString();
+      let emptyConeWtPerCone = MyMath(outward.emptyConeWt).div(totalCones).toString(true);
+      outward.bags.forEach((bag)=>{
+        flatOutwardData[weaverId].push({
+          ...outward,
+          cones: bag.cones,
+          grossWt: bag.grossWt,
+          emptyConeWtPerCone: emptyConeWtPerCone,
+        });
+      });
     });
   });
   Object.keys(yarnOutwardSummary.qualities).map((qualityId)=>{
@@ -272,13 +292,13 @@ function FinalReport({data, getParty, getQuality}) {
     </View>
     <DashedDivider />
     <ReportSection text="Yarn Outward" />
-    {Object.keys(outwardData).map((weaverId, wi)=>{
-      let bags = outwardData[weaverId];
+    {Object.keys(flatOutwardData).map((weaverId, wi)=>{
+      let bags = flatOutwardData[weaverId];
       return <>
         <WeaverOutwardDetails bags={bags} weaverName={getParty(weaverId)||''} getQuality={getQuality} getParty={getParty}/>
       </>
     })}
-    {Object.keys(outwardData).length==0 && <NoData />}
+    {Object.keys(flatOutwardData).length==0 && <NoData />}
     <DashedDivider />
     <ReportSection text="Yarn Outward Summary" />
     {Object.keys(yarnOutwardSummary.qualities).length > 0 &&

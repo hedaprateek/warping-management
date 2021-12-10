@@ -4,6 +4,7 @@ const db = require('../db/models');
 const Op = Sequelize.Op;
 const _ = require('lodash');
 const { getInwardOpenBalance, getSetOpenBalance } = require('./utils');
+const { endOfWeek } = require('date-fns');
 
 function formatDate(dateCol, alias) {
   return [Sequelize.fn('strftime', '%d/%m/%Y', Sequelize.col(dateCol)), alias ?? dateCol];
@@ -150,9 +151,7 @@ router.get('/set', async function(req, res) {
 
   try {
     let retVal = {};
-    let to_date = new Date();
-    to_date.setDate(to_date.getDate() + 1);
-    let setOpeningBalance = await getSetOpenBalance(req.query.set_no, to_date);
+    let setOpeningBalance = await getSetOpenBalance(req.query.set_no, req.query.to_date);
     retVal['setOpeningBalance'] = setOpeningBalance;
     let programReport = await db.WarpingProgram.findAll({
       raw: false,
@@ -191,7 +190,7 @@ router.get('/set', async function(req, res) {
 
     let outwardReport = await db.Outward.findAll({
       attributes: ['partyId', 'weaverId', 'qualityId', 'netWt', 'gatepass', formatDate('Outward.date', 'date'), 'emptyConeWt'],
-      raw: true,
+      raw: false,
       where: where,
       include: [{model: db.OutwardBags, as: 'bags'}],
       order: [['weaverId', 'ASC'], ['date', 'ASC']]
@@ -204,7 +203,14 @@ router.get('/set', async function(req, res) {
       }
       let weaver = outwardData[row.weaverId] = outwardData[row.weaverId] || [];
       weaver.push({
-        ...row
+        partyId: row.partyId,
+        weaverId: row.weaverId,
+        qualityId: row.qualityId,
+        netWt: row.netWt,
+        gatepass: row.gatepass,
+        date: row.date,
+        emptyConeWt: row.emptyConeWt,
+        bags: row.bags,
       });
     }
     retVal.partyId = partyId;
