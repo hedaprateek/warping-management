@@ -143,6 +143,9 @@ router.get('/set', async function(req, res) {
   }
   let where = {
     setNo: parseInt(req.query.set_no),
+    date: {
+      [Op.lte]: req.query.to_date,
+    }
   };
 
   try {
@@ -158,7 +161,7 @@ router.get('/set', async function(req, res) {
         {model: db.WarpingQualities, as: 'qualities'},
       ],
       attributes: [
-        'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter',
+        'partyId', 'weaverId', 'lassa', 'cuts', 'totalMeter', 'gatepass',
           [Sequelize.literal("DENSE_RANK() OVER (PARTITION BY `WarpingProgram`.`setNo` ORDER BY `WarpingProgram`.`date`, `WarpingProgram`.`id`)"), 'beamNo']
       ],
       order: [['weaverId', 'ASC']]
@@ -176,8 +179,9 @@ router.get('/set', async function(req, res) {
         totalMeter: row.totalMeter,
         cuts: row.cuts,
         date: row.date,
-        beamNo: row.dataValues.beamNo,
         qualities: row.qualities,
+        gatepass: row.gatepass,
+        beamNo: row.dataValues.beamNo,
       });
     }
 
@@ -186,7 +190,7 @@ router.get('/set', async function(req, res) {
     }
 
     let outwardReport = await db.Outward.findAll({
-      attributes: ['partyId', 'weaverId', 'qualityId', 'netWt', formatDate('Outward.date', 'date'), 'emptyConeWt'],
+      attributes: ['partyId', 'weaverId', 'qualityId', 'netWt', 'gatepass', formatDate('Outward.date', 'date'), 'emptyConeWt'],
       raw: true,
       where: where,
       include: [{model: db.OutwardBags, as: 'bags'}],

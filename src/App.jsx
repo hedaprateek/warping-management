@@ -4,6 +4,7 @@ import DateFnsUtils from '@date-io/date-fns';
 import {
   MuiPickersUtilsProvider,
 } from '@material-ui/pickers';
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 import { Provider as ReduxProvider } from "react-redux";
 
@@ -16,6 +17,7 @@ const reduxStore = getStore();
 export default function App() {
   return (
     <Theme>
+      <CssBaseline />
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
         <Router>
           <ReduxProvider store={reduxStore}>

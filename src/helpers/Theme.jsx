@@ -1,6 +1,7 @@
 import React from 'react';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 
+
 const defaultTheme = createMuiTheme();
 
 const globalTheme = createMuiTheme({
@@ -23,8 +24,6 @@ const globalTheme = createMuiTheme({
     }
   },
   typography: {
-    fontSize: 14,
-    // htmlFontSize: 16,
   },
   shape: {
       borderRadius: 0,
@@ -32,6 +31,25 @@ const globalTheme = createMuiTheme({
   transitions: {
     // So we have `transition: none;` everywhere
     create: () => 'none',
+  },
+  overrides: {
+    MuiCssBaseline: {
+      '@global': {
+        html: {
+          WebkitFontSmoothing: 'auto',
+          fontSize: '16px',
+          [defaultTheme.breakpoints.down('md')]:{
+            fontSize: '14px',
+          },
+          [defaultTheme.breakpoints.down('sm')]:{
+            fontSize: '12px',
+          },
+          [defaultTheme.breakpoints.down('xs')]:{
+            fontSize: '10px',
+          }
+        },
+      },
+    },
   },
 });
 
@@ -112,7 +130,7 @@ export const theme = createMuiTheme({
         MuiFormLabel: {
             root: {
                 color: defaultTheme.palette.text.primary,
-                fontSize: defaultTheme.typography.fontSize,
+                fontSize: 'inherit',
             },
             asterisk: {
                 color: defaultTheme.palette.error.main,
@@ -125,7 +143,7 @@ export const theme = createMuiTheme({
         },
         MuiOutlinedInput: {
             root: {
-                fontSize: '14px',
+                fontSize: 'inherit',
             },
             input: {
                 '&[readonly]':{
@@ -184,7 +202,7 @@ export const theme = createMuiTheme({
         },
         MuiMenuItem: {
             root: {
-                fontSize: '14px',
+                fontSize: 'inherit',
             }
         }
     },

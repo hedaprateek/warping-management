@@ -10,9 +10,8 @@ const useStyles = makeStyles((theme)=>({
     color: theme.palette.text.primary,
     backgroundColor: '#fff',
     border: '1px solid ' + theme.palette.grey[300],
+    fontSize: 'inherit',
     '& .rdg-cell': {
-      // ...theme.mixins.panelBorder.right,
-      // ...theme.mixins.panelBorder.bottom,
       fontWeight: 'abc',
       '&[aria-selected=true]': {
         boxShadow: `inset 0 0 0 1.5px ${theme.palette.primary.main}`,

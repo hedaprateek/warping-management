@@ -31,7 +31,7 @@ const navItems = [
   { label: 'Inwards', to: '/inwards', component: Inwards },
   { label: 'Outwards', to: '/outwards', component: Outwards },
   { label: 'Reports', to: '/reports', component: Reports },
-  { label: 'Billing', to: '/billing', component: Billing },
+  { label: 'Bill', to: '/billing', component: Billing },
   { label: 'Masters', to: '/masters', component: Masters },
   { label: 'License', to: '/license', component: License },
 ];
@@ -93,7 +93,7 @@ function Dashboard(props) {
   const dash = useMemo(()=>{
     return (
       <>
-        <Box display="flex" flexDirection="column" height="100%" fontSize={theme.typography.fontSize}>
+        <Box display="flex" flexDirection="column" height="100%">
           <AppBar position="fixed">
             <Toolbar variant="dense">
               {navItems.map((item) => {

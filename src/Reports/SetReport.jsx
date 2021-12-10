@@ -5,13 +5,15 @@ import { MyMath} from '../utils';
 import _ from 'lodash';
 import { View, Text } from '@react-pdf/renderer';
 import {ReportTable, ReportField, ReportViewer, DashedDivider, NoData, ReportSection} from './PDFRenderComponents';
-import { InputText } from '../components/FormElements';
+import { InputDate, InputText } from '../components/FormElements';
+import Moment from 'moment';
 
 const REPORT_NAME = 'SET REPORT';
 
 export default function SetReport() {
   const [filter, setFilter] = useState({
     set_no: null,
+    to_date: new Date(),
   });
   const [data, setData] = useState(null);
 
@@ -59,7 +61,7 @@ export default function SetReport() {
     <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box p={1}>
         <Grid container spacing={2}>
-          <Grid item md={4} xs={12}>
+          <Grid item md={2} xs={12}>
               <InputText
                 value={filter.set_no}
                 onChange={(e) => {
@@ -67,6 +69,15 @@ export default function SetReport() {
                 }}
                 label="Set No."
               />
+          </Grid>
+          <Grid item md={2} xs={12}>
+            <InputDate
+              label="As on date"
+              value={filter.to_date}
+              onChange={(value) => {
+                setFilter((prev) => ({ ...prev, to_date: value }));
+              }}
+            />
           </Grid>
           <Grid item md={4} xs={12} style={{ display: 'flex' }}>
             <Button
@@ -89,6 +100,7 @@ export default function SetReport() {
             <ReportViewer reportName={REPORT_NAME} orientation="landscape"
               getReportDetails={()=>(<>
                 <ReportField name="Set No" value={filter.set_no} />
+                <ReportField name="As on date" value={Moment(filter.to_date).format('DD/MM/YYYY')} />
                 <ReportField name="Party" value={(_.find(parties,(o)=>o.id==data.partyId)||{name: 'No party'}).name} />
               </>)}
             >
@@ -110,6 +122,7 @@ function WeaverBeamDetails({weaver, weaverName, getQuality}) {
       totalMeter: beam.totalMeter,
       cuts: MyMath(beam.cuts).toString(true, 2),
       beamYarnDetails: [],
+      gatepass: beam.gatepass,
       total: {
         quality: '',
         ends: MyMath(0),

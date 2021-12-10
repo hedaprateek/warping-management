@@ -14,7 +14,7 @@ import { KeyboardDatePicker } from '@material-ui/pickers';
 const useStyles = makeStyles((theme) => ({
   formLabel: {
     color: theme.palette.text.primary,
-    fontSize: theme.typography.fontSize,
+    fontSize: 'inherit',
   }
 }));
 
@@ -86,7 +86,7 @@ const customReactSelectStyles = (theme, readonly)=>({
     ...provided,
     minHeight: '27px',
     borderRadius: '0px',
-    fontSize: theme.typography.fontSize,
+    fontSize: 'inherit',
     backgroundColor: readonly ? theme.otherVars.inputDisabledBg : theme.palette.background.default,
     ...(state.isFocused ? {
       borderColor: theme.palette.primary.main,
