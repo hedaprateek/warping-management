@@ -188,10 +188,10 @@ function WeaverOutwardDetails({bags, weaverName, getQuality, getParty}) {
       {name: 'Bag No', key: 'bagNo', width: '15mm'},
       {name: 'Date', key: 'date', width: '22mm'},
       {name: 'Gatepass No', key: 'gatepass', width: '40mm'},
-      {name: 'Quality', key: 'quality', width: '92mm'},
+      {name: 'Quality', key: 'quality', width: '90mm'},
       {name: 'Cones', key: 'cones', width: '20mm', align: 'right'},
       {name: 'Gross Wt', key: 'grossWt', width: '30mm', align: 'right'},
-      {name: 'Empty Cone + Bag Wt', key: 'emptyBagConeWt', width: '40mm', align: 'right'},
+      {name: 'Empty Cone + Bag Wt', key: 'emptyBagConeWt', width: '42mm', align: 'right'},
       {name: 'Net Wt.', key: 'netWt', width: '30mm', align: 'right'},
     ]}
     rows={bagRows}
@@ -306,7 +306,7 @@ function FinalReport({data, getParty, getQuality}) {
       <ReportTable columns={[
           {name: 'Sr No', key: 'srNo', width: '12mm'},
           {name: 'Quality', key: 'quality', width: '90mm'},
-          {name: 'Net Wt.', key: 'netWt', width: '50mm'},
+          {name: 'Net Wt.', key: 'netWt', width: '50mm', align: 'right'},
         ]}
         rows={
           Object.keys(yarnOutwardSummary.qualities).map(
